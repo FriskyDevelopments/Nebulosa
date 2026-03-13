@@ -1,0 +1,172 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Nebulosa GitHub Architecture Agent API",
+    "version": "1.0.0",
+    "description": "REST API for the codebase-aware software architecture agent."
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "operationId": "health_check",
+        "tags": ["ops"],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "properties": { "status": { "type": "string" } } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/repositories": {
+      "get": {
+        "summary": "List repositories",
+        "operationId": "list_repositories",
+        "tags": ["repositories"],
+        "responses": {
+          "200": {
+            "description": "List of active repositories"
+          }
+        }
+      }
+    },
+    "/v1/repositories/{repoId}": {
+      "get": {
+        "summary": "Get repository",
+        "operationId": "get_repository",
+        "tags": ["repositories"],
+        "parameters": [
+          { "name": "repoId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Repository details" },
+          "404": { "description": "Repository not found" }
+        }
+      }
+    },
+    "/v1/repositories/{repoId}/scan": {
+      "post": {
+        "summary": "Trigger full scan",
+        "operationId": "trigger_scan",
+        "tags": ["repositories"],
+        "parameters": [
+          { "name": "repoId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "202": { "description": "Scan enqueued" }
+        }
+      }
+    },
+    "/v1/tasks": {
+      "post": {
+        "summary": "Create architecture task",
+        "operationId": "create_task",
+        "tags": ["tasks"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["repository_id", "task_type", "prompt"],
+                "properties": {
+                  "repository_id": { "type": "string", "format": "uuid" },
+                  "task_type": {
+                    "type": "string",
+                    "enum": [
+                      "architecture_report", "architecture_problems", "target_architecture",
+                      "service_boundaries", "folder_structure", "database_design",
+                      "api_design", "deployment_design", "roadmap", "repo_compare"
+                    ]
+                  },
+                  "prompt": { "type": "string", "maxLength": 4096 },
+                  "snapshot_id": { "type": "string", "format": "uuid", "nullable": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": { "description": "Task accepted" },
+          "422": { "description": "Validation error" }
+        }
+      }
+    },
+    "/v1/tasks/{taskId}": {
+      "get": {
+        "summary": "Get task status",
+        "operationId": "get_task",
+        "tags": ["tasks"],
+        "parameters": [
+          { "name": "taskId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Task status" },
+          "404": { "description": "Task not found" }
+        }
+      }
+    },
+    "/v1/tasks/{taskId}/report": {
+      "get": {
+        "summary": "Get task report",
+        "operationId": "get_task_report",
+        "tags": ["tasks"],
+        "parameters": [
+          { "name": "taskId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Architecture report" },
+          "404": { "description": "Report not found" }
+        }
+      }
+    },
+    "/v1/repositories/{repoId}/reports": {
+      "get": {
+        "summary": "List repository reports",
+        "operationId": "list_repository_reports",
+        "tags": ["reports"],
+        "parameters": [
+          { "name": "repoId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "List of reports" }
+        }
+      }
+    },
+    "/v1/reports/{reportId}": {
+      "get": {
+        "summary": "Get report",
+        "operationId": "get_report",
+        "tags": ["reports"],
+        "parameters": [
+          { "name": "reportId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Report details" },
+          "404": { "description": "Report not found" }
+        }
+      }
+    },
+    "/v1/webhooks/github": {
+      "post": {
+        "summary": "GitHub webhook receiver",
+        "operationId": "receive_github_webhook",
+        "tags": ["webhooks"],
+        "parameters": [
+          { "name": "x-github-event", "in": "header", "required": true, "schema": { "type": "string" } },
+          { "name": "x-github-delivery", "in": "header", "required": true, "schema": { "type": "string" } },
+          { "name": "x-hub-signature-256", "in": "header", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Webhook accepted" },
+          "401": { "description": "Invalid signature" }
+        }
+      }
+    }
+  }
+}
