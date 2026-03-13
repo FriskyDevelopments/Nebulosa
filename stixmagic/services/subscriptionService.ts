@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 export interface CreateSubscriptionInput {
   user_id: number;
   plan: string;
+  provider?: string;
   provider_subscription_id?: string;
   renewal_date?: Date;
 }
@@ -14,13 +15,19 @@ export interface CreateSubscriptionInput {
  * Creates a new subscription record for a user.
  */
 export async function createSubscription(input: CreateSubscriptionInput) {
-  const { user_id, plan, provider_subscription_id, renewal_date } = input;
+  const {
+    user_id,
+    plan,
+    provider = "stripe",
+    provider_subscription_id,
+    renewal_date,
+  } = input;
 
   return prisma.subscription.create({
     data: {
       user_id,
       plan,
-      provider: "stripe",
+      provider,
       provider_subscription_id: provider_subscription_id ?? null,
       status: "active",
       renewal_date: renewal_date ?? null,
@@ -61,11 +68,13 @@ export async function activateUserSubscription(
   user_id: number,
   plan: string,
   provider_subscription_id: string,
-  renewal_date?: Date
+  renewal_date?: Date,
+  provider?: string
 ) {
   await createSubscription({
     user_id,
     plan,
+    provider,
     provider_subscription_id,
     renewal_date,
   });

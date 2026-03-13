@@ -46,6 +46,62 @@ router.post("/create-checkout", async (req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/subscription/stars-payment
+ * Records a successful Telegram Stars payment sent from the bot.
+ *
+ * Body: { telegram_id, plan, telegram_payment_charge_id }
+ */
+router.post("/stars-payment", async (req: Request, res: Response) => {
+  const { telegram_id, plan, telegram_payment_charge_id } = req.body as {
+    telegram_id?: number;
+    plan?: string;
+    telegram_payment_charge_id?: string;
+  };
+
+  if (!telegram_id || !plan || !telegram_payment_charge_id) {
+    res.status(400).json({
+      error: "telegram_id, plan, and telegram_payment_charge_id are required",
+    });
+    return;
+  }
+
+  const allowedPlans = ["premium", "pro"];
+  if (!allowedPlans.includes(plan.toLowerCase())) {
+    res.status(400).json({ error: `Plan must be one of: ${allowedPlans.join(", ")}` });
+    return;
+  }
+
+  try {
+    const user = await getUserByTelegramId(telegram_id);
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    // Grant 30 days of access from now
+    const renewalDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    await activateUserSubscription(
+      telegram_id,
+      user.id,
+      plan,
+      telegram_payment_charge_id,
+      renewalDate,
+      "telegram_stars"
+    );
+
+    res.json({
+      success: true,
+      plan,
+      renewal_date: renewalDate.toISOString(),
+    });
+  } catch (error) {
+    console.error("Error recording Stars payment:", error);
+    res.status(500).json({ error: "Failed to record Stars payment" });
+  }
+});
+
+/**
  * POST /api/subscription/webhook
  * Handles Stripe webhook events.
  * Requires raw body — set up in server.ts before JSON middleware.

@@ -11,12 +11,12 @@ Users interact through a Telegram bot. The backend manages user accounts, subscr
 ```
 stixmagic/
 ├── bot/
-│   └── bot.ts               # grammY Telegram bot (/start, /plans)
+│   └── bot.ts               # grammY Telegram bot (/start, /plans, Stars payments)
 ├── api/
 │   ├── server.ts            # Express server
 │   └── routes/
 │       ├── users.ts         # POST /api/users/create-or-get, GET /api/users/:telegram_id
-│       └── subscription.ts  # POST /api/subscription/create-checkout, POST /api/subscription/webhook
+│       └── subscription.ts  # Stripe + Stars payment endpoints + Stripe webhook
 ├── db/
 │   └── schema.prisma        # Prisma schema (User, Subscription)
 ├── services/
@@ -24,6 +24,7 @@ stixmagic/
 │   └── subscriptionService.ts # Subscription management helpers
 ├── utils/
 │   ├── stripe.ts            # Stripe checkout + webhook helpers
+│   ├── stars.ts             # Telegram Stars price config
 │   └── telegram.ts          # canUseFeature(), plan display helpers
 ├── .env.example             # Environment variable template
 ├── package.json
@@ -57,6 +58,8 @@ cp .env.example .env
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret from Stripe Dashboard |
 | `STRIPE_PRICE_PREMIUM` | Stripe Price ID for the **Premium** plan |
 | `STRIPE_PRICE_PRO` | Stripe Price ID for the **Pro** plan |
+| `STARS_PRICE_PREMIUM` | Stars charged for Premium (30 days), default `75` |
+| `STARS_PRICE_PRO` | Stars charged for Pro (30 days), default `200` |
 | `APP_BASE_URL` | Public base URL of the API (e.g. `https://your-app.railway.app`) |
 | `PORT` | Port for the API server (default: `3000`) |
 
@@ -164,6 +167,23 @@ Stripe webhook endpoint. Handles:
 
 ---
 
+### `POST /api/subscription/stars-payment`
+
+Records a successful Telegram Stars payment sent by the bot after a `successful_payment` event.
+Grants 30 days of access from the payment date.
+
+**Body:**
+```json
+{ "telegram_id": 123456789, "plan": "premium", "telegram_payment_charge_id": "CHARGE_ID" }
+```
+
+**Response:**
+```json
+{ "success": true, "plan": "premium", "renewal_date": "2026-04-12T00:00:00.000Z" }
+```
+
+---
+
 ## Feature Access
 
 Use `canUseFeature(user, feature)` to gate functionality by plan:
@@ -188,13 +208,24 @@ if (canUseFeature(user, "ai_generation")) {
 
 ## Expected User Flow
 
-1. User sends `/start` in Telegram
-2. Bot calls `POST /api/users/create-or-get` → account created with **Free** plan
-3. User sends `/plans`
-4. Bot displays plan list with **Upgrade Premium** / **Upgrade Pro** buttons
-5. User clicks a button → redirected to Stripe Checkout
-6. After payment, Stripe sends `checkout.session.completed` webhook
-7. Backend updates `user.plan` and `subscription_status` in the database
+### Stripe (recurring subscription)
+
+1. User sends `/start` → account created with **Free** plan
+2. User sends `/plans`
+3. Bot shows **💳 Premium (Card)** / **💳 Pro (Card)** buttons
+4. User clicks → redirected to Stripe Checkout
+5. After payment, Stripe sends `checkout.session.completed` webhook
+6. Backend updates `user.plan` and `subscription_status`
+
+### Telegram Stars (one-time, 30-day access)
+
+1. User sends `/plans`
+2. Bot shows **⭐ Premium — 75 Stars** / **⭐ Pro — 200 Stars** buttons
+3. User clicks → bot sends a native Telegram invoice (currency: XTR)
+4. User pays from their Stars balance — no browser redirect
+5. Bot receives `successful_payment` event
+6. Bot calls `POST /api/subscription/stars-payment`
+7. Backend grants 30 days of the chosen plan
 
 ---
 
