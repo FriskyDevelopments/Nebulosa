@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -58,6 +58,105 @@ export const meetingInsights = pgTable("meeting_insights", {
   startedAt: timestamp("started_at").defaultNow(),
   endedAt: timestamp("ended_at"),
 });
+
+// ─── Emoji Packs System ────────────────────────────────────────────────────
+
+export const emojiPacks = pgTable("emoji_packs", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  coverImageUrl: text("cover_image_url"),
+  // category: basic | reactions | magic | symbols | premium | experimental
+  category: text("category").notNull().default("basic"),
+  // visibility: public | premium | pro | admin_only
+  visibility: text("visibility").notNull().default("public"),
+  // status: draft | active | archived
+  status: text("status").notNull().default("active"),
+  createdBy: text("created_by"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const emojiAssets = pgTable("emoji_assets", {
+  id: serial("id").primaryKey(),
+  packId: integer("pack_id").notNull(),
+  name: text("name").notNull(),
+  // asset_type: unicode | png | svg | gif | lottie
+  assetType: text("asset_type").notNull().default("png"),
+  fileUrl: text("file_url"),
+  unicodeValue: text("unicode_value"),
+  tags: jsonb("tags").$type<string[]>().default([]),
+  isAnimated: boolean("is_animated").default(false),
+  // visibility: public | premium | pro
+  visibility: text("visibility").notNull().default("public"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// ─── Emoji Fonts System ────────────────────────────────────────────────────
+
+export const emojiFonts = pgTable("emoji_fonts", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  // font_type: ttf | otf | svg | glyph_set | unicode_style
+  fontType: text("font_type").notNull().default("ttf"),
+  fontFileUrl: text("font_file_url"),
+  previewImageUrl: text("preview_image_url"),
+  // visibility: public | premium | pro
+  visibility: text("visibility").notNull().default("public"),
+  // status: draft | active | archived
+  status: text("status").notNull().default("active"),
+  createdBy: text("created_by"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const emojiFontGlyphs = pgTable("emoji_font_glyphs", {
+  id: serial("id").primaryKey(),
+  fontId: integer("font_id").notNull(),
+  glyphName: text("glyph_name").notNull(),
+  unicodeMap: text("unicode_map"),
+  assetUrl: text("asset_url"),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// ─── Insert Schemas ────────────────────────────────────────────────────────
+
+export const insertEmojiPackSchema = createInsertSchema(emojiPacks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEmojiAssetSchema = createInsertSchema(emojiAssets).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEmojiFontSchema = createInsertSchema(emojiFonts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEmojiFontGlyphSchema = createInsertSchema(emojiFontGlyphs).omit({
+  id: true,
+  createdAt: true,
+});
+
+// ─── Emoji Types ──────────────────────────────────────────────────────────
+
+export type EmojiPack = typeof emojiPacks.$inferSelect;
+export type InsertEmojiPack = z.infer<typeof insertEmojiPackSchema>;
+export type EmojiAsset = typeof emojiAssets.$inferSelect;
+export type InsertEmojiAsset = z.infer<typeof insertEmojiAssetSchema>;
+export type EmojiFont = typeof emojiFonts.$inferSelect;
+export type InsertEmojiFont = z.infer<typeof insertEmojiFontSchema>;
+export type EmojiFontGlyph = typeof emojiFontGlyphs.$inferSelect;
+export type InsertEmojiFontGlyph = z.infer<typeof insertEmojiFontGlyphSchema>;
+
+// ─────────────────────────────────────────────────────────────────────────
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
