@@ -101,3 +101,78 @@ export type BotMetrics = typeof botMetrics.$inferSelect;
 export type InsertBotMetrics = z.infer<typeof insertBotMetricsSchema>;
 export type MeetingInsights = typeof meetingInsights.$inferSelect;
 export type InsertMeetingInsights = z.infer<typeof insertMeetingInsightsSchema>;
+
+// Sticker Draft, Review, and Disposal System
+
+export const stickerDrafts = pgTable("sticker_drafts", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  chatId: text("chat_id").notNull(),
+  sourceFileId: text("source_file_id").notNull(),
+  generatedFileId: text("generated_file_id"),
+  fileType: text("file_type").notNull().default("photo"), // photo | sticker
+  status: text("status").notNull().default("draft"), // draft | approved | rejected | archived | expired | published
+  messageId: integer("message_id"),
+  linkedStyleId: text("linked_style_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  expiresAt: timestamp("expires_at"),
+});
+
+export const stickerCollections = pgTable("sticker_collections", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  name: text("name").notNull(),
+  type: text("type").notNull().default("personal"), // personal | shared
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const stickerCollectionItems = pgTable("sticker_collection_items", {
+  id: serial("id").primaryKey(),
+  collectionId: integer("collection_id").notNull(),
+  draftId: integer("draft_id").notNull(),
+  telegramFileId: text("telegram_file_id"),
+  position: integer("position").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const stickerTrash = pgTable("sticker_trash", {
+  id: serial("id").primaryKey(),
+  draftId: integer("draft_id").notNull(),
+  userId: text("user_id").notNull(),
+  reason: text("reason"),
+  scheduledDeleteAt: timestamp("scheduled_delete_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertStickerDraftSchema = createInsertSchema(stickerDrafts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStickerCollectionSchema = createInsertSchema(stickerCollections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStickerCollectionItemSchema = createInsertSchema(stickerCollectionItems).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertStickerTrashSchema = createInsertSchema(stickerTrash).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type StickerDraft = typeof stickerDrafts.$inferSelect;
+export type InsertStickerDraft = z.infer<typeof insertStickerDraftSchema>;
+export type StickerCollection = typeof stickerCollections.$inferSelect;
+export type InsertStickerCollection = z.infer<typeof insertStickerCollectionSchema>;
+export type StickerCollectionItem = typeof stickerCollectionItems.$inferSelect;
+export type InsertStickerCollectionItem = z.infer<typeof insertStickerCollectionItemSchema>;
+export type StickerTrash = typeof stickerTrash.$inferSelect;
+export type InsertStickerTrash = z.infer<typeof insertStickerTrashSchema>;
