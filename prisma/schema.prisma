@@ -1,0 +1,146 @@
+// Magic Cut — Prisma Schema
+// This mirrors the Drizzle ORM schema in shared/schema.ts and can be used
+// as a drop-in replacement if the project migrates to Prisma.
+//
+// Run: npx prisma migrate dev --name init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Plans ────────────────────────────────────────────────────────────────────
+
+model Plan {
+  id          Int     @id @default(autoincrement())
+  name        String
+  slug        String  @unique
+  description String?
+
+  users       MagicCutUser[]
+  permissions Permission[]
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+model MagicCutUser {
+  id         Int       @id @default(autoincrement())
+  telegramId String?   @unique @map("telegram_id")
+  email      String?
+  username   String?
+  planId     Int       @default(1) @map("plan_id")
+  /// active | suspended | banned
+  status     String    @default("active")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  plan        Plan           @relation(fields: [planId], references: [id])
+  uploads     UserUpload[]
+  cutJobs     CutJob[]
+  submissions MaskSubmission[]
+  masks       CatalogMask[]  @relation("CreatedMasks")
+
+  @@map("magic_cut_users")
+}
+
+// ─── Catalog Masks ────────────────────────────────────────────────────────────
+
+model CatalogMask {
+  id              Int       @id @default(autoincrement())
+  name            String
+  slug            String    @unique
+  description     String?
+  previewImageUrl String?   @map("preview_image_url")
+  maskFileUrl     String?   @map("mask_file_url")
+  /// basic | rounded | outline | glow | premium | experimental | custom
+  category        String    @default("basic")
+  /// draft | active | archived | pending_review | rejected
+  status          String    @default("active")
+  /// public | premium | pro | admin_only
+  visibility      String    @default("public")
+  createdBy       Int?      @map("created_by")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  creator  MagicCutUser? @relation("CreatedMasks", fields: [createdBy], references: [id])
+  cutJobs  CutJob[]
+
+  @@map("catalog_masks")
+}
+
+// ─── User Uploads ─────────────────────────────────────────────────────────────
+
+model UserUpload {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @map("user_id")
+  originalFileUrl String   @map("original_file_url")
+  fileType        String?  @map("file_type")
+  /// pending | ready | failed
+  status          String   @default("pending")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user    MagicCutUser @relation(fields: [userId], references: [id])
+  cutJobs CutJob[]
+
+  @@map("user_uploads")
+}
+
+// ─── Cut Jobs ─────────────────────────────────────────────────────────────────
+
+model CutJob {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  uploadId      Int      @map("upload_id")
+  maskId        Int      @map("mask_id")
+  outputFileUrl String?  @map("output_file_url")
+  /// queued | processing | completed | failed | cancelled
+  jobStatus     String   @default("queued") @map("job_status")
+  errorMessage  String?  @map("error_message")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user   MagicCutUser @relation(fields: [userId], references: [id])
+  upload UserUpload   @relation(fields: [uploadId], references: [id])
+  mask   CatalogMask  @relation(fields: [maskId], references: [id])
+
+  @@map("cut_jobs")
+}
+
+// ─── Mask Submissions ─────────────────────────────────────────────────────────
+
+model MaskSubmission {
+  id               Int      @id @default(autoincrement())
+  userId           Int      @map("user_id")
+  name             String
+  description      String?
+  previewImageUrl  String?  @map("preview_image_url")
+  maskFileUrl      String?  @map("mask_file_url")
+  /// pending_review | approved | rejected | needs_changes | published
+  submissionStatus String   @default("pending_review") @map("submission_status")
+  reviewNotes      String?  @map("review_notes")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user MagicCutUser @relation(fields: [userId], references: [id])
+
+  @@map("mask_submissions")
+}
+
+// ─── Permissions ──────────────────────────────────────────────────────────────
+
+model Permission {
+  id        Int     @id @default(autoincrement())
+  planId    Int     @map("plan_id")
+  resource  String
+  action    String
+  isAllowed Boolean @default(false) @map("is_allowed")
+
+  plan Plan @relation(fields: [planId], references: [id])
+
+  @@unique([planId, resource, action])
+  @@map("permissions")
+}
