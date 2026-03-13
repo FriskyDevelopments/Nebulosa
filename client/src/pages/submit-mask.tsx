@@ -47,14 +47,16 @@ export default function SubmitMaskPage({ userId }: SubmitFlowPageProps) {
     },
   });
 
+  const STEPS: Step[] = ["upload", "details", "submitted"];
+
   return (
     <div className="magic-cut-submit">
       {/* Progress */}
       <div className="flow-steps">
-        {(["upload", "details", "submitted"] as Step[]).map((s, i) => (
+        {STEPS.map((s, i) => (
           <div
             key={s}
-            className={`flow-step ${step === s ? "active" : ""} ${i < ["upload", "details", "submitted"].indexOf(step) ? "done" : ""}`}
+            className={`flow-step ${step === s ? "active" : ""} ${i < STEPS.indexOf(step) ? "done" : ""}`}
           >
             <span className="step-number">{i + 1}</span>
             <span className="step-label">

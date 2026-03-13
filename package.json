@@ -3,7 +3,6 @@
   "version": "2.1.0",
   "description": "NEBULOSA — Magic Cut sticker platform + Telegram Bot + OAuth Server",
   "main": "railway-complete-bot.js",
-  "type": "module",
   "scripts": {
     "start": "node railway-complete-bot.js",
     "dev": "tsx server/index.ts",

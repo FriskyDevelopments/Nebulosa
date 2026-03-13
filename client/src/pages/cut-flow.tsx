@@ -5,7 +5,7 @@
  *   Upload Image → Choose Mask → Start Cut → View Result
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import CatalogPage from "./catalog";
 
@@ -92,18 +92,21 @@ export default function CutFlowPage({ userId }: CutFlowPageProps) {
     },
   });
 
-  if (jobData?.jobStatus === "completed" && step === "processing") {
-    setStep("result");
-  }
+  // Transition to result when the job completes
+  const STEPS: Step[] = ["upload", "choose-mask", "processing", "result"];
 
-  // ─── Render ──────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (jobData?.jobStatus === "completed" && step === "processing") {
+      setStep("result");
+    }
+  }, [jobData?.jobStatus, step]);
 
   return (
     <div className="magic-cut-flow">
       {/* Progress indicator */}
       <div className="flow-steps">
-        {(["upload", "choose-mask", "processing", "result"] as Step[]).map((s, i) => (
-          <div key={s} className={`flow-step ${step === s ? "active" : ""} ${i < ["upload", "choose-mask", "processing", "result"].indexOf(step) ? "done" : ""}`}>
+        {STEPS.map((s, i) => (
+          <div key={s} className={`flow-step ${step === s ? "active" : ""} ${i < STEPS.indexOf(step) ? "done" : ""}`}>
             <span className="step-number">{i + 1}</span>
             <span className="step-label">
               {{ upload: "Upload Image", "choose-mask": "Choose Mask", processing: "Start Cut", result: "View Result" }[s]}
