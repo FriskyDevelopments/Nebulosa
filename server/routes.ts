@@ -2,8 +2,12 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema } from "@shared/schema";
+import { registerSubscriptionRoutes } from "./subscription-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register subscription routes (plans, checkout, webhook, user lookup)
+  registerSubscriptionRoutes(app);
+
   // Dashboard API routes
   app.get("/api/bot/status", async (req, res) => {
     try {

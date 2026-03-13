@@ -1,8 +1,9 @@
-import { telegramUsers, zoomTokens, botLogs, botMetrics, meetingInsights, type TelegramUser, type InsertTelegramUser, type ZoomToken, type InsertZoomToken, type BotLog, type InsertBotLog, type BotMetrics, type InsertBotMetrics, type MeetingInsights, type InsertMeetingInsights } from "@shared/schema";
+import { telegramUsers, zoomTokens, botLogs, botMetrics, meetingInsights, subscriptions, type TelegramUser, type InsertTelegramUser, type ZoomToken, type InsertZoomToken, type BotLog, type InsertBotLog, type BotMetrics, type InsertBotMetrics, type MeetingInsights, type InsertMeetingInsights, type Subscription, type InsertSubscription } from "@shared/schema";
 
 export interface IStorage {
   // Telegram Users
   getTelegramUser(telegramId: string): Promise<TelegramUser | undefined>;
+  getTelegramUserById(id: number): Promise<TelegramUser | undefined>;
   createTelegramUser(user: InsertTelegramUser): Promise<TelegramUser>;
   updateTelegramUser(telegramId: string, updates: Partial<TelegramUser>): Promise<TelegramUser | undefined>;
   getActiveTelegramUsersCount(): Promise<number>;
@@ -27,6 +28,12 @@ export interface IStorage {
   getActiveMeetingInsights(): Promise<MeetingInsights[]>;
   updateMeetingInsight(meetingId: string, updates: Partial<MeetingInsights>): Promise<MeetingInsights | undefined>;
   endMeeting(meetingId: string): Promise<MeetingInsights | undefined>;
+
+  // Subscriptions
+  getSubscriptionByUserId(userId: number): Promise<Subscription | undefined>;
+  getSubscriptionByProviderId(providerSubscriptionId: string): Promise<Subscription | undefined>;
+  createSubscription(subscription: InsertSubscription): Promise<Subscription>;
+  updateSubscription(providerSubscriptionId: string, updates: Partial<Subscription>): Promise<Subscription | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -35,6 +42,7 @@ export class MemStorage implements IStorage {
   private botLogs: BotLog[];
   private botMetrics: BotMetrics | undefined;
   private meetingInsights: Map<string, MeetingInsights>;
+  private subscriptionsMap: Map<string, Subscription>;
   private currentId: number;
 
   constructor() {
@@ -43,6 +51,7 @@ export class MemStorage implements IStorage {
     this.botLogs = [];
     this.botMetrics = undefined;
     this.meetingInsights = new Map();
+    this.subscriptionsMap = new Map();
     this.currentId = 1;
     
     // Add sample meeting data for testing
@@ -110,6 +119,10 @@ export class MemStorage implements IStorage {
 
   async getTelegramUser(telegramId: string): Promise<TelegramUser | undefined> {
     return this.telegramUsers.get(telegramId);
+  }
+
+  async getTelegramUserById(id: number): Promise<TelegramUser | undefined> {
+    return Array.from(this.telegramUsers.values()).find(u => u.id === id);
   }
 
   async createTelegramUser(insertUser: InsertTelegramUser): Promise<TelegramUser> {
@@ -244,6 +257,35 @@ export class MemStorage implements IStorage {
     };
     this.meetingInsights.set(meetingId, updatedInsight);
     return updatedInsight;
+  }
+
+  async getSubscriptionByUserId(userId: number): Promise<Subscription | undefined> {
+    return Array.from(this.subscriptionsMap.values()).find(s => s.userId === userId);
+  }
+
+  async getSubscriptionByProviderId(providerSubscriptionId: string): Promise<Subscription | undefined> {
+    return this.subscriptionsMap.get(providerSubscriptionId);
+  }
+
+  async createSubscription(insertSub: InsertSubscription): Promise<Subscription> {
+    const id = this.currentId++;
+    const sub: Subscription = {
+      ...insertSub,
+      id,
+      createdAt: new Date(),
+    };
+    if (sub.providerSubscriptionId) {
+      this.subscriptionsMap.set(sub.providerSubscriptionId, sub);
+    }
+    return sub;
+  }
+
+  async updateSubscription(providerSubscriptionId: string, updates: Partial<Subscription>): Promise<Subscription | undefined> {
+    const sub = this.subscriptionsMap.get(providerSubscriptionId);
+    if (!sub) return undefined;
+    const updatedSub = { ...sub, ...updates };
+    this.subscriptionsMap.set(providerSubscriptionId, updatedSub);
+    return updatedSub;
   }
 }
 

@@ -1,12 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 const axios = require('axios');
->>>>>>> origin/main
-=======
-const axios = require('axios');
->>>>>>> origin/main
 const { 
   getAccessToken, 
   refreshAccessToken, 
@@ -1194,19 +1187,10 @@ async function processViolations(accessToken, meetingId, participant, violations
 async function shortenUrl(longUrl) {
   const apiKey = process.env.SHORTIO_API_KEY;
   
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> origin/main
   // Temporarily disable Short.io due to domain access issues
   console.log('🔗 Short.io temporarily disabled, using original URL');
   return longUrl;
   
-<<<<<<< HEAD
->>>>>>> origin/main
-=======
->>>>>>> origin/main
   if (!apiKey || apiKey === 'your_shortio_api_key_here') {
     console.log('🔗 No Short.io API key found, using original URL');
     return longUrl;
@@ -1215,15 +1199,7 @@ async function shortenUrl(longUrl) {
   try {
     const response = await axios.post('https://api.short.io/links', {
       originalURL: longUrl,
-<<<<<<< HEAD
-<<<<<<< HEAD
-      domain: 'short.io', // or your custom domain
-=======
       domain: 'short.io', // Use Short.io default domain (working)
->>>>>>> origin/main
-=======
-      domain: 'short.io', // Use Short.io default domain (working)
->>>>>>> origin/main
       allowDuplicates: false,
       tags: ['zoom-oauth', 'la-nube-bot']
     }, {
@@ -1244,15 +1220,7 @@ async function shortenUrl(longUrl) {
 }
 
 async function generateAuthUrl(userId) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const redirectUri = process.env.ZOOM_REDIRECT_URI || 'https://pupfrisky.com/zoom-callback';
-=======
   const redirectUri = process.env.ZOOM_REDIRECT_URI || 'https://pupfr.github.io/Nebulosa/zoom-callback.html';
->>>>>>> origin/main
-=======
-  const redirectUri = process.env.ZOOM_REDIRECT_URI || 'https://pupfr.github.io/Nebulosa/zoom-callback.html';
->>>>>>> origin/main
   const clientId = (process.env.ZOOM_USER_CLIENT_ID || 'K3t8Sd3rSZOSKfkyMftDXg').trim();
   
   // Create the OAuth URL
@@ -1270,6 +1238,25 @@ async function generateAuthUrl(userId) {
   return shortUrl;
 }
 
+// In-memory subscription user registry (populated from API on first use)
+const subscriptionUsers = new Map(); // telegram_id -> { plan, subscription_status }
+
+// Helper: upsert a subscription user via the internal API
+async function upsertSubscriptionUser(telegramId, telegramUsername) {
+  try {
+    const apiBase = process.env.INTERNAL_API_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const res = await axios.post(`${apiBase}/api/user`, {
+      telegram_id: String(telegramId),
+      telegram_username: telegramUsername || null,
+    });
+    subscriptionUsers.set(String(telegramId), res.data);
+    return res.data;
+  } catch (err) {
+    console.error(`upsertSubscriptionUser error for user ${telegramId}:`, err.message);
+    return { telegram_id: String(telegramId), plan: 'free', subscription_status: 'inactive' };
+  }
+}
+
 // Commands
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
@@ -1278,6 +1265,10 @@ bot.onText(/\/start/, async (msg) => {
   
   trackCommand('/start', userId);
   
+  // Create or fetch subscription user account
+  const subUser = await upsertSubscriptionUser(userId, username);
+  const planLabel = subUser.plan === 'pro' ? 'Pro' : subUser.plan === 'premium' ? 'Premium' : 'Free';
+
   const lang = getUserLanguage(userId);
   const welcome = strings[lang].welcome;
   
@@ -1293,6 +1284,10 @@ ${welcome.features}
 ${welcome.featureList.join('\n')}
 
 ${welcome.ready}
+
+🪄 *Your account has been created.*
+📦 Plan: *${planLabel}*
+Use /plans to see available upgrades.
   `;
 
   try {
@@ -1301,6 +1296,43 @@ ${welcome.ready}
   } catch (error) {
     console.error('Error sending welcome message:', error);
     await logToChannel(`Error sending welcome message to user ${userId}: ${error.message}`, userId);
+  }
+});
+
+// Subscription plans command
+bot.onText(/\/plans/, async (msg) => {
+  const chatId = msg.chat.id;
+  const upgradeUrl = process.env.APP_BASE_URL ? `${process.env.APP_BASE_URL}/upgrade` : 'https://stixmagic.com/upgrade';
+
+  const plansMessage = `✨ *STIX MAGIC PLANS*
+
+🆓 *Free*
+Basic access
+
+⭐ *Premium*
+Unlock advanced sticker magic
+
+🚀 *Pro*
+Unlock all features
+
+Tap a button below to upgrade your plan.`;
+
+  const keyboard = {
+    inline_keyboard: [
+      [
+        { text: '⭐ Upgrade Premium', url: upgradeUrl },
+        { text: '🚀 Upgrade Pro', url: upgradeUrl }
+      ]
+    ]
+  };
+
+  try {
+    await bot.sendMessage(chatId, plansMessage, {
+      parse_mode: 'Markdown',
+      reply_markup: keyboard
+    });
+  } catch (error) {
+    console.error('Error sending plans message:', error);
   }
 });
 
