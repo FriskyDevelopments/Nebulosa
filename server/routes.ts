@@ -1,7 +1,26 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema } from "@shared/schema";
+import {
+  insertBotLogSchema,
+  insertBotMetricsSchema,
+  insertMeetingInsightsSchema,
+  insertMagicCutUserSchema,
+  insertCatalogMaskSchema,
+  insertUserUploadSchema,
+  insertCutJobSchema,
+  insertMaskSubmissionSchema,
+} from "@shared/schema";
+import { AccessService } from "./magic-cut/access";
+import { CatalogService } from "./magic-cut/catalog";
+import { CutJobService } from "./magic-cut/cut-jobs";
+import { SubmissionService } from "./magic-cut/submissions";
+
+// Instantiate services (they share the same in-memory storage)
+const accessService = new AccessService(storage);
+const catalogService = new CatalogService(storage);
+const cutJobService = new CutJobService(storage);
+const submissionService = new SubmissionService(storage);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard API routes
@@ -237,6 +256,327 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(insight);
     } catch (error) {
       res.status(400).json({ error: "Failed to end meeting" });
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MAGIC CUT API
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ─── Catalog ──────────────────────────────────────────────────────────────
+
+  /**
+   * GET /api/catalog/masks
+   * Returns masks available to the requesting user.
+   * Query params: category, status, userId (optional, defaults to free access)
+   */
+  app.get("/api/catalog/masks", async (req, res) => {
+    try {
+      const userId = req.query.userId ? parseInt(req.query.userId as string) : 0;
+      const access = userId
+        ? await accessService.getUserAccess(userId)
+        : await accessService.getUserAccess(0); // defaults to free
+
+      const masks = await catalogService.listMasks(access, {
+        category: req.query.category as string | undefined,
+        status: req.query.status as string | undefined,
+      });
+      res.json(masks);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch catalog masks" });
+    }
+  });
+
+  /**
+   * GET /api/catalog/masks/:id
+   */
+  app.get("/api/catalog/masks/:id", async (req, res) => {
+    try {
+      const mask = await catalogService.getMask(parseInt(req.params.id));
+      if (!mask) return res.status(404).json({ error: "Mask not found" });
+      res.json(mask);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch mask" });
+    }
+  });
+
+  // ─── Uploads ──────────────────────────────────────────────────────────────
+
+  /**
+   * POST /api/uploads
+   * Body: { userId, originalFileUrl, fileType? }
+   */
+  app.post("/api/uploads", async (req, res) => {
+    try {
+      const data = insertUserUploadSchema.parse(req.body);
+      const upload = await storage.createUserUpload(data);
+      res.status(201).json(upload);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid upload data" });
+    }
+  });
+
+  /**
+   * GET /api/uploads/:id
+   */
+  app.get("/api/uploads/:id", async (req, res) => {
+    try {
+      const upload = await storage.getUserUpload(parseInt(req.params.id));
+      if (!upload) return res.status(404).json({ error: "Upload not found" });
+      res.json(upload);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch upload" });
+    }
+  });
+
+  // ─── Cut Jobs ─────────────────────────────────────────────────────────────
+
+  /**
+   * POST /api/cut-jobs
+   * Body: { user_id, upload_id, mask_id }
+   * Creates a job and enqueues it for processing.
+   */
+  app.post("/api/cut-jobs", async (req, res) => {
+    try {
+      // Accept snake_case from API consumers
+      const body = {
+        userId: req.body.user_id ?? req.body.userId,
+        uploadId: req.body.upload_id ?? req.body.uploadId,
+        maskId: req.body.mask_id ?? req.body.maskId,
+      };
+      const data = insertCutJobSchema.parse(body);
+
+      // Check access before creating the job
+      const allowed = await accessService.isAllowed(
+        (await storage.getMagicCutUser(data.userId))?.planId ?? 1,
+        "cut_job",
+        "create",
+      );
+      if (!allowed) {
+        return res.status(403).json({ error: "Your plan does not allow cut jobs" });
+      }
+
+      const job = await cutJobService.createJob(data);
+      res.status(201).json(job);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid cut job data" });
+    }
+  });
+
+  /**
+   * GET /api/cut-jobs/:id
+   */
+  app.get("/api/cut-jobs/:id", async (req, res) => {
+    try {
+      const job = await cutJobService.getJob(parseInt(req.params.id));
+      if (!job) return res.status(404).json({ error: "Cut job not found" });
+      res.json(job);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch cut job" });
+    }
+  });
+
+  /**
+   * GET /api/cut-jobs/user/:userId
+   */
+  app.get("/api/cut-jobs/user/:userId", async (req, res) => {
+    try {
+      const jobs = await cutJobService.getJobsByUser(parseInt(req.params.userId));
+      res.json(jobs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user cut jobs" });
+    }
+  });
+
+  // ─── Mask Submissions ─────────────────────────────────────────────────────
+
+  /**
+   * POST /api/mask-submissions
+   * Body: { userId, name, description?, previewImageUrl?, maskFileUrl? }
+   */
+  app.post("/api/mask-submissions", async (req, res) => {
+    try {
+      const data = insertMaskSubmissionSchema.parse(req.body);
+
+      // Verify the user's plan allows custom submissions
+      const user = await storage.getMagicCutUser(data.userId);
+      const allowed = await accessService.isAllowed(
+        user?.planId ?? 1,
+        "custom_submission",
+        "create",
+      );
+      if (!allowed) {
+        return res.status(403).json({ error: "Your plan does not allow mask submissions" });
+      }
+
+      const submission = await submissionService.createSubmission(data);
+      res.status(201).json(submission);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid submission data" });
+    }
+  });
+
+  /**
+   * GET /api/mask-submissions/:id
+   */
+  app.get("/api/mask-submissions/:id", async (req, res) => {
+    try {
+      const sub = await submissionService.getSubmission(parseInt(req.params.id));
+      if (!sub) return res.status(404).json({ error: "Submission not found" });
+      res.json(sub);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch submission" });
+    }
+  });
+
+  /**
+   * GET /api/mask-submissions/user/:userId
+   */
+  app.get("/api/mask-submissions/user/:userId", async (req, res) => {
+    try {
+      const subs = await submissionService.getSubmissionsByUser(parseInt(req.params.userId));
+      res.json(subs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user submissions" });
+    }
+  });
+
+  // ─── Access / Permissions ─────────────────────────────────────────────────
+
+  /**
+   * GET /api/access/me?userId=:id
+   * Returns the current user's access summary (plan + permissions + visibilities).
+   */
+  app.get("/api/access/me", async (req, res) => {
+    try {
+      const userId = parseInt((req.query.userId as string) ?? "0");
+      const access = await accessService.getUserAccess(userId);
+      res.json(access);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch access info" });
+    }
+  });
+
+  /**
+   * GET /api/access/catalog?userId=:id
+   * Returns what catalog visibilities the user can browse.
+   */
+  app.get("/api/access/catalog", async (req, res) => {
+    try {
+      const userId = parseInt((req.query.userId as string) ?? "0");
+      const access = await accessService.getUserAccess(userId);
+      res.json({ visibilities: access.visibleVisibilities });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch catalog access" });
+    }
+  });
+
+  // ─── Magic Cut: Users ─────────────────────────────────────────────────────
+
+  /**
+   * POST /api/magic-cut/users
+   * Create or identify a Magic Cut user.
+   */
+  app.post("/api/magic-cut/users", async (req, res) => {
+    try {
+      const data = insertMagicCutUserSchema.parse(req.body);
+      // Upsert by telegramId if provided
+      if (data.telegramId) {
+        const existing = await storage.getMagicCutUserByTelegramId(data.telegramId);
+        if (existing) return res.json(existing);
+      }
+      const user = await storage.createMagicCutUser(data);
+      res.status(201).json(user);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid user data" });
+    }
+  });
+
+  /**
+   * GET /api/magic-cut/users/:id
+   */
+  app.get("/api/magic-cut/users/:id", async (req, res) => {
+    try {
+      const user = await storage.getMagicCutUser(parseInt(req.params.id));
+      if (!user) return res.status(404).json({ error: "User not found" });
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
+  });
+
+  // ─── Admin: Submissions ───────────────────────────────────────────────────
+
+  /**
+   * GET /api/admin/submissions
+   * List all pending (or all) mask submissions.
+   * Query param: status (defaults to "pending_review")
+   */
+  app.get("/api/admin/submissions", async (req, res) => {
+    try {
+      const status = (req.query.status as string) || "pending_review";
+      const subs = status === "all"
+        ? await submissionService.listAllSubmissions()
+        : await submissionService.listPendingSubmissions();
+      res.json(subs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch submissions" });
+    }
+  });
+
+  /**
+   * PATCH /api/admin/submissions/:id/review
+   * Body: { verdict: "approved" | "rejected" | "needs_changes", reviewNotes? }
+   */
+  app.patch("/api/admin/submissions/:id/review", async (req, res) => {
+    try {
+      const { verdict, reviewNotes } = req.body;
+      if (!["approved", "rejected", "needs_changes"].includes(verdict)) {
+        return res.status(400).json({ error: "Invalid verdict" });
+      }
+      const updated = await submissionService.reviewSubmission(
+        parseInt(req.params.id),
+        verdict,
+        reviewNotes,
+      );
+      if (!updated) return res.status(404).json({ error: "Submission not found" });
+      res.json(updated);
+    } catch (error) {
+      res.status(400).json({ error: "Failed to review submission" });
+    }
+  });
+
+  /**
+   * POST /api/admin/catalog/publish-from-submission/:id
+   * Publishes an approved submission to the public catalog.
+   */
+  app.post("/api/admin/catalog/publish-from-submission/:id", async (req, res) => {
+    try {
+      const updated = await submissionService.publishToCatalog(parseInt(req.params.id));
+      if (!updated) {
+        return res.status(400).json({
+          error: "Submission not found or not in approved state",
+        });
+      }
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to publish submission" });
+    }
+  });
+
+  // ─── Admin: Catalog management ────────────────────────────────────────────
+
+  /**
+   * POST /api/admin/catalog/masks
+   * Directly add a mask to the catalog (admin only).
+   */
+  app.post("/api/admin/catalog/masks", async (req, res) => {
+    try {
+      const data = insertCatalogMaskSchema.parse(req.body);
+      const mask = await storage.createCatalogMask(data);
+      res.status(201).json(mask);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid mask data" });
     }
   });
 
