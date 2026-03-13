@@ -79,6 +79,11 @@ npm run dev
 - `/lang` - Switch between English/Spanish
 - `/zoomlogin` - Zoom OAuth authentication
 
+### Token Wallet Commands
+- `/balance` - Show your current token balance and plan
+- `/wallet` - Show wallet summary (balance, plan, last refill)
+- `/buy` - Browse token purchase options
+
 ### Meeting Management
 - `/createroom [topic]` - Create instant meeting with auto-multipin
 - `/scanroom [meeting_id]` - Scan meeting participants
@@ -115,6 +120,12 @@ npm run dev
 │   └── index.html         # Frontend entry
 ├── shared/
 │   └── schema.ts          # Database schema
+├── config/
+│   └── tokenCosts.js      # Token cost configuration
+├── workers/
+│   └── monthlyTokenRefill.js  # Monthly token refill worker
+├── jobs/
+│   └── stickerGenerationQueue.js  # BullMQ sticker generation queue
 └── zoomAuth.js            # Zoom API integration
 ```
 
@@ -134,6 +145,87 @@ npm run dev
 - Real-time participant tracking
 - Violation detection and reporting
 - Meeting insights with duration statistics
+
+## Token Wallet Architecture
+
+The token system uses a **ledger model** — balances are never stored directly; they are computed from the sum of all transactions. This ensures auditability and prevents double-spending.
+
+### Database Table: `token_transactions`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | integer | Primary key |
+| `user_id` | text | Telegram user ID |
+| `amount` | integer | Positive (credit) or negative (debit) |
+| `type` | text | `credit` or `debit` |
+| `source` | text | `subscription_refill`, `manual_credit`, `feature_use`, `admin_adjustment` |
+| `created_at` | timestamp | Transaction time |
+
+### Balance Calculation
+
+```
+balance = SUM(amount) WHERE user_id = '<telegram_id>'
+```
+
+Example ledger:
+```
++100  subscription_refill   (free plan monthly grant)
+ -10  feature_use            (sticker generation)
+  -5  feature_use            (magic trigger)
+= 85  balance
+```
+
+### Subscription Plans & Monthly Token Grants
+
+| Plan | Monthly Tokens |
+|------|---------------|
+| free | 100 |
+| premium | 1,000 |
+| pro | 5,000 |
+
+### Token Costs (configurable via environment variables)
+
+| Action | Default Cost | Env Variable |
+|--------|-------------|--------------|
+| sticker_generation | 10 tokens | `TOKEN_COST_STICKER` |
+| pack_export | 25 tokens | `TOKEN_COST_EXPORT` |
+| magic_trigger | 5 tokens | `TOKEN_COST_MAGIC` |
+
+Costs are defined in `config/tokenCosts.js`.
+
+### API Endpoints
+
+```
+GET  /api/tokens/balance/:telegram_id   → { "balance": 420 }
+GET  /api/tokens/history/:telegram_id   → [ ...transactions ]
+POST /api/tokens/consume                → debit transaction or 402 INSUFFICIENT_TOKENS
+
+POST body: { "telegram_id": "...", "amount": 10, "action": "sticker_generation" }
+```
+
+### Monthly Refill Worker
+
+The worker at `workers/monthlyTokenRefill.js` credits tokens to all users based on their subscription plan. Run it monthly via cron or a Railway cron job:
+
+```bash
+node workers/monthlyTokenRefill.js
+```
+
+### Optional Job Queue (BullMQ + Redis)
+
+Long-running tasks (e.g. AI sticker generation) can be offloaded to a Redis-backed queue:
+
+```bash
+# Set in .env
+REDIS_URL=redis://localhost:6379
+```
+
+```js
+const { addStickerJob } = require('./jobs/stickerGenerationQueue');
+await addStickerJob({ telegramId: '123', stickerData: { ... } });
+```
+
+If `REDIS_URL` is not set or BullMQ is not installed, the queue degrades gracefully.
 
 ## Deployment
 

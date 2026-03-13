@@ -1,4 +1,4 @@
-import { telegramUsers, zoomTokens, botLogs, botMetrics, meetingInsights, type TelegramUser, type InsertTelegramUser, type ZoomToken, type InsertZoomToken, type BotLog, type InsertBotLog, type BotMetrics, type InsertBotMetrics, type MeetingInsights, type InsertMeetingInsights } from "@shared/schema";
+import { telegramUsers, zoomTokens, botLogs, botMetrics, meetingInsights, tokenTransactions, type TelegramUser, type InsertTelegramUser, type ZoomToken, type InsertZoomToken, type BotLog, type InsertBotLog, type BotMetrics, type InsertBotMetrics, type MeetingInsights, type InsertMeetingInsights, type TokenTransaction, type InsertTokenTransaction } from "@shared/schema";
 
 export interface IStorage {
   // Telegram Users
@@ -27,6 +27,13 @@ export interface IStorage {
   getActiveMeetingInsights(): Promise<MeetingInsights[]>;
   updateMeetingInsight(meetingId: string, updates: Partial<MeetingInsights>): Promise<MeetingInsights | undefined>;
   endMeeting(meetingId: string): Promise<MeetingInsights | undefined>;
+
+  // Token Wallet
+  createTokenTransaction(tx: InsertTokenTransaction): Promise<TokenTransaction>;
+  getTokenBalance(telegramId: string): Promise<number>;
+  getTokenHistory(telegramId: string, limit?: number): Promise<TokenTransaction[]>;
+  /** Atomically debit tokens. Throws if balance is insufficient. */
+  consumeTokens(telegramId: string, amount: number, action: string): Promise<TokenTransaction>;
 }
 
 export class MemStorage implements IStorage {
@@ -35,6 +42,7 @@ export class MemStorage implements IStorage {
   private botLogs: BotLog[];
   private botMetrics: BotMetrics | undefined;
   private meetingInsights: Map<string, MeetingInsights>;
+  private tokenTransactions: TokenTransaction[];
   private currentId: number;
 
   constructor() {
@@ -43,6 +51,7 @@ export class MemStorage implements IStorage {
     this.botLogs = [];
     this.botMetrics = undefined;
     this.meetingInsights = new Map();
+    this.tokenTransactions = [];
     this.currentId = 1;
     
     // Add sample meeting data for testing
@@ -244,6 +253,44 @@ export class MemStorage implements IStorage {
     };
     this.meetingInsights.set(meetingId, updatedInsight);
     return updatedInsight;
+  }
+
+  async createTokenTransaction(insertTx: InsertTokenTransaction): Promise<TokenTransaction> {
+    const id = this.currentId++;
+    const tx: TokenTransaction = {
+      ...insertTx,
+      id,
+      createdAt: new Date(),
+    };
+    this.tokenTransactions.push(tx);
+    return tx;
+  }
+
+  async getTokenBalance(telegramId: string): Promise<number> {
+    return this.tokenTransactions
+      .filter(tx => tx.userId === telegramId)
+      .reduce((sum, tx) => sum + tx.amount, 0);
+  }
+
+  async getTokenHistory(telegramId: string, limit = 50): Promise<TokenTransaction[]> {
+    return this.tokenTransactions
+      .filter(tx => tx.userId === telegramId)
+      .sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())
+      .slice(0, limit);
+  }
+
+  async consumeTokens(telegramId: string, amount: number, action: string): Promise<TokenTransaction> {
+    // Atomic balance check + debit (single-threaded in-memory: no race conditions)
+    const balance = await this.getTokenBalance(telegramId);
+    if (balance < amount) {
+      throw new Error('INSUFFICIENT_TOKENS');
+    }
+    return this.createTokenTransaction({
+      userId: telegramId,
+      amount: -amount,
+      type: 'debit',
+      source: 'feature_use',
+    });
   }
 }
 
