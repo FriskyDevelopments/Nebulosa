@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -8,6 +8,14 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+// Subscription plan enum: free | premium | pro
+export const planEnum = pgEnum("plan", ["free", "premium", "pro"]);
+export type SubscriptionPlan = "free" | "premium" | "pro";
+
+// Subscription status enum: inactive | active | cancelled | past_due
+export const subscriptionStatusEnum = pgEnum("subscription_status", ["inactive", "active", "cancelled", "past_due"]);
+export type SubscriptionStatus = "inactive" | "active" | "cancelled" | "past_due";
+
 export const telegramUsers = pgTable("telegram_users", {
   id: serial("id").primaryKey(),
   telegramId: text("telegram_id").notNull().unique(),
@@ -15,7 +23,22 @@ export const telegramUsers = pgTable("telegram_users", {
   firstName: text("first_name"),
   lastName: text("last_name"),
   isActive: boolean("is_active").default(true),
+  plan: planEnum("plan").notNull().default("free"),
+  subscriptionStatus: subscriptionStatusEnum("subscription_status").notNull().default("inactive"),
   joinedAt: timestamp("joined_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Subscriptions table for Stripe subscription records
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => telegramUsers.id),
+  plan: planEnum("plan").notNull(),
+  provider: text("provider").notNull().default("stripe"),
+  providerSubscriptionId: text("provider_subscription_id"),
+  status: subscriptionStatusEnum("status").notNull().default("inactive"),
+  renewalDate: timestamp("renewal_date"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const zoomTokens = pgTable("zoom_tokens", {
@@ -67,6 +90,12 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertTelegramUserSchema = createInsertSchema(telegramUsers).omit({
   id: true,
   joinedAt: true,
+  updatedAt: true,
+});
+
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertZoomTokenSchema = createInsertSchema(zoomTokens).omit({
@@ -101,3 +130,5 @@ export type BotMetrics = typeof botMetrics.$inferSelect;
 export type InsertBotMetrics = z.infer<typeof insertBotMetricsSchema>;
 export type MeetingInsights = typeof meetingInsights.$inferSelect;
 export type InsertMeetingInsights = z.infer<typeof insertMeetingInsightsSchema>;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;

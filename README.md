@@ -57,6 +57,15 @@ ZOOM_USER_CLIENT_SECRET=your_zoom_client_secret
 ZOOM_REDIRECT_URI=your_redirect_uri
 GITHUB_OAUTH_CALLBACK=https://your-username.github.io/your-repo/
 DATABASE_URL=your_postgresql_url
+
+# Subscription System — Stripe
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_PREMIUM=price_...
+STRIPE_PRICE_PRO=price_...
+
+# App base URL (used for Stripe redirect URLs)
+APP_BASE_URL=https://stixmagic.com
 ```
 
 ### Installation
@@ -149,7 +158,96 @@ npm run dev
 - Implement rate limiting
 - Set up backup strategies
 
-## Contributing
+## Subscription System (Phase 1)
+
+The subscription system provides plan-based feature access for Telegram users, backed by Stripe payments.
+
+### Plans
+
+| Plan | Description |
+|------|-------------|
+| `free` | Basic access (default) |
+| `premium` | Unlock advanced features |
+| `pro` | Unlock everything |
+
+### Database Schema
+
+The subscription system adds two new tables to the existing schema:
+
+**`telegram_users`** (extended):
+- `plan` — current plan: `free`, `premium`, `pro`
+- `subscription_status` — `inactive`, `active`, `cancelled`, `past_due`
+- `updated_at` — last modified timestamp
+
+**`subscriptions`**:
+- `user_id` — FK to `telegram_users.id`
+- `plan` — plan at time of subscription
+- `provider` — payment provider (`stripe`)
+- `provider_subscription_id` — Stripe subscription ID
+- `status` — subscription status
+- `renewal_date` — next billing date
+
+### Bot Commands
+
+- `/start` — Creates a user account (free plan) and shows welcome message with plan info
+- `/plans` — Shows available plans with inline upgrade buttons
+
+### API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/user` | Create or retrieve a user by `telegram_id` |
+| `GET` | `/api/user/:telegram_id` | Get user info and current plan |
+| `POST` | `/api/subscription/create-checkout` | Create Stripe Checkout session |
+| `POST` | `/api/subscription/webhook` | Handle Stripe webhook events |
+
+#### Create Checkout — request body
+```json
+{
+  "telegram_id": "123456789",
+  "plan": "premium"
+}
+```
+
+#### Webhook Events handled
+- `checkout.session.completed` — activates plan
+- `customer.subscription.updated` — syncs status/renewal date
+- `customer.subscription.deleted` — downgrades to free
+- `invoice.payment_failed` — marks as `past_due`
+
+### Stripe Setup
+
+1. Create a Stripe account and obtain your secret key.
+2. Create two recurring price objects (monthly) for Premium and Pro plans.
+3. Set the price IDs in `STRIPE_PRICE_PREMIUM` and `STRIPE_PRICE_PRO`.
+4. Configure a webhook endpoint pointing to `https://your-domain/api/subscription/webhook`.
+5. Set `STRIPE_WEBHOOK_SECRET` to the webhook signing secret.
+
+### Feature Access Pattern
+
+```js
+// Example gating logic
+if (user.plan === 'free') {
+  // basic features only
+} else if (user.plan === 'premium') {
+  // advanced tools unlocked
+} else if (user.plan === 'pro') {
+  // all features unlocked
+}
+```
+
+### Future: Token System
+
+The architecture supports adding a monthly token grant in a future phase:
+
+| Plan | Monthly tokens |
+|------|---------------|
+| Free | 100 |
+| Premium | 1 000 |
+| Pro | 5 000 |
+
+Tokens are **not** implemented in this phase.
+
 
 1. Fork the repository
 2. Create feature branch
