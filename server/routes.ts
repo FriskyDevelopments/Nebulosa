@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema } from "@shared/schema";
+import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema, insertStickerSpellSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard API routes
@@ -237,6 +237,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(insight);
     } catch (error) {
       res.status(400).json({ error: "Failed to end meeting" });
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Sticker Spell Engine — Admin API
+  // ---------------------------------------------------------------------------
+
+  // GET /api/spells — list all registered spells
+  app.get("/api/spells", async (_req, res) => {
+    try {
+      const spells = await storage.getStickerSpells();
+      res.json(spells);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch spells" });
+    }
+  });
+
+  // POST /api/spells — register a new spell
+  app.post("/api/spells", async (req, res) => {
+    try {
+      const spellData = insertStickerSpellSchema.parse(req.body);
+      const spell = await storage.createStickerSpell(spellData);
+      res.status(201).json(spell);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid spell data", details: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  // DELETE /api/spells/:id — remove a spell by id
+  app.delete("/api/spells/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid spell id" });
+      }
+      const deleted = await storage.deleteStickerSpell(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Spell not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete spell" });
     }
   });
 

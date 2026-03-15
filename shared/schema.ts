@@ -89,6 +89,23 @@ export const insertMeetingInsightsSchema = createInsertSchema(meetingInsights).o
   startedAt: true,
 });
 
+// Sticker Spells — map Telegram sticker file_ids to bot actions
+export const stickerSpells = pgTable("sticker_spells", {
+  id: serial("id").primaryKey(),
+  stickerFileId: text("sticker_file_id").notNull().unique(),
+  spellName: text("spell_name").notNull(),
+  // Supported action types: send_message | send_link | send_sticker | trigger_reaction | launch_feature
+  actionType: text("action_type").notNull(),
+  payload: text("payload").notNull(),
+  tokenCost: integer("token_cost").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertStickerSpellSchema = createInsertSchema(stickerSpells).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type TelegramUser = typeof telegramUsers.$inferSelect;
@@ -101,3 +118,5 @@ export type BotMetrics = typeof botMetrics.$inferSelect;
 export type InsertBotMetrics = z.infer<typeof insertBotMetricsSchema>;
 export type MeetingInsights = typeof meetingInsights.$inferSelect;
 export type InsertMeetingInsights = z.infer<typeof insertMeetingInsightsSchema>;
+export type StickerSpell = typeof stickerSpells.$inferSelect;
+export type InsertStickerSpell = z.infer<typeof insertStickerSpellSchema>;

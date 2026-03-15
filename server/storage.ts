@@ -1,4 +1,4 @@
-import { telegramUsers, zoomTokens, botLogs, botMetrics, meetingInsights, type TelegramUser, type InsertTelegramUser, type ZoomToken, type InsertZoomToken, type BotLog, type InsertBotLog, type BotMetrics, type InsertBotMetrics, type MeetingInsights, type InsertMeetingInsights } from "@shared/schema";
+import { telegramUsers, zoomTokens, botLogs, botMetrics, meetingInsights, stickerSpells, type TelegramUser, type InsertTelegramUser, type ZoomToken, type InsertZoomToken, type BotLog, type InsertBotLog, type BotMetrics, type InsertBotMetrics, type MeetingInsights, type InsertMeetingInsights, type StickerSpell, type InsertStickerSpell } from "@shared/schema";
 
 export interface IStorage {
   // Telegram Users
@@ -27,6 +27,12 @@ export interface IStorage {
   getActiveMeetingInsights(): Promise<MeetingInsights[]>;
   updateMeetingInsight(meetingId: string, updates: Partial<MeetingInsights>): Promise<MeetingInsights | undefined>;
   endMeeting(meetingId: string): Promise<MeetingInsights | undefined>;
+
+  // Sticker Spells
+  createStickerSpell(spell: InsertStickerSpell): Promise<StickerSpell>;
+  getStickerSpells(): Promise<StickerSpell[]>;
+  getStickerSpellByFileId(stickerFileId: string): Promise<StickerSpell | undefined>;
+  deleteStickerSpell(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -35,6 +41,7 @@ export class MemStorage implements IStorage {
   private botLogs: BotLog[];
   private botMetrics: BotMetrics | undefined;
   private meetingInsights: Map<string, MeetingInsights>;
+  private stickerSpellsMap: Map<number, StickerSpell>;
   private currentId: number;
 
   constructor() {
@@ -43,6 +50,7 @@ export class MemStorage implements IStorage {
     this.botLogs = [];
     this.botMetrics = undefined;
     this.meetingInsights = new Map();
+    this.stickerSpellsMap = new Map();
     this.currentId = 1;
     
     // Add sample meeting data for testing
@@ -244,6 +252,34 @@ export class MemStorage implements IStorage {
     };
     this.meetingInsights.set(meetingId, updatedInsight);
     return updatedInsight;
+  }
+
+  async createStickerSpell(insertSpell: InsertStickerSpell): Promise<StickerSpell> {
+    const id = this.currentId++;
+    const spell: StickerSpell = {
+      ...insertSpell,
+      id,
+      tokenCost: insertSpell.tokenCost ?? 0,
+      createdAt: new Date(),
+    };
+    this.stickerSpellsMap.set(id, spell);
+    return spell;
+  }
+
+  async getStickerSpells(): Promise<StickerSpell[]> {
+    return Array.from(this.stickerSpellsMap.values()).sort(
+      (a, b) => (a.createdAt ? a.createdAt.getTime() : 0) - (b.createdAt ? b.createdAt.getTime() : 0)
+    );
+  }
+
+  async getStickerSpellByFileId(stickerFileId: string): Promise<StickerSpell | undefined> {
+    return Array.from(this.stickerSpellsMap.values()).find(
+      (spell) => spell.stickerFileId === stickerFileId
+    );
+  }
+
+  async deleteStickerSpell(id: number): Promise<boolean> {
+    return this.stickerSpellsMap.delete(id);
   }
 }
 

@@ -19,6 +19,75 @@ An intelligent Zoom meeting management Telegram bot that revolutionizes virtual 
 - **GitHub OAuth Bypass**: Static domain solution for OAuth authentication
 - **Professional Dashboard**: Real-time analytics and monitoring interface
 - **Auto-Start Integration**: Browser bots launch automatically with new meetings
+- **🪄 Sticker Spell Engine**: Map Telegram stickers to bot actions — portals, rituals, reactions and more
+
+## Sticker Spell Engine
+
+The Sticker Spell Engine lets specific Telegram stickers trigger bot actions automatically.  Instead of typing a command, users simply send a registered sticker and the bot executes the configured spell.
+
+### How it works
+
+1. A user sends a sticker inside a Telegram chat where the bot is present.
+2. The bot reads the sticker's `file_id`.
+3. It looks up the `file_id` in the **spell registry** (the `sticker_spells` table).
+4. If a matching spell is found, the configured action is executed.
+
+### Supported action types
+
+| Action type | Behaviour |
+|---|---|
+| `send_message` | Bot replies with the `payload` text |
+| `send_link` | Bot replies with an inline button that opens the `payload` URL |
+| `send_sticker` | Bot sends the sticker whose `file_id` is in `payload` |
+| `trigger_reaction` | Bot sends the `payload` as an emoji / reaction message |
+| `launch_feature` | Bot announces a feature launch with the `payload` description |
+
+### Registering a spell
+
+Use the Admin API to add a new spell:
+
+```bash
+curl -X POST http://localhost:3000/api/spells \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stickerFileId": "ABC123",
+    "spellName": "portal",
+    "actionType": "send_link",
+    "payload": "https://t.me/+invite",
+    "tokenCost": 5
+  }'
+```
+
+### Admin API endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/spells` | List all registered spells |
+| `POST` | `/api/spells` | Create a new spell |
+| `DELETE` | `/api/spells/:id` | Delete a spell by id |
+
+### Default spells (`config/spellDefaults.ts`)
+
+Three built-in spell templates are provided:
+
+| Spell name | Action type | Default payload |
+|---|---|---|
+| `portal` | `send_link` | `https://t.me/+invite` |
+| `ritual` | `send_message` | 🔥 Ritual started — the event has begun! |
+| `magic` | `trigger_reaction` | ⚡ Magic activated! |
+
+Register a sticker `file_id` against one of these templates via the Admin API to activate it.
+
+### Adding new stickers
+
+1. Find the `file_id` of the Telegram sticker you want to use (forward the sticker to `@userinfobot` or log it from the bot console).
+2. Call `POST /api/spells` with the `file_id`, the desired `spell_name`, `action_type`, and `payload`.
+3. The spell is immediately active — no restart needed.
+
+### Optional token cost
+
+Set `token_cost > 0` on a spell to require tokens before it fires.  The token deduction logic lives in `bot.cjs` inside the `executeSpell` function and can be wired to your existing token balance system.
+
 
 ## Architecture
 

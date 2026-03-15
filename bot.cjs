@@ -3473,6 +3473,113 @@ bot.onText(/\/docs(.*)/, async (msg, match) => {
   }
 });
 
+// ---------------------------------------------------------------------------
+// Sticker Spell Engine
+// Listen for sticker messages and trigger the matching registered spell.
+// ---------------------------------------------------------------------------
+
+// In-memory spell registry (file_id → spell record).
+// Populated on startup from the storage layer (best-effort).
+const stickerSpellRegistry = new Map();
+
+// Resolve the storage module once — fail gracefully if unavailable
+// (e.g., the server/storage layer may not be compiled in all deployment modes).
+let _spellStorage = null;
+try {
+  _spellStorage = require('./server/storage').storage;
+} catch (_e) {
+  console.warn('[SpellEngine] server/storage unavailable — sticker spells disabled');
+}
+
+/**
+ * Reload the spell registry from the storage layer.
+ * Called on startup and whenever a spell is created/deleted via the API.
+ */
+async function reloadSpellRegistry() {
+  if (!_spellStorage) return;
+  try {
+    const spells = await _spellStorage.getStickerSpells();
+    stickerSpellRegistry.clear();
+    for (const spell of spells) {
+      stickerSpellRegistry.set(spell.stickerFileId, spell);
+    }
+    console.log(`[SpellEngine] Registry loaded — ${spells.length} spell(s) active`);
+  } catch (err) {
+    console.warn('[SpellEngine] Could not load spell registry:', err?.message);
+  }
+}
+
+/**
+ * Execute a registered spell in response to a sticker message.
+ * @param {object} spell  - Spell record from the registry
+ * @param {object} msg    - Telegram message object
+ */
+async function executeSpell(spell, msg) {
+  const chatId = msg.chat.id;
+  const userId = msg.from && msg.from.id;
+
+  console.log(`[SpellEngine] Spell triggered — name="${spell.spellName}" action="${spell.actionType}" user=${userId} chat=${chatId}`);
+
+  try {
+    switch (spell.actionType) {
+      case 'send_message':
+        await bot.sendMessage(chatId, spell.payload);
+        break;
+
+      case 'send_link':
+        await bot.sendMessage(
+          chatId,
+          `🌀 *${spell.spellName}* activated`,
+          {
+            parse_mode: 'Markdown',
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: 'Open link', url: spell.payload }],
+              ],
+            },
+          }
+        );
+        break;
+
+      case 'send_sticker':
+        await bot.sendSticker(chatId, spell.payload);
+        break;
+
+      case 'trigger_reaction':
+        await bot.sendMessage(chatId, spell.payload);
+        break;
+
+      case 'launch_feature':
+        await bot.sendMessage(
+          chatId,
+          `✨ *${spell.spellName}* feature launched\n\n${spell.payload}`,
+          { parse_mode: 'Markdown' }
+        );
+        break;
+
+      default:
+        console.warn(`[SpellEngine] Unknown actionType "${spell.actionType}"`);
+    }
+  } catch (err) {
+    console.error(`[SpellEngine] Error executing spell "${spell.spellName}":`, err?.message);
+  }
+}
+
+// Register the sticker message handler.
+bot.on('message', async (msg) => {
+  if (!msg.sticker) return;
+
+  const fileId = msg.sticker.file_id;
+  const spell = stickerSpellRegistry.get(fileId);
+
+  if (spell) {
+    await executeSpell(spell, msg);
+  }
+});
+
+// Load the registry once on startup (best-effort).
+reloadSpellRegistry();
+
 // Add test mode commands
 console.log('🤖 La NUBE BOT iniciado y escuchando comandos...');
 
