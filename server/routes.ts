@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema } from "@shared/schema";
+import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema, insertTokenTransactionSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard API routes
@@ -237,6 +237,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(insight);
     } catch (error) {
       res.status(400).json({ error: "Failed to end meeting" });
+    }
+  });
+
+  // ======================
+  // TOKEN WALLET API
+  // ======================
+
+  // GET /api/tokens/balance/:telegram_id
+  app.get("/api/tokens/balance/:telegram_id", async (req, res) => {
+    try {
+      const { telegram_id } = req.params;
+      const balance = await storage.getTokenBalance(telegram_id);
+      res.json({ balance });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch token balance" });
+    }
+  });
+
+  // GET /api/tokens/history/:telegram_id
+  app.get("/api/tokens/history/:telegram_id", async (req, res) => {
+    try {
+      const { telegram_id } = req.params;
+      const limit = Math.min(parseInt(req.query.limit as string, 10) || 50, 200);
+      const history = await storage.getTokenHistory(telegram_id, limit);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch token history" });
+    }
+  });
+
+  // POST /api/tokens/consume
+  app.post("/api/tokens/consume", async (req, res) => {
+    try {
+      const { telegram_id, amount, action } = req.body;
+      if (!telegram_id || typeof amount !== "number" || amount <= 0 || !action) {
+        return res.status(400).json({ error: "Invalid request: telegram_id, amount (>0), and action are required" });
+      }
+      const tx = await storage.consumeTokens(telegram_id, amount, action);
+      res.json(tx);
+    } catch (error: any) {
+      if (error?.message === "INSUFFICIENT_TOKENS") {
+        return res.status(402).json({ error: "INSUFFICIENT_TOKENS" });
+      }
+      res.status(500).json({ error: "Failed to consume tokens" });
     }
   });
 

@@ -2,6 +2,15 @@ import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Token wallet type constants (values defined in config/tokenCosts.js)
+export const TOKEN_TRANSACTION_TYPES = ["credit", "debit"] as const;
+export const TOKEN_TRANSACTION_SOURCES = [
+  "subscription_refill",
+  "manual_credit",
+  "feature_use",
+  "admin_adjustment",
+] as const;
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -15,7 +24,17 @@ export const telegramUsers = pgTable("telegram_users", {
   firstName: text("first_name"),
   lastName: text("last_name"),
   isActive: boolean("is_active").default(true),
+  subscriptionPlan: text("subscription_plan").default("free"), // free, premium, pro
   joinedAt: timestamp("joined_at").defaultNow(),
+});
+
+export const tokenTransactions = pgTable("token_transactions", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(), // telegram_id
+  amount: integer("amount").notNull(), // positive for credit, negative for debit
+  type: text("type").notNull(), // credit | debit
+  source: text("source").notNull(), // subscription_refill | manual_credit | feature_use | admin_adjustment
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const zoomTokens = pgTable("zoom_tokens", {
@@ -89,6 +108,11 @@ export const insertMeetingInsightsSchema = createInsertSchema(meetingInsights).o
   startedAt: true,
 });
 
+export const insertTokenTransactionSchema = createInsertSchema(tokenTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type TelegramUser = typeof telegramUsers.$inferSelect;
@@ -101,3 +125,5 @@ export type BotMetrics = typeof botMetrics.$inferSelect;
 export type InsertBotMetrics = z.infer<typeof insertBotMetricsSchema>;
 export type MeetingInsights = typeof meetingInsights.$inferSelect;
 export type InsertMeetingInsights = z.infer<typeof insertMeetingInsightsSchema>;
+export type TokenTransaction = typeof tokenTransactions.$inferSelect;
+export type InsertTokenTransaction = z.infer<typeof insertTokenTransactionSchema>;

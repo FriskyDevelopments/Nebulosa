@@ -4,6 +4,7 @@ const express = require('express');
 const axios = require('axios');
 const crypto = require('crypto');
 require('dotenv').config();
+const { PLAN_TOKEN_AMOUNTS, FEATURE_COSTS } = require('./config/tokenCosts');
 
 class CompleteRailwayBot {
     constructor() {
@@ -23,6 +24,11 @@ class CompleteRailwayBot {
         this.userSessions = new Map();
         this.oauthSessions = new Map();
 
+        // In-memory token wallet: Map<telegramId, TokenTransaction[]>
+        this.tokenTransactions = new Map();
+        // In-memory subscription plans: Map<telegramId, 'free'|'premium'|'pro'>
+        this.userPlans = new Map();
+
         this.setupExpress();
         this.setupTelegramBot();
         this.setWebhook();
@@ -41,6 +47,60 @@ class CompleteRailwayBot {
         }
 
         console.log('✅ Environment validation passed');
+    }
+
+    // ==========================
+    // TOKEN WALLET HELPERS
+    // ==========================
+
+    getTokenBalance(telegramId) {
+        const txList = this.tokenTransactions.get(String(telegramId)) || [];
+        return txList.reduce((sum, tx) => sum + tx.amount, 0);
+    }
+
+    getTokenHistory(telegramId, limit = 50) {
+        const txList = this.tokenTransactions.get(String(telegramId)) || [];
+        return [...txList]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, limit);
+    }
+
+    addTokenTransaction(telegramId, amount, type, source) {
+        const id = String(telegramId);
+        if (!this.tokenTransactions.has(id)) {
+            this.tokenTransactions.set(id, []);
+        }
+        const tx = {
+            id: Date.now(),
+            userId: id,
+            amount,
+            type,
+            source,
+            createdAt: new Date().toISOString(),
+        };
+        this.tokenTransactions.get(id).push(tx);
+        return tx;
+    }
+
+    /**
+     * Atomically consume tokens. Throws 'INSUFFICIENT_TOKENS' if balance is too low.
+     */
+    consumeTokens(telegramId, amount, action) {
+        const balance = this.getTokenBalance(telegramId);
+        if (balance < amount) {
+            throw new Error('INSUFFICIENT_TOKENS');
+        }
+        return this.addTokenTransaction(telegramId, -amount, 'debit', 'feature_use');
+    }
+
+    getUserPlan(telegramId) {
+        return this.userPlans.get(String(telegramId)) || 'free';
+    }
+
+    formatNextRefillDate() {
+        const now = new Date();
+        const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        return next.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     }
 
     setupExpress() {
@@ -111,6 +171,42 @@ class CompleteRailwayBot {
                 timestamp: new Date().toISOString(),
                 uptime: process.uptime()
             });
+        });
+
+        // ======================
+        // TOKEN WALLET API
+        // ======================
+
+        // GET /api/tokens/balance/:telegram_id
+        this.app.get('/api/tokens/balance/:telegram_id', (req, res) => {
+            const { telegram_id } = req.params;
+            const balance = this.getTokenBalance(telegram_id);
+            res.json({ balance });
+        });
+
+        // GET /api/tokens/history/:telegram_id
+        this.app.get('/api/tokens/history/:telegram_id', (req, res) => {
+            const { telegram_id } = req.params;
+            const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
+            const history = this.getTokenHistory(telegram_id, limit);
+            res.json(history);
+        });
+
+        // POST /api/tokens/consume
+        this.app.post('/api/tokens/consume', (req, res) => {
+            const { telegram_id, amount, action } = req.body;
+            if (!telegram_id || typeof amount !== 'number' || amount <= 0 || !action) {
+                return res.status(400).json({ error: 'Invalid request: telegram_id, amount (>0), and action are required' });
+            }
+            try {
+                const tx = this.consumeTokens(telegram_id, amount, action);
+                res.json(tx);
+            } catch (err) {
+                if (err.message === 'INSUFFICIENT_TOKENS') {
+                    return res.status(402).json({ error: 'INSUFFICIENT_TOKENS' });
+                }
+                res.status(500).json({ error: 'Failed to consume tokens' });
+            }
         });
 
         this.app.get('/', (req, res) => {
@@ -296,6 +392,76 @@ ${authUrl}
 Ready for Zoom integration!`;
 
             this.bot.sendMessage(chatId, statusMessage);
+        });
+
+        // /balance — Show token balance
+        this.bot.onText(/\/balance/, (msg) => {
+            const chatId = msg.chat.id;
+            const telegramId = String(msg.from.id);
+            const balance = this.getTokenBalance(telegramId);
+            const plan = this.getUserPlan(telegramId);
+            const nextRefill = this.formatNextRefillDate();
+
+            const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+
+            const message = `🪄 STIX MAGIC WALLET
+
+Tokens: ${balance}
+
+Plan: ${planLabel}
+Next refill: ${nextRefill}`;
+
+            this.bot.sendMessage(chatId, message);
+        });
+
+        // /wallet — Show wallet summary
+        this.bot.onText(/\/wallet/, (msg) => {
+            const chatId = msg.chat.id;
+            const telegramId = String(msg.from.id);
+            const balance = this.getTokenBalance(telegramId);
+            const plan = this.getUserPlan(telegramId);
+            const history = this.getTokenHistory(telegramId, 1);
+            const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+
+            let lastRefillLine = 'Last refill: —';
+            const lastRefill = history.find(tx => tx.source === 'subscription_refill');
+            if (lastRefill) {
+                const d = new Date(lastRefill.createdAt);
+                lastRefillLine = `Last refill: ${d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`;
+            }
+
+            const message = `🪄 Wallet
+
+Tokens: ${balance}
+Plan: ${planLabel}
+${lastRefillLine}`;
+
+            this.bot.sendMessage(chatId, message);
+        });
+
+        // /buy — Show token purchase options
+        this.bot.onText(/\/buy/, (msg) => {
+            const chatId = msg.chat.id;
+
+            const message = `✨ Buy Tokens
+
+Choose a token package:
+
+• 100 tokens — Starter
+• 500 tokens — Standard
+• 2000 tokens — Power
+
+Contact the bot admin or visit the payment portal to purchase tokens.`;
+
+            this.bot.sendMessage(chatId, message, {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: '100 tokens', callback_data: 'buy_100' }],
+                        [{ text: '500 tokens', callback_data: 'buy_500' }],
+                        [{ text: '2000 tokens', callback_data: 'buy_2000' }],
+                    ],
+                },
+            });
         });
     }
 
