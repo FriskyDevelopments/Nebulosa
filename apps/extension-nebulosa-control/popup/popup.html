@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nebulosa Control</title>
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --border: #2a2a4a;
+      --accent: #7c6af7;
+      --accent-dim: #4a3db0;
+      --text: #e8e8f0;
+      --text-dim: #8888aa;
+      --green: #4ade80;
+      --red: #f87171;
+      --badge-scaffold: #c0a020;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 300px;
+      min-height: 200px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    header img { width: 28px; height: 28px; }
+
+    header h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+    .status-dot.active { background: var(--green); }
+
+    .modules {
+      padding: 12px 0;
+    }
+
+    .module-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      gap: 12px;
+      transition: background 0.15s;
+    }
+    .module-row:hover { background: var(--surface); }
+
+    .module-info { flex: 1; }
+
+    .module-name {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .module-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .badge-scaffold {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--badge-scaffold);
+      background: rgba(192, 160, 32, 0.15);
+      border: 1px solid var(--badge-scaffold);
+      border-radius: 3px;
+      padding: 1px 5px;
+      margin-left: 6px;
+      vertical-align: middle;
+      text-transform: uppercase;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      width: 38px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 22px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 3px;
+      top: 3px;
+      background: var(--text-dim);
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--accent-dim); }
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(16px);
+      background: var(--accent);
+    }
+    .toggle input:disabled + .toggle-slider { opacity: 0.4; cursor: not-allowed; }
+
+    footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    #pinned-list {
+      padding: 0 16px 10px;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    #pinned-list .label { font-weight: 600; margin-bottom: 4px; }
+    #pinned-list .names { color: var(--green); }
+    #pinned-list.hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="../icons/icon-48.png" alt="Nebulosa" onerror="this.style.display='none'" />
+  <h1>Nebulosa Control</h1>
+</header>
+
+<div class="status-bar">
+  <div class="status-dot" id="status-dot"></div>
+  <span id="status-text">Checking…</span>
+</div>
+
+<div class="modules">
+
+  <!-- Multipin — IMPLEMENTED -->
+  <div class="module-row">
+    <div class="module-info">
+      <div class="module-name">Multipin</div>
+      <div class="module-desc">Auto-pin participants who raise hand + camera on</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="toggle-multipin" data-module="multipin" />
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <!-- Camera Monitor — PARTIALLY IMPLEMENTED -->
+  <div class="module-row">
+    <div class="module-info">
+      <div class="module-name">
+        Camera Monitor
+        <span class="badge-scaffold">Partial</span>
+      </div>
+      <div class="module-desc">Track camera-off duration; reminder sending TBD</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="toggle-cameraMonitor" data-module="cameraMonitor" />
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <!-- Moderation — SCAFFOLD -->
+  <div class="module-row">
+    <div class="module-info">
+      <div class="module-name">
+        Moderation
+        <span class="badge-scaffold">Scaffold</span>
+      </div>
+      <div class="module-desc">Chat keyword filter; mute/remove action TBD</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="toggle-moderation" data-module="moderation" />
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <!-- Waiting Room — SCAFFOLD -->
+  <div class="module-row">
+    <div class="module-info">
+      <div class="module-name">
+        Waiting Room
+        <span class="badge-scaffold">Scaffold</span>
+      </div>
+      <div class="module-desc">Automated admit rules — not yet implemented</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="toggle-waitingRoom" data-module="waitingRoom" />
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+</div>
+
+<div id="pinned-list" class="hidden">
+  <div class="label">Currently pinned:</div>
+  <div class="names" id="pinned-names">—</div>
+</div>
+
+<footer>Nebulosa v0.1.0 · <a href="https://github.com/FriskyDevelopments/Nebulosa" style="color:inherit" target="_blank">GitHub</a></footer>
+
+<script src="popup.js"></script>
+</body>
+</html>
