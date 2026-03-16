@@ -4,7 +4,7 @@
 'use strict';
 
 const { PrismaClient } = require('@prisma/client');
-const { logger } = require('../../core/logger');
+const { logger } = require('../core/logger');
 
 let prisma;
 

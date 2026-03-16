@@ -4,9 +4,9 @@
  */
 'use strict';
 
-const { createApp } = require('./api/app');
-const config = require('./core/config');
-const { logger } = require('./core/logger');
+const { createApp } = require('./app');
+const config = require('../core/config');
+const { logger } = require('../core/logger');
 
 const app = createApp();
 

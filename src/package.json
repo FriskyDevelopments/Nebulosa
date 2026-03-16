@@ -18,7 +18,7 @@
     "platform",
     "backend",
     "telegram",
-    "fastify"
+    "express"
   ],
   "author": "Stix Magic",
   "license": "MIT",
