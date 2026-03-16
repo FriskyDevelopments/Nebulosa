@@ -1,0 +1,74 @@
+{
+  "manifest_version": 3,
+  "name": "Nebulosa Control",
+  "version": "0.1.0",
+  "description": "Host automation and moderation toolkit for Zoom Web meetings.",
+
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab"
+  ],
+
+  "host_permissions": [
+    "https://*.zoom.us/*",
+    "https://app.zoom.us/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16":  "icons/icon-16.png",
+      "48":  "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+
+  "icons": {
+    "16":  "icons/icon-16.png",
+    "48":  "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.zoom.us/*",
+        "https://app.zoom.us/*"
+      ],
+      "js": [
+        "packages/event-bus/index.js",
+        "integrations/zoom/selectors.js",
+        "integrations/zoom/events.js",
+        "integrations/zoom/adapter.js",
+        "modules/multipin.js",
+        "modules/camera-monitor.js",
+        "modules/moderation.js",
+        "modules/waiting-room.js",
+        "content/zoom.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "packages/event-bus/index.js",
+        "integrations/zoom/selectors.js",
+        "integrations/zoom/events.js",
+        "integrations/zoom/adapter.js",
+        "modules/*.js",
+        "icons/*"
+      ],
+      "matches": [
+        "https://*.zoom.us/*",
+        "https://app.zoom.us/*"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="64" fill="#0f0f1a"/>
+  <!-- Nebula ring -->
+  <circle cx="64" cy="64" r="46" fill="none" stroke="#7c6af7" stroke-width="4" opacity="0.8"/>
+  <!-- Inner star / core -->
+  <circle cx="64" cy="64" r="18" fill="#7c6af7" opacity="0.9"/>
+  <!-- Glow dots -->
+  <circle cx="64" cy="18" r="5" fill="#a89ff8" opacity="0.7"/>
+  <circle cx="110" cy="64" r="5" fill="#a89ff8" opacity="0.7"/>
+  <circle cx="64" cy="110" r="5" fill="#a89ff8" opacity="0.7"/>
+  <circle cx="18" cy="64" r="5" fill="#a89ff8" opacity="0.7"/>
+  <!-- Diagonal dots -->
+  <circle cx="97" cy="31" r="3.5" fill="#c4b8ff" opacity="0.5"/>
+  <circle cx="97" cy="97" r="3.5" fill="#c4b8ff" opacity="0.5"/>
+  <circle cx="31" cy="97" r="3.5" fill="#c4b8ff" opacity="0.5"/>
+  <circle cx="31" cy="31" r="3.5" fill="#c4b8ff" opacity="0.5"/>
+</svg>

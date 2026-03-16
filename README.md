@@ -1,10 +1,69 @@
-# LA NUBE BOT ✦　ＬＡ　ＮＵＢＥ　ＢＯＴ　☁️
+# Nebulosa ✦ Automation & Moderation Toolkit for Live Meeting Hosts
 
-An intelligent Zoom meeting management Telegram bot that revolutionizes virtual collaboration through advanced AI-powered features and seamless communication technologies.
+Nebulosa is a modular platform for automating and moderating live Zoom meetings. The platform ships two integrated products:
+
+1. **Nebulosa Control** — A Manifest V3 browser extension that runs directly in the Zoom Web Client and automates host actions (multipin, camera monitoring, moderation, waiting room).
+2. **Nebulosa Bot** — A Telegram bot + Puppeteer integration for meeting management via chat commands.
+
+---
+
+## 🚀 Quick Start: Browser Extension
+
+See **[docs/extension.md](docs/extension.md)** for full setup instructions.
+
+```bash
+# Load the extension in Chrome / Edge:
+# 1. Open chrome://extensions
+# 2. Enable Developer mode
+# 3. Click "Load unpacked"
+# 4. Select: apps/extension-nebulosa-control/
+```
+
+The extension activates automatically on `https://*.zoom.us/*` pages.
+
+---
+
+## Platform Architecture
+
+```
+apps/
+  extension-nebulosa-control/   ← Browser extension (Manifest V3)
+integrations/
+  zoom/                         ← Zoom DOM selectors, event detection, adapter
+packages/
+  event-bus/                    ← Internal pub/sub event system
+docs/
+  architecture.md               ← Full architecture overview
+  extension.md                  ← Extension setup and usage
+  tampermonkey-migration.md     ← Migration notes from original scripts
+```
+
+See **[docs/architecture.md](docs/architecture.md)** for the complete architecture guide.
+
+---
+
+## Browser Extension Features
+
+| Feature | Status | Description |
+|---|---|---|
+| Multipin | ✅ Implemented | Auto-pin on hand raise + camera on. 60s grace on camera off. |
+| Camera Monitor | ⚡ Partial | Tracks camera-off duration. Reminder sending TBD. |
+| Moderation | 🔲 Scaffold | Chat keyword detection. Mute/remove action TBD. |
+| Waiting Room | 🔲 Scaffold | Architecture boundary. Auto-admit rules TBD. |
+
+---
+
+## Nebulosa Bot (Telegram)
 
 ## Features
 
-### Core Functionality
+### Browser Extension
+- **Multipin Automation**: Auto-pin participants who raise hand with camera on
+- **60s Camera Timer**: Unpin if camera off for more than 60 seconds
+- **Popup UI**: Toggle modules on/off from the toolbar icon
+- **Debug Mode**: Verbose console logging via `window.__NEBULOSA_DEBUG = true`
+
+### Telegram Bot
 - **🤖 Automated Multipin with Puppeteer**: Browser automation for seamless multipin control
 - **Multipin Management**: Camera ON + Hand Raise required for multipin access
 - **Real-time Meeting Monitoring**: Continuous participant scanning with 30-second intervals
