@@ -52,7 +52,7 @@ function animationStudioEntryKeyboard() {
                 { text: '📦 Export Pack',    callback_data: 'anim:export_pack' },
             ],
             [
-                { text: '« Back to Studio',  callback_data: 'mc:menu' },
+                { text: '« Back to Magic Center',  callback_data: 'mc:menu' },
             ],
         ],
     };
