@@ -6,6 +6,7 @@ const { sendMagicCenter, handleMagicCenterCallback } = require('./magicCenter');
 const { handleImageMessage } = require('./handlers/stickerHandler');
 const { handleDraftCallback, handleDraftsCommand, handleTrashCommand } = require('./handlers/draftHandler');
 const { handleCatalogCommand, handleMyStickerCommand } = require('./handlers/catalogHandler');
+const { sendAnimationStudio, handleAnimationCallback } = require('./handlers/animationHandler');
 const { usageSummary } = require('../services/usageService');
 
 /**
@@ -30,6 +31,13 @@ function createBot(token, options = {}) {
     // ------------------------------------------------------------------
     bot.onText(/^\/menu/, async (msg) => {
         await sendMagicCenter(bot, msg.chat.id);
+    });
+
+    // ------------------------------------------------------------------
+    // /animate  →  Animation Studio
+    // ------------------------------------------------------------------
+    bot.onText(/^\/animate/, async (msg) => {
+        await sendAnimationStudio(bot, msg.chat.id);
     });
 
     // ------------------------------------------------------------------
@@ -82,6 +90,7 @@ function createBot(token, options = {}) {
             `✨ *Stix Magic Help*\n\n` +
             `*Commands:*\n` +
             `/start – Magic Center\n` +
+            `/animate – Animation Studio\n` +
             `/drafts – Draft Vault\n` +
             `/catalog – Approved stickers\n` +
             `/mystickers – My sticker collection\n` +
@@ -89,7 +98,10 @@ function createBot(token, options = {}) {
             `/plans – Usage & plan info\n` +
             `/help – This message\n\n` +
             `*Create a sticker:*\n` +
-            `Simply send a photo and Magic Cut will turn it into a sticker draft.`,
+            `Simply send a photo and Magic Cut will turn it into a sticker draft.\n\n` +
+            `*Animation Studio:*\n` +
+            `Choose a motion style for your sticker, preview your animation, ` +
+            `and export loop-ready assets for Telegram, WebM, GIF, or WebP.`,
             { parse_mode: 'Markdown' }
         );
     });
@@ -118,6 +130,8 @@ function createBot(token, options = {}) {
             await handleMagicCenterCallback(bot, query);
         } else if (data.startsWith('draft:')) {
             await handleDraftCallback(bot, query);
+        } else if (data.startsWith('anim:')) {
+            await handleAnimationCallback(bot, query);
         } else {
             await bot.answerCallbackQuery(query.id);
         }
