@@ -265,8 +265,26 @@ async function handleAnimationCallback(bot, query) {
             await bot.sendMessage(chatId, `⚠️ Unknown export format.`);
             return;
         }
-        const preset  = session.preset;
-        const presetLabel = preset ? PRESETS[preset].label : 'None';
+        const preset = session.preset;
+        if (!preset || !PRESETS[preset]) {
+            await bot.editMessageText(
+                `🎨 Please choose a motion style *before* exporting.\n\n` +
+                `Tap *Choose Motion* to pick an effect, then come back here to export your animation pack.`,
+                {
+                    chat_id: chatId,
+                    message_id: msgId,
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{ text: '🎨 Choose Motion first', callback_data: 'anim:choose_motion' }],
+                            [{ text: '« Back to Studio',       callback_data: 'anim:back_to_studio' }],
+                        ],
+                    },
+                }
+            );
+            return;
+        }
+        const presetLabel = PRESETS[preset].label;
         await bot.editMessageText(
             `📦 *Export ready* — ${fmt.emoji} ${fmt.label}\n\n` +
             `Motion style: *${presetLabel}*\n\n` +
