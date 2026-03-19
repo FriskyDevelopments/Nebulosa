@@ -5,6 +5,7 @@
 const { usageSummary } = require('../services/usageService');
 const { handleDraftsCommand, handleTrashCommand } = require('./handlers/draftHandler');
 const { handleCatalogCommand, handleMyStickerCommand } = require('./handlers/catalogHandler');
+const { sendAnimationStudio } = require('./handlers/animationHandler');
 
 const MAGIC_CENTER_TEXT =
     `✨ *Welcome to Stix Magic!*\n\n` +
@@ -18,16 +19,19 @@ function magicCenterKeyboard() {
     return {
         inline_keyboard: [
             [
-                { text: '🎨 Create Sticker', callback_data: 'mc:create' },
-                { text: '📦 Draft Vault',    callback_data: 'mc:drafts' },
+                { text: '🎨 Create Sticker',    callback_data: 'mc:create' },
+                { text: '📦 Draft Vault',        callback_data: 'mc:drafts' },
             ],
             [
-                { text: '🗂 Catalog',        callback_data: 'mc:catalog' },
-                { text: '🌟 My Stickers',    callback_data: 'mc:mystickers' },
+                { text: '🎬 Animation Studio',  callback_data: 'mc:animate' },
+                { text: '🗂 Catalog',            callback_data: 'mc:catalog' },
             ],
             [
-                { text: '🗑 Trash',          callback_data: 'mc:trash' },
-                { text: '📊 Plans',          callback_data: 'mc:plans' },
+                { text: '🌟 My Stickers',        callback_data: 'mc:mystickers' },
+                { text: '📊 Plans',              callback_data: 'mc:plans' },
+            ],
+            [
+                { text: '🗑 Trash',              callback_data: 'mc:trash' },
             ],
         ],
     };
@@ -66,6 +70,14 @@ async function handleMagicCenterCallback(bot, query) {
     await bot.answerCallbackQuery(query.id);
 
     switch (action) {
+        case 'mc:animate':
+            await sendAnimationStudio(bot, chatId, query.message.message_id);
+            break;
+
+        case 'mc:menu':
+            await sendMagicCenter(bot, chatId, query.message.message_id);
+            break;
+
         case 'mc:create':
             await bot.sendMessage(
                 chatId,
