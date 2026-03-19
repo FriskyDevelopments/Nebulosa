@@ -170,7 +170,7 @@ function previewLoopText(preset) {
     return (
         `▶️ *Preview Loop — ${p.emoji} ${p.label}*\n\n` +
         `Motion style: *${p.label}* (${p.tagline})\n\n` +
-        `Send a sticker or image to preview it with the *${p.label}* effect applied.\n` +
+        `Send an image (photo or file) to preview it with the *${p.label}* effect applied.\n` +
         `The loop will play at standard Telegram animation speed.`
     );
 }
