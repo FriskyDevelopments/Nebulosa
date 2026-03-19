@@ -116,7 +116,6 @@ function presetSelectionKeyboard() {
  * @param {string} preset – currently selected preset key
  */
 function exportKeyboard(preset) {
-    const presetLabel = PRESETS[preset] ? PRESETS[preset].label : 'selected';
     return {
         inline_keyboard: [
             [
