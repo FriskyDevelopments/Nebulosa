@@ -25,7 +25,7 @@ const EXPORT_FORMATS = {
 
 /**
  * In-memory session: tracks which preset the user has selected.
- * Shape: { [userId]: { preset: string | null, lastTouched: number } }
+ * Shape: { [`${chatId}:${userId}`]: { preset: string | null, lastTouched: number } }
  */
 const SESSION_TTL_MS = 1000 * 60 * 60; // 1 hour
 const SESSION_SWEEP_INTERVAL_MS = 1000 * 60 * 10; // sweep every 10 minutes (lazy)
@@ -38,24 +38,25 @@ function _cleanupExpiredSessions(now) {
     }
     _lastSessionSweep = now;
 
-    for (const [userId, session] of _sessions) {
+    for (const [key, session] of _sessions) {
         if (!session || typeof session.lastTouched !== 'number') {
             continue;
         }
         if (now - session.lastTouched > SESSION_TTL_MS) {
-            _sessions.delete(userId);
+            _sessions.delete(key);
         }
     }
 }
 
-function _getSession(userId) {
+function _getSession(chatId, userId) {
+    const key = `${chatId}:${userId}`;
     const now = Date.now();
 
-    if (!_sessions.has(userId)) {
-        _sessions.set(userId, { preset: null, lastTouched: now });
+    if (!_sessions.has(key)) {
+        _sessions.set(key, { preset: null, lastTouched: now });
     }
 
-    const session = _sessions.get(userId);
+    const session = _sessions.get(key);
     if (session) {
         session.lastTouched = now;
     }
@@ -141,11 +142,11 @@ function studioIntroText() {
     return (
         `🎬 *Animation Studio*\n\n` +
         `Turn static stickers into living reactions with curated motion presets, ` +
-        `fast previews, and export-ready formats.\n\n` +
+        `fast previews, and multiple export formats.\n\n` +
         `*Choose a step to get started:*\n\n` +
         `🎨 *Choose Motion* — Select a motion style for your sticker\n` +
         `▶️ *Preview Loop* — Preview your animation before export\n` +
-        `📦 *Export Pack* — Generate loop-ready assets for chat platforms`
+        `📦 *Export Pack* — Choose your target format for chat platforms`
     );
 }
 
@@ -178,16 +179,16 @@ function previewLoopText(preset) {
 function exportPackText(preset) {
     if (!preset) {
         return (
-            `📦 *Generate loop-ready assets for chat platforms*\n\n` +
+            `📦 *Export Pack*\n\n` +
             `You haven't chosen a motion style yet.\n\n` +
-            `Go to *Choose Motion* first, then return here to export your pack.`
+            `Go to *Choose Motion* first, then return here to select your export format.`
         );
     }
     const p = PRESETS[preset];
     return (
         `📦 *Export Pack — ${p.emoji} ${p.label}*\n\n` +
         `Motion style: *${p.label}* (${p.tagline})\n\n` +
-        `Select your export format below:\n\n` +
+        `Select your target export format:\n\n` +
         `📱 *Telegram (.tgs)* — Native animated sticker\n` +
         `🎬 *WebM* — Web-compatible loop\n` +
         `🖼 *GIF* — Universal animated image\n` +
@@ -229,7 +230,7 @@ async function handleAnimationCallback(bot, query) {
     const chatId  = query.message.chat.id;
     const msgId   = query.message.message_id;
     const userId  = String(query.from.id);
-    const session = _getSession(userId);
+    const session = _getSession(chatId, userId);
     const action  = query.data; // e.g. 'anim:choose_motion'
 
     await bot.answerCallbackQuery(query.id);
@@ -286,10 +287,10 @@ async function handleAnimationCallback(bot, query) {
         }
         const presetLabel = PRESETS[preset].label;
         await bot.editMessageText(
-            `📦 *Export ready* — ${fmt.emoji} ${fmt.label}\n\n` +
+            `📦 *Export Pack confirmed* — ${fmt.emoji} ${fmt.label}\n\n` +
             `Motion style: *${presetLabel}*\n\n` +
-            `Send a sticker or image and I'll generate a loop-ready *${fmt.label}* ` +
-            `file with the *${presetLabel}* effect applied.`,
+            `Your animation will be exported as *${fmt.label}* with the *${presetLabel}* ` +
+            `effect once you send an image through the studio flow.`,
             {
                 chat_id: chatId,
                 message_id: msgId,

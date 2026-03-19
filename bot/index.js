@@ -101,7 +101,7 @@ function createBot(token, options = {}) {
             `Simply send a photo and Magic Cut will turn it into a sticker draft.\n\n` +
             `*Animation Studio:*\n` +
             `Choose a motion style for your sticker, preview your animation, ` +
-            `and export loop-ready assets for Telegram, WebM, GIF, or WebP.`,
+            `and select an export format (Telegram, WebM, GIF, or WebP).`,
             { parse_mode: 'Markdown' }
         );
     });
