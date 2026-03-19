@@ -25,15 +25,43 @@ const EXPORT_FORMATS = {
 
 /**
  * In-memory session: tracks which preset the user has selected.
- * Shape: { [userId]: { preset: string | null } }
+ * Shape: { [userId]: { preset: string | null, lastTouched: number } }
  */
+const SESSION_TTL_MS = 1000 * 60 * 60; // 1 hour
+const SESSION_SWEEP_INTERVAL_MS = 1000 * 60 * 10; // sweep every 10 minutes (lazy)
 const _sessions = new Map();
+let _lastSessionSweep = Date.now();
+
+function _cleanupExpiredSessions(now) {
+    if (now - _lastSessionSweep < SESSION_SWEEP_INTERVAL_MS) {
+        return;
+    }
+    _lastSessionSweep = now;
+
+    for (const [userId, session] of _sessions) {
+        if (!session || typeof session.lastTouched !== 'number') {
+            continue;
+        }
+        if (now - session.lastTouched > SESSION_TTL_MS) {
+            _sessions.delete(userId);
+        }
+    }
+}
 
 function _getSession(userId) {
+    const now = Date.now();
+
     if (!_sessions.has(userId)) {
-        _sessions.set(userId, { preset: null });
+        _sessions.set(userId, { preset: null, lastTouched: now });
     }
-    return _sessions.get(userId);
+
+    const session = _sessions.get(userId);
+    if (session) {
+        session.lastTouched = now;
+    }
+
+    _cleanupExpiredSessions(now);
+    return session;
 }
 
 // ------------------------------------------------------------------
