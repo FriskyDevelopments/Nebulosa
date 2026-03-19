@@ -1,0 +1,34 @@
+// Prisma Schema for Stix Magic
+// Manages users, subscription plans, and Stripe payments
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int            @id @default(autoincrement())
+  telegram_id           BigInt         @unique
+  telegram_username     String?
+  plan                  String         @default("free")
+  subscription_status   String         @default("inactive")
+  created_at            DateTime       @default(now())
+  updated_at            DateTime       @updatedAt
+  subscriptions         Subscription[]
+}
+
+model Subscription {
+  id                       Int      @id @default(autoincrement())
+  user_id                  Int
+  plan                     String
+  provider                 String   @default("stripe")
+  provider_subscription_id String?
+  status                   String   @default("active")
+  renewal_date             DateTime?
+  created_at               DateTime @default(now())
+  user                     User     @relation(fields: [user_id], references: [id])
+}
