@@ -15,7 +15,9 @@ function getCleanClientSecret() {
 
 // Get access token from authorization code
 async function getAccessToken(code) {
-  const url = `https://zoom.us/oauth/token?grant_type=authorization_code&code=${code}&redirect_uri=${process.env.ZOOM_REDIRECT_URI}`;
+  // Fix for 4700 error: Use correct redirect URI from environment
+  const redirectUri = process.env.ZOOM_REDIRECT_URI || 'https://nebulosa-production.railway.app/auth/zoom/callback';
+  const url = `https://zoom.us/oauth/token?grant_type=authorization_code&code=${code}&redirect_uri=${redirectUri}`;
 
   const response = await axios.post(url, {}, {
     auth: {

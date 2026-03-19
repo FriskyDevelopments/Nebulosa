@@ -12,7 +12,8 @@ class CompleteRailwayBot {
         this.BOT_TOKEN = process.env.BOT_TOKEN;
         this.ZOOM_CLIENT_ID = process.env.ZOOM_CLIENT_ID;
         this.ZOOM_CLIENT_SECRET = process.env.ZOOM_CLIENT_SECRET;
-        this.ZOOM_REDIRECT_URI = process.env.ZOOM_REDIRECT_URI || `https://nebulosa-production.railway.app/oauth/callback`;
+        // Fix for 4700 error: Use consistent callback URL
+        this.ZOOM_REDIRECT_URI = process.env.ZOOM_REDIRECT_URI || `https://nebulosa-production.railway.app/auth/zoom/callback`;
         this.WEBHOOK_URL = `https://${process.env.RAILWAY_STATIC_URL || 'nebulosa-production.railway.app'}/webhook`;
 
         // Validate environment
@@ -58,12 +59,13 @@ class CompleteRailwayBot {
         });
 
         // ======================
-        // ZOOM OAUTH CALLBACK
+        // ZOOM OAUTH CALLBACK - Fix for 4700 error
         // ======================
-        this.app.get('/oauth/callback', async (req, res) => {
+        // Support both callback URLs to handle existing configurations
+        const callbackHandler = async (req, res) => {
             const { code, state, error, error_description } = req.query;
 
-            console.log('🔗 OAuth callback received:');
+            console.log('🔗 OAuth callback received on:', req.path);
             console.log('Code:', code ? `${code.substring(0, 10)}...` : 'Missing');
             console.log('State:', state);
             console.log('Error:', error);
@@ -97,7 +99,11 @@ class CompleteRailwayBot {
                 console.error('❌ Token exchange failed:', error.message);
                 res.status(500).send(this.getTokenErrorPage(error));
             }
-        });
+        };
+
+        // Support both callback URLs for compatibility
+        this.app.get('/oauth/callback', callbackHandler);
+        this.app.get('/auth/zoom/callback', callbackHandler);
 
         // ======================
         // HEALTH & STATUS
