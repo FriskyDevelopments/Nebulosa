@@ -23,10 +23,22 @@ export const telegramUsers = pgTable("telegram_users", {
   firstName: text("first_name"),
   lastName: text("last_name"),
   isActive: boolean("is_active").default(true),
+  /** Current entitlement snapshot — updated by webhook after payment events */
   plan: planEnum("plan").notNull().default("free"),
+  /** Subscription billing state — mirrors the active Stripe subscription status */
   subscriptionStatus: subscriptionStatusEnum("subscription_status").notNull().default("inactive"),
   joinedAt: timestamp("joined_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  // ─── Token system (NOT YET IMPLEMENTED) ─────────────────────────────────────
+  // These fields are reserved for a future token phase.
+  // When implemented, each plan will grant a monthly token allowance.
+  //   free    → 100 tokens/month
+  //   premium → 1,000 tokens/month
+  //   pro     → 5,000 tokens/month
+  /** Reserved: monthly token grant for this plan tier (tokens not yet active) */
+  monthlyTokenAllowance: integer("monthly_token_allowance").default(0),
+  /** Reserved: current token balance for this user (tokens not yet active) */
+  tokenBalance: integer("token_balance").default(0),
 });
 
 // Subscriptions table for Stripe subscription records
@@ -36,8 +48,28 @@ export const subscriptions = pgTable("subscriptions", {
   plan: planEnum("plan").notNull(),
   provider: text("provider").notNull().default("stripe"),
   providerSubscriptionId: text("provider_subscription_id"),
+  /** Stripe customer ID — used to correlate events without metadata lookups */
+  stripeCustomerId: text("stripe_customer_id"),
+  /** Price ID used for the active subscription — helps detect plan changes */
+  providerPriceId: text("provider_price_id"),
   status: subscriptionStatusEnum("status").notNull().default("inactive"),
   renewalDate: timestamp("renewal_date"),
+  /** Timestamp when the current billing period ends (from Stripe) */
+  currentPeriodEnd: timestamp("current_period_end"),
+  /** Whether the subscription is set to cancel at the end of the current period */
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+/**
+ * stripe_events — idempotency log for Stripe webhook events.
+ * Events with a duplicate event_id are rejected and not reprocessed.
+ */
+export const stripeEvents = pgTable("stripe_events", {
+  id: serial("id").primaryKey(),
+  eventId: text("event_id").notNull().unique(),
+  type: text("type").notNull(),
+  processed: boolean("processed").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -98,6 +130,11 @@ export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
   createdAt: true,
 });
 
+export const insertStripeEventSchema = createInsertSchema(stripeEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertZoomTokenSchema = createInsertSchema(zoomTokens).omit({
   id: true,
   createdAt: true,
@@ -132,3 +169,6 @@ export type MeetingInsights = typeof meetingInsights.$inferSelect;
 export type InsertMeetingInsights = z.infer<typeof insertMeetingInsightsSchema>;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type StripeEvent = typeof stripeEvents.$inferSelect;
+export type InsertStripeEvent = z.infer<typeof insertStripeEventSchema>;
+

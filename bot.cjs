@@ -1241,7 +1241,25 @@ async function generateAuthUrl(userId) {
 // In-memory subscription user registry (populated from API on first use)
 const subscriptionUsers = new Map(); // telegram_id -> { plan, subscription_status }
 
-// Helper: upsert a subscription user via the internal API
+// ─── Subscription helpers ────────────────────────────────────────────────────
+
+/** Fetch the latest user record from the API (always fresh, never stale cache) */
+async function fetchSubscriptionUser(telegramId) {
+  try {
+    const apiBase = process.env.INTERNAL_API_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const res = await axios.get(`${apiBase}/api/user/${String(telegramId)}`);
+    subscriptionUsers.set(String(telegramId), res.data);
+    return res.data;
+  } catch (err) {
+    // Fall back to cached value if available
+    const cached = subscriptionUsers.get(String(telegramId));
+    if (cached) return cached;
+    console.error(`fetchSubscriptionUser error for user ${telegramId}:`, err.message);
+    return { telegram_id: String(telegramId), plan: 'free', subscription_status: 'inactive' };
+  }
+}
+
+/** Upsert a subscription user via the internal API */
 async function upsertSubscriptionUser(telegramId, telegramUsername) {
   try {
     const apiBase = process.env.INTERNAL_API_URL || `http://localhost:${process.env.PORT || 5000}`;
@@ -1257,6 +1275,26 @@ async function upsertSubscriptionUser(telegramId, telegramUsername) {
   }
 }
 
+/** Return a human-readable label for a plan */
+function getPlanLabel(plan) {
+  switch (plan) {
+    case 'pro': return 'Pro 🚀';
+    case 'premium': return 'Premium ⭐';
+    default: return 'Free 🆓';
+  }
+}
+
+/** Return true if the user's plan grants access to premium or pro features */
+function userHasPremiumAccess(subUser) {
+  return subUser.subscription_status === 'active' &&
+    (subUser.plan === 'premium' || subUser.plan === 'pro');
+}
+
+/** Return true if the user's plan grants access to pro-only features */
+function userHasProAccess(subUser) {
+  return subUser.subscription_status === 'active' && subUser.plan === 'pro';
+}
+
 // Commands
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
@@ -1265,34 +1303,20 @@ bot.onText(/\/start/, async (msg) => {
   
   trackCommand('/start', userId);
   
-  // Create or fetch subscription user account
+  // Create or fetch subscription user account (always from API, not local state)
   const subUser = await upsertSubscriptionUser(userId, username);
-  const planLabel = subUser.plan === 'pro' ? 'Pro' : subUser.plan === 'premium' ? 'Premium' : 'Free';
+  const planLabel = getPlanLabel(subUser.plan);
 
-  const lang = getUserLanguage(userId);
-  const welcome = strings[lang].welcome;
-  
-  const welcomeMessage = `
-${welcome.title}
+  const welcomeMessage = `🪄 *Welcome to STIX MAGIC*
 
-${welcome.greeting.replace('{username}', username)}
-
-${welcome.commands}
-${welcome.commandList.join('\n')}
-
-${welcome.features}
-${welcome.featureList.join('\n')}
-
-${welcome.ready}
-
-🪄 *Your account has been created.*
+Your account is ready.
 📦 Plan: *${planLabel}*
-Use /plans to see available upgrades.
-  `;
+
+Use /plans to see available upgrades.`;
 
   try {
     await bot.sendMessage(chatId, welcomeMessage, { parse_mode: 'Markdown' });
-    await logToChannel(`New user started bot: @${username}`, userId);
+    await logToChannel(`User started bot: @${username} (plan: ${subUser.plan})`, userId);
   } catch (error) {
     console.error('Error sending welcome message:', error);
     await logToChannel(`Error sending welcome message to user ${userId}: ${error.message}`, userId);
@@ -1302,6 +1326,12 @@ Use /plans to see available upgrades.
 // Subscription plans command
 bot.onText(/\/plans/, async (msg) => {
   const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  // Always fetch fresh plan state from API
+  const subUser = await fetchSubscriptionUser(userId);
+  const currentPlan = subUser.plan || 'free';
+
   const upgradeUrl = process.env.APP_BASE_URL ? `${process.env.APP_BASE_URL}/upgrade` : 'https://stixmagic.com/upgrade';
 
   const plansMessage = `✨ *STIX MAGIC PLANS*
@@ -1315,7 +1345,8 @@ Unlock advanced sticker magic
 🚀 *Pro*
 Unlock all features
 
-Tap a button below to upgrade your plan.`;
+Your current plan: *${getPlanLabel(currentPlan)}*
+${currentPlan === 'free' ? '\nTap a button below to upgrade.' : ''}`;
 
   const keyboard = {
     inline_keyboard: [

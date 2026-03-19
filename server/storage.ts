@@ -1,4 +1,4 @@
-import { telegramUsers, zoomTokens, botLogs, botMetrics, meetingInsights, subscriptions, type TelegramUser, type InsertTelegramUser, type ZoomToken, type InsertZoomToken, type BotLog, type InsertBotLog, type BotMetrics, type InsertBotMetrics, type MeetingInsights, type InsertMeetingInsights, type Subscription, type InsertSubscription } from "@shared/schema";
+import { telegramUsers, zoomTokens, botLogs, botMetrics, meetingInsights, subscriptions, stripeEvents, type TelegramUser, type InsertTelegramUser, type ZoomToken, type InsertZoomToken, type BotLog, type InsertBotLog, type BotMetrics, type InsertBotMetrics, type MeetingInsights, type InsertMeetingInsights, type Subscription, type InsertSubscription, type StripeEvent, type InsertStripeEvent } from "@shared/schema";
 
 export interface IStorage {
   // Telegram Users
@@ -34,6 +34,10 @@ export interface IStorage {
   getSubscriptionByProviderId(providerSubscriptionId: string): Promise<Subscription | undefined>;
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
   updateSubscription(providerSubscriptionId: string, updates: Partial<Subscription>): Promise<Subscription | undefined>;
+
+  // Stripe Event idempotency log
+  hasStripeEvent(eventId: string): Promise<boolean>;
+  recordStripeEvent(event: InsertStripeEvent): Promise<StripeEvent>;
 }
 
 export class MemStorage implements IStorage {
@@ -43,6 +47,8 @@ export class MemStorage implements IStorage {
   private botMetrics: BotMetrics | undefined;
   private meetingInsights: Map<string, MeetingInsights>;
   private subscriptionsMap: Map<string, Subscription>;
+  private stripeEventsSet: Set<string>;
+  private stripeEventsList: StripeEvent[];
   private currentId: number;
 
   constructor() {
@@ -52,6 +58,8 @@ export class MemStorage implements IStorage {
     this.botMetrics = undefined;
     this.meetingInsights = new Map();
     this.subscriptionsMap = new Map();
+    this.stripeEventsSet = new Set();
+    this.stripeEventsList = [];
     this.currentId = 1;
     
     // Add sample meeting data for testing
@@ -131,6 +139,9 @@ export class MemStorage implements IStorage {
       ...insertUser,
       id,
       joinedAt: new Date(),
+      updatedAt: new Date(),
+      monthlyTokenAllowance: insertUser.monthlyTokenAllowance ?? 0,
+      tokenBalance: insertUser.tokenBalance ?? 0,
     };
     this.telegramUsers.set(insertUser.telegramId, user);
     return user;
@@ -286,6 +297,22 @@ export class MemStorage implements IStorage {
     const updatedSub = { ...sub, ...updates };
     this.subscriptionsMap.set(providerSubscriptionId, updatedSub);
     return updatedSub;
+  }
+
+  async hasStripeEvent(eventId: string): Promise<boolean> {
+    return this.stripeEventsSet.has(eventId);
+  }
+
+  async recordStripeEvent(insertEvent: InsertStripeEvent): Promise<StripeEvent> {
+    const id = this.currentId++;
+    const event: StripeEvent = {
+      ...insertEvent,
+      id,
+      createdAt: new Date(),
+    };
+    this.stripeEventsSet.add(insertEvent.eventId);
+    this.stripeEventsList.push(event);
+    return event;
   }
 }
 

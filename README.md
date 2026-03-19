@@ -49,14 +49,20 @@ An intelligent Zoom meeting management Telegram bot that revolutionizes virtual 
 
 ### Environment Variables
 ```env
-BOT_TOKEN=your_telegram_bot_token
+# Telegram Bot
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+BOT_TOKEN=your_telegram_bot_token       # alias used by the bot process
 LOG_CHANNEL_ID=your_telegram_channel_id
 ADMIN_USER_ID=your_telegram_user_id
+
+# Zoom OAuth (existing integration)
 ZOOM_USER_CLIENT_ID=your_zoom_client_id
 ZOOM_USER_CLIENT_SECRET=your_zoom_client_secret
 ZOOM_REDIRECT_URI=your_redirect_uri
 GITHUB_OAUTH_CALLBACK=https://your-username.github.io/your-repo/
-DATABASE_URL=your_postgresql_url
+
+# Database (PostgreSQL)
+DATABASE_URL=postgres://user:pass@host:5432/dbname
 
 # Subscription System — Stripe
 STRIPE_SECRET_KEY=sk_live_...
@@ -64,8 +70,14 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_PRICE_PREMIUM=price_...
 STRIPE_PRICE_PRO=price_...
 
-# App base URL (used for Stripe redirect URLs)
+# App
 APP_BASE_URL=https://stixmagic.com
+# Internal API base URL used by the Telegram bot to reach the server API
+# Defaults to http://localhost:PORT when bot and server run in the same process
+INTERNAL_API_URL=http://localhost:5000
+
+# Admin debug endpoint (set to "false" to disable in production)
+ADMIN_API_ENABLED=true
 ```
 
 ### Installation
@@ -158,11 +170,20 @@ npm run dev
 - Implement rate limiting
 - Set up backup strategies
 
-## Subscription System (Phase 1)
+## Subscription System
 
 The subscription system provides plan-based feature access for Telegram users, backed by Stripe payments.
 
-### Plans
+### Subscription Architecture
+
+#### Design Principle
+
+`telegramUsers.plan` is the **current entitlement snapshot** — the source of truth for runtime feature access.
+`subscriptions` is the **billing record** — it mirrors Stripe's state for auditability.
+
+Stripe is never queried at runtime for feature decisions; the local DB is always the authoritative source.
+
+#### Plans
 
 | Plan | Description |
 |------|-------------|
@@ -170,36 +191,92 @@ The subscription system provides plan-based feature access for Telegram users, b
 | `premium` | Unlock advanced features |
 | `pro` | Unlock everything |
 
-### Database Schema
-
-The subscription system adds two new tables to the existing schema:
+#### Database Schema
 
 **`telegram_users`** (extended):
-- `plan` — current plan: `free`, `premium`, `pro`
-- `subscription_status` — `inactive`, `active`, `cancelled`, `past_due`
-- `updated_at` — last modified timestamp
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `plan` | enum | Current entitlement: `free`, `premium`, `pro` |
+| `subscription_status` | enum | Billing state: `inactive`, `active`, `cancelled`, `past_due` |
+| `updated_at` | timestamp | Last entitlement change |
+| `monthly_token_allowance` | integer | Reserved for future token phase (not active) |
+| `token_balance` | integer | Reserved for future token phase (not active) |
 
 **`subscriptions`**:
-- `user_id` — FK to `telegram_users.id`
-- `plan` — plan at time of subscription
-- `provider` — payment provider (`stripe`)
-- `provider_subscription_id` — Stripe subscription ID
-- `status` — subscription status
-- `renewal_date` — next billing date
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `user_id` | FK | References `telegram_users.id` |
+| `plan` | enum | Plan at time of subscription |
+| `provider` | text | `stripe` |
+| `provider_subscription_id` | text | Stripe subscription ID |
+| `stripe_customer_id` | text | Stripe customer ID |
+| `provider_price_id` | text | Stripe price ID |
+| `status` | enum | Current billing status |
+| `current_period_end` | timestamp | End of current billing period |
+| `cancel_at_period_end` | boolean | Whether sub will cancel at period end |
+| `renewal_date` | timestamp | Next billing date |
+
+**`stripe_events`** (idempotency log):
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `event_id` | text (unique) | Stripe event ID |
+| `type` | text | Event type |
+| `processed` | boolean | Whether processing succeeded |
+
+Duplicate `event_id` entries are rejected, preventing double-processing of Stripe retries.
+
+#### Stripe Webhook Lifecycle
+
+```
+Stripe → POST /api/subscription/webhook
+         │
+         ├─ Verify signature (STRIPE_WEBHOOK_SECRET)
+         ├─ Check stripe_events table for duplicate event_id
+         │    └─ Duplicate? Return 200 immediately
+         │
+         ├─ checkout.session.completed
+         │    └─ Activate plan + create subscription record
+         ├─ customer.subscription.created
+         │    └─ Sync if local record exists
+         ├─ customer.subscription.updated
+         │    └─ Sync status, period end, cancel_at_period_end
+         ├─ customer.subscription.deleted
+         │    └─ Downgrade user to free plan
+         ├─ invoice.payment_succeeded
+         │    └─ Reactivate past_due subscriptions
+         └─ invoice.payment_failed
+              └─ Mark subscription + user as past_due
+```
+
+#### Entitlement Helper
+
+All feature gating must use `getUserEntitlement(user)` from `server/entitlements.ts`:
+
+```ts
+import { getUserEntitlement } from "./entitlements";
+
+const ent = getUserEntitlement(user);
+if (ent.isPremium) { /* advanced tools */ }
+if (ent.isPro)     { /* everything     */ }
+```
 
 ### Bot Commands
 
 - `/start` — Creates a user account (free plan) and shows welcome message with plan info
-- `/plans` — Shows available plans with inline upgrade buttons
+- `/plans` — Shows available plans with inline upgrade buttons (fetches fresh plan from API)
 
 ### API Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/api/user` | Create or retrieve a user by `telegram_id` |
+| `POST` | `/api/user` | Upsert Telegram user (idempotent) |
 | `GET` | `/api/user/:telegram_id` | Get user info and current plan |
 | `POST` | `/api/subscription/create-checkout` | Create Stripe Checkout session |
 | `POST` | `/api/subscription/webhook` | Handle Stripe webhook events |
+| `GET` | `/api/admin/user/:telegram_id` | Debug: user + subscription + entitlement |
 
 #### Create Checkout — request body
 ```json
@@ -209,11 +286,13 @@ The subscription system adds two new tables to the existing schema:
 }
 ```
 
-#### Webhook Events handled
-- `checkout.session.completed` — activates plan
-- `customer.subscription.updated` — syncs status/renewal date
-- `customer.subscription.deleted` — downgrades to free
-- `invoice.payment_failed` — marks as `past_due`
+#### Admin endpoint
+
+The admin endpoint is enabled by default and returns the full user/subscription/entitlement debug payload. Disable it in production:
+
+```env
+ADMIN_API_ENABLED=false
+```
 
 ### Stripe Setup
 
@@ -221,24 +300,28 @@ The subscription system adds two new tables to the existing schema:
 2. Create two recurring price objects (monthly) for Premium and Pro plans.
 3. Set the price IDs in `STRIPE_PRICE_PREMIUM` and `STRIPE_PRICE_PRO`.
 4. Configure a webhook endpoint pointing to `https://your-domain/api/subscription/webhook`.
-5. Set `STRIPE_WEBHOOK_SECRET` to the webhook signing secret.
+5. Subscribe to these events: `checkout.session.completed`, `customer.subscription.*`, `invoice.payment_failed`, `invoice.payment_succeeded`.
+6. Set `STRIPE_WEBHOOK_SECRET` to the webhook signing secret.
 
-### Feature Access Pattern
+### Feature Gating
+
+```ts
+// server-side (TypeScript)
+import { getUserEntitlement } from "./entitlements";
+const ent = getUserEntitlement(user);
+if (ent.isPremium) { /* premium + pro */ }
+if (ent.isPro)     { /* pro only      */ }
+```
 
 ```js
-// Example gating logic
-if (user.plan === 'free') {
-  // basic features only
-} else if (user.plan === 'premium') {
-  // advanced tools unlocked
-} else if (user.plan === 'pro') {
-  // all features unlocked
-}
+// bot-side (JavaScript)
+if (userHasPremiumAccess(subUser)) { /* unlock advanced tools */ }
+if (userHasProAccess(subUser))     { /* unlock everything     */ }
 ```
 
 ### Future: Token System
 
-The architecture supports adding a monthly token grant in a future phase:
+The schema already contains placeholder fields for the future token phase:
 
 | Plan | Monthly tokens |
 |------|---------------|
@@ -246,8 +329,9 @@ The architecture supports adding a monthly token grant in a future phase:
 | Premium | 1 000 |
 | Pro | 5 000 |
 
-Tokens are **not** implemented in this phase.
+Fields `monthly_token_allowance` and `token_balance` exist in `telegram_users` but contain no active logic.
 
+## Contributing
 
 1. Fork the repository
 2. Create feature branch
