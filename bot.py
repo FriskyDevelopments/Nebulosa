@@ -1,3 +1,4 @@
+import html
 import logging
 from telegram import Update
 from telegram.ext import (
@@ -40,9 +41,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def newpack(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Ask the user for a new sticker pack name."""
     await update.message.reply_text(
-        "🧪 *New Pack Protocol*\n\n"
+        "🧪 <b>New Pack Protocol</b>\n\n"
         "Please enter a name for your new sticker pack:",
-        parse_mode="Markdown",
+        parse_mode="HTML",
     )
     return WAITING_PACK_NAME
 
@@ -63,17 +64,17 @@ async def receive_pack_name(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     if pack_name in user_packs:
         await update.message.reply_text(
-            f"⚠️ A pack named *{pack_name}* already exists.\n"
+            f"⚠️ A pack named <b>{html.escape(pack_name)}</b> already exists.\n"
             "Please choose a different name:",
-            parse_mode="Markdown",
+            parse_mode="HTML",
         )
         return WAITING_PACK_NAME
 
     user_packs.append(pack_name)
     await update.message.reply_text(
-        f"✅ Pack *{pack_name}* has been created successfully!\n\n"
+        f"✅ Pack <b>{html.escape(pack_name)}</b> has been created successfully!\n\n"
         "Use /addsticker to add stickers to your pack.",
-        parse_mode="Markdown",
+        parse_mode="HTML",
     )
     return ConversationHandler.END
 
@@ -90,12 +91,12 @@ async def addsticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         )
         return ConversationHandler.END
 
-    pack_list = "\n".join(f"• {name}" for name in user_packs)
+    pack_list = "\n".join(f"• {html.escape(name)}" for name in user_packs)
     await update.message.reply_text(
-        "🧪 *Add Sticker Protocol*\n\n"
+        "🧪 <b>Add Sticker Protocol</b>\n\n"
         f"Your packs:\n{pack_list}\n\n"
         "Reply with the pack name you want to add a sticker to:",
-        parse_mode="Markdown",
+        parse_mode="HTML",
     )
     return WAITING_PACK_SELECTION
 
@@ -110,16 +111,16 @@ async def receive_pack_selection(
 
     if selected not in user_packs:
         await update.message.reply_text(
-            f"⚠️ Pack *{selected}* not found.\n"
+            f"⚠️ Pack <b>{html.escape(selected)}</b> not found.\n"
             "Please enter a valid pack name from your list:",
-            parse_mode="Markdown",
+            parse_mode="HTML",
         )
         return WAITING_PACK_SELECTION
 
     context.user_data["selected_pack"] = selected
     await update.message.reply_text(
-        f"📎 Send an image to add to *{selected}*:",
-        parse_mode="Markdown",
+        f"📎 Send an image to add to <b>{html.escape(selected)}</b>:",
+        parse_mode="HTML",
     )
     return WAITING_STICKER
 
@@ -142,9 +143,9 @@ async def receive_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     pack_stickers.append(file_id)
 
     await update.message.reply_text(
-        f"✅ Sticker added to *{selected_pack}* successfully!\n"
+        f"✅ Sticker added to <b>{html.escape(selected_pack)}</b> successfully!\n"
         f"Total stickers in pack: {len(pack_stickers)}",
-        parse_mode="Markdown",
+        parse_mode="HTML",
     )
     return ConversationHandler.END
 
@@ -220,6 +221,7 @@ def main() -> None:
     application.add_handler(newpack_conv)
     application.add_handler(addsticker_conv)
     application.add_handler(CommandHandler("mypacks", mypacks))
+    application.add_handler(CommandHandler("cancel", cancel))
 
     logger.info("🧪 Sticker Lab bot is running...")
     application.run_polling()
