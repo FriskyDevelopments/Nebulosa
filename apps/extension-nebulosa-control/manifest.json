@@ -58,11 +58,6 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "packages/event-bus/index.js",
-        "integrations/zoom/selectors.js",
-        "integrations/zoom/events.js",
-        "integrations/zoom/adapter.js",
-        "modules/*.js",
         "icons/*"
       ],
       "matches": [

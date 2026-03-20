@@ -154,7 +154,36 @@
     #pinned-list .label { font-weight: 600; margin-bottom: 4px; }
     #pinned-list .names { color: var(--green); }
     #pinned-list.hidden { display: none; }
-  </style>
+
+    /* Diagnostics */
+    .diag-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-dim);
+      cursor: pointer;
+      user-select: none;
+    }
+    .diag-toggle:hover { color: var(--text); }
+    .diag-arrow { transition: transform 0.2s; }
+    .diag-arrow.open { transform: rotate(90deg); }
+
+    #diag-panel {
+      padding: 8px 16px 12px;
+      font-size: 11px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+    #diag-panel.visible { display: block; }
+    .diag-row { display: flex; gap: 6px; margin-bottom: 4px; }
+    .diag-key { color: var(--text-dim); flex-shrink: 0; }
+    .diag-val { color: var(--text); word-break: break-all; }
+    .diag-val.ok { color: var(--green); }
+    .diag-val.warn { color: var(--red); }</style>
 </head>
 <body>
 
@@ -232,6 +261,26 @@
 <div id="pinned-list" class="hidden">
   <div class="label">Currently pinned:</div>
   <div class="names" id="pinned-names">—</div>
+</div>
+
+<!-- Diagnostics (collapsible) -->
+<div class="diag-toggle" id="diag-toggle">
+  <span class="diag-arrow" id="diag-arrow">▶</span>
+  <span>Diagnostics</span>
+</div>
+<div id="diag-panel">
+  <div class="diag-row">
+    <span class="diag-key">Observers:</span>
+    <span class="diag-val" id="diag-observers">—</span>
+  </div>
+  <div class="diag-row">
+    <span class="diag-key">Last event:</span>
+    <span class="diag-val" id="diag-last-event">none</span>
+  </div>
+  <div class="diag-row">
+    <span class="diag-key">Event time:</span>
+    <span class="diag-val" id="diag-event-time">—</span>
+  </div>
 </div>
 
 <footer>Nebulosa v0.1.0 · <a href="https://github.com/FriskyDevelopments/Nebulosa" style="color:inherit" target="_blank">GitHub</a></footer>

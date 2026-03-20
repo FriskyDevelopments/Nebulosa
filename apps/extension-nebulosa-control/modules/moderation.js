@@ -48,7 +48,7 @@ function enable(options = {}) {
   if (_enabled) return;
   _enabled = true;
   if (Array.isArray(options.blockedKeywords)) {
-    _blockedKeywords = options.blockedKeywords.map((k) => k.toLowerCase());
+    _blockedKeywords = options.blockedKeywords.map((k) => String(k).toLowerCase());
   }
   _subscribe();
   dbg('enabled — keywords:', _blockedKeywords);
@@ -67,7 +67,11 @@ function isEnabled() {
 }
 
 function setKeywords(keywords) {
-  _blockedKeywords = keywords.map((k) => k.toLowerCase());
+  if (!Array.isArray(keywords)) {
+    dbg('setKeywords: expected an array, got', typeof keywords);
+    return;
+  }
+  _blockedKeywords = keywords.map((k) => String(k).toLowerCase());
   dbg('keywords updated:', _blockedKeywords);
 }
 

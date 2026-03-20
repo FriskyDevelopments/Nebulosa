@@ -68,7 +68,7 @@ function enable() {
   dbg('enabled');
 }
 
-/** Disable the multipin module and clear all timers. */
+/** Disable the multipin module and clear all timers and participant state. */
 function disable() {
   if (!_enabled) return;
   _enabled = false;
@@ -76,6 +76,10 @@ function disable() {
   _unsubs.length = 0;
   _cameraOffTimers.forEach((id) => window.clearTimeout(id));
   _cameraOffTimers.clear();
+  // Clear per-participant state so a subsequent enable() starts clean
+  _pinned.clear();
+  _handsUp.clear();
+  _cameraOn.clear();
   dbg('disabled');
 }
 

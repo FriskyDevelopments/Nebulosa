@@ -18,9 +18,9 @@
 
 /* global window, document, chrome */
 
-// ── Load dependencies (injected via manifest web_accessible_resources) ──────
-// In the extension context these are loaded as separate content scripts
-// declared in manifest.json before this file. The globals are set on window.
+// ── Load dependencies (injected as content_scripts in manifest.json) ────────
+// Scripts are loaded in the order declared in the manifest content_scripts list.
+// Each sets a window.* global that subsequent scripts (and this file) consume.
 
 const bus = window.NebulosaBus;
 const ZoomAdapter = window.ZoomAdapter;
@@ -49,6 +49,8 @@ const DEFAULT_SETTINGS = {
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 
 let _initialised = false;
+/** @type {{ type: string, payload: object, ts: number }|null} */
+let _lastEvent = null;
 
 async function init() {
   if (_initialised) return;
@@ -88,14 +90,18 @@ async function _bootstrap() {
   if (settings.waitingRoomEnabled) WaitingRoomModule.enable();
 
   // Notify background / popup that a meeting was detected
-  _sendStatus({ meetingDetected: true, settings });
+  _sendStatus({ meetingDetected: true });
 
-  // Forward key bus events to background for popup display
-  bus.on('participant_joined', (p) => _sendStatus({ event: 'participant_joined', payload: p }));
-  bus.on('hand_raised', (p) => _sendStatus({ event: 'hand_raised', payload: p }));
-  bus.on('moderation_triggered', (p) =>
-    _sendStatus({ event: 'moderation_triggered', payload: p })
-  );
+  // Forward key bus events to background — also record last event for popup diagnostics
+  const _trackEvent = (type) => (payload) => {
+    _lastEvent = { type, payload, ts: Date.now() };
+    _sendStatus();
+  };
+  bus.on('participant_joined', _trackEvent('participant_joined'));
+  bus.on('hand_raised', _trackEvent('hand_raised'));
+  bus.on('camera_on', _trackEvent('camera_on'));
+  bus.on('camera_off', _trackEvent('camera_off'));
+  bus.on('moderation_triggered', _trackEvent('moderation_triggered'));
 
   dbg('Bootstrap complete. Active modules:', {
     multipin: MultipinModule.isEnabled(),
@@ -149,11 +155,13 @@ function _handleToggle(mod, enabled) {
 function _buildStatus() {
   return {
     meetingDetected: _initialised,
+    observersActive: _initialised,
     multipin: MultipinModule.isEnabled(),
     cameraMonitor: CameraMonitorModule.isEnabled(),
     moderation: ModerationModule.isEnabled(),
     waitingRoom: WaitingRoomModule.isEnabled(),
     pinned: MultipinModule.getPinned(),
+    lastEvent: _lastEvent,
   };
 }
 

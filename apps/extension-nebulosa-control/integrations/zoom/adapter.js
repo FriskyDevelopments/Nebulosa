@@ -72,12 +72,13 @@ function _rightClick(el) {
 }
 
 /**
- * Find the first menu item whose text matches a pattern.
+ * Find the first menu item whose text matches a pattern, scoped to a menu container.
+ * @param {Element} container - The context menu element to search within.
  * @param {string} textPattern - case-insensitive substring
  * @returns {Element|null}
  */
-function _findMenuItem(textPattern) {
-  const items = document.querySelectorAll(ZoomSelectors.CONTEXT_MENU_ITEM);
+function _findMenuItem(container, textPattern) {
+  const items = container.querySelectorAll(ZoomSelectors.CONTEXT_MENU_ITEM);
   const lower = textPattern.toLowerCase();
   for (const item of items) {
     if (item.textContent.toLowerCase().includes(lower)) return item;
@@ -92,7 +93,7 @@ function _findMenuItem(textPattern) {
  * Preserved from zoomBrowserBot.multipinUser().
  *
  * @param {string} name - Display name of the participant.
- * @returns {Promise<'MULTIPIN_GRANTED'|'USER_NOT_FOUND'|'CONTEXT_MENU_NOT_FOUND'|'PIN_OPTION_NOT_FOUND'|'ALREADY_PINNED'|'ERROR'>}
+ * @returns {Promise<'MULTIPIN_GRANTED'|'USER_NOT_FOUND'|'CONTEXT_MENU_NOT_FOUND'|'PIN_OPTION_NOT_FOUND'|'ERROR'>}
  */
 async function pinParticipant(name) {
   try {
@@ -130,9 +131,10 @@ async function pinParticipant(name) {
       return 'CONTEXT_MENU_NOT_FOUND';
     }
 
+    // Scope search to the found menu element to avoid false matches elsewhere in DOM
     // Try "Multi-pin" first, then "Pin"
-    let pinItem = _findMenuItem(ZoomSelectors.MULTIPIN_OPTION_TEXT);
-    if (!pinItem) pinItem = _findMenuItem(ZoomSelectors.PIN_OPTION_TEXT);
+    let pinItem = _findMenuItem(menu, ZoomSelectors.MULTIPIN_OPTION_TEXT);
+    if (!pinItem) pinItem = _findMenuItem(menu, ZoomSelectors.PIN_OPTION_TEXT);
 
     if (!pinItem) {
       dbg('pinParticipant: pin option not found in context menu');
@@ -189,7 +191,7 @@ async function unpinParticipant(name) {
       return 'CONTEXT_MENU_NOT_FOUND';
     }
 
-    const unpinItem = _findMenuItem(ZoomSelectors.UNPIN_OPTION_TEXT);
+    const unpinItem = _findMenuItem(menu, ZoomSelectors.UNPIN_OPTION_TEXT);
     if (!unpinItem) {
       document.body.click();
       return 'UNPIN_OPTION_NOT_FOUND';

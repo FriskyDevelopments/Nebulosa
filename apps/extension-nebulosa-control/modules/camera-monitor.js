@@ -56,7 +56,7 @@ const _unsubs = [];
 function enable(options = {}) {
   if (_enabled) return;
   _enabled = true;
-  if (options.reminderThresholdMs) {
+  if (typeof options.reminderThresholdMs === 'number' && options.reminderThresholdMs >= 0) {
     _reminderThresholdMs = options.reminderThresholdMs;
   }
   _subscribe();

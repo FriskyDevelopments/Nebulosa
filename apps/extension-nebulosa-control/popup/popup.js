@@ -13,12 +13,26 @@ const statusText = document.getElementById('status-text');
 const pinnedList = document.getElementById('pinned-list');
 const pinnedNames = document.getElementById('pinned-names');
 
+// Diagnostics
+const diagToggleBtn = document.getElementById('diag-toggle');
+const diagArrow = document.getElementById('diag-arrow');
+const diagPanel = document.getElementById('diag-panel');
+const diagObservers = document.getElementById('diag-observers');
+const diagLastEvent = document.getElementById('diag-last-event');
+const diagEventTime = document.getElementById('diag-event-time');
+
 const toggles = {
   multipin: document.getElementById('toggle-multipin'),
   cameraMonitor: document.getElementById('toggle-cameraMonitor'),
   moderation: document.getElementById('toggle-moderation'),
   waitingRoom: document.getElementById('toggle-waitingRoom'),
 };
+
+// ── Diagnostics toggle ────────────────────────────────────────────────────────
+diagToggleBtn.addEventListener('click', () => {
+  const open = diagPanel.classList.toggle('visible');
+  diagArrow.classList.toggle('open', open);
+});
 
 // ── Load initial status ───────────────────────────────────────────────────────
 chrome.runtime.sendMessage({ type: 'GET_STATUS' }, (status) => {
@@ -79,6 +93,29 @@ function _applyStatus(status) {
     pinnedNames.textContent = pinned.join(', ');
   } else {
     pinnedList.classList.add('hidden');
+  }
+
+  // Diagnostics
+  _updateDiagnostics(status);
+}
+
+function _updateDiagnostics(status) {
+  const active = !!status.observersActive;
+  diagObservers.textContent = active ? 'active' : 'inactive';
+  diagObservers.className = 'diag-val ' + (active ? 'ok' : 'warn');
+
+  if (status.lastEvent) {
+    const { type, payload, ts } = status.lastEvent;
+    diagLastEvent.textContent = `${type}${payload?.name ? ` — ${payload.name}` : ''}`;
+    diagLastEvent.className = 'diag-val ok';
+    if (ts) {
+      const ago = Math.round((Date.now() - ts) / 1000);
+      diagEventTime.textContent = ago < 60 ? `${ago}s ago` : `${Math.round(ago / 60)}m ago`;
+    }
+  } else {
+    diagLastEvent.textContent = 'none';
+    diagLastEvent.className = 'diag-val';
+    diagEventTime.textContent = '—';
   }
 }
 

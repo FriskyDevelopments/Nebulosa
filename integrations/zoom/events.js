@@ -42,11 +42,21 @@ const _handsRaised = new Set();
 /** @type {Set<string>} Participants whose camera is currently off. */
 const _cameraOff = new Set();
 
+/**
+ * Tracks all participant names whose camera state has been observed at least once.
+ * Allows the initial scan to emit camera_on for participants already visible
+ * with camera on at bootstrap, so modules don't miss initial state.
+ */
+const _cameraSeen = new Set();
+
 /** @type {MutationObserver|null} */
 let _observer = null;
 
 /** @type {number|null} Polling interval id. */
 let _pollInterval = null;
+
+/** @type {number|null} Debounce timer for MutationObserver. */
+let _debounceTimer = null;
 
 /** Callback registry — set by adapter.js */
 const _callbacks = {
@@ -87,11 +97,16 @@ function start() {
   _scanChat();
 
   // MutationObserver on the entire document body — Zoom's React SPA
-  // re-renders frequently, so we observe the full subtree.
+  // re-renders frequently. The callback is debounced (250 ms) to avoid
+  // running full querySelectorAll sweeps on every micro-mutation.
   _observer = new MutationObserver(() => {
-    _scanParticipants();
-    _scanHandRaises();
-    _scanCameras();
+    if (_debounceTimer !== null) window.clearTimeout(_debounceTimer);
+    _debounceTimer = window.setTimeout(() => {
+      _debounceTimer = null;
+      _scanParticipants();
+      _scanHandRaises();
+      _scanCameras();
+    }, 250);
   });
 
   _observer.observe(document.body, {
@@ -116,6 +131,10 @@ function start() {
  * Stop all observation and clear internal state.
  */
 function stop() {
+  if (_debounceTimer !== null) {
+    window.clearTimeout(_debounceTimer);
+    _debounceTimer = null;
+  }
   if (_observer) {
     _observer.disconnect();
     _observer = null;
@@ -127,6 +146,7 @@ function stop() {
   _participants.clear();
   _handsRaised.clear();
   _cameraOff.clear();
+  _cameraSeen.clear();
   dbg('DOM observation stopped');
 }
 
@@ -159,6 +179,10 @@ function _scanParticipants() {
   const rows = document.querySelectorAll(ZoomSelectors.PARTICIPANT_ROW);
   const current = new Set();
 
+  if (!rows.length && document.readyState === 'complete') {
+    dbg('_scanParticipants: no rows found — selector may need updating:', ZoomSelectors.PARTICIPANT_ROW);
+  }
+
   rows.forEach((row) => {
     const name = _extractName(row);
     if (!name) return;
@@ -176,6 +200,7 @@ function _scanParticipants() {
       _participants.delete(name);
       _handsRaised.delete(name);
       _cameraOff.delete(name);
+      _cameraSeen.delete(name); // clear camera state history so participant is treated as new if they rejoin
       dbg('Participant left:', name);
       _callbacks.onParticipantLeft && _callbacks.onParticipantLeft({ name });
     }
@@ -217,11 +242,31 @@ function _scanHandRaises() {
 function _scanCameras() {
   const tiles = document.querySelectorAll(ZoomSelectors.VIDEO_TILE);
 
+  if (!tiles.length && document.readyState === 'complete') {
+    dbg('_scanCameras: no video tiles found — selector may need updating:', ZoomSelectors.VIDEO_TILE);
+  }
+
   tiles.forEach((tile) => {
     const name = _extractName(tile);
     if (!name) return;
     const isCamOff = !!tile.querySelector(ZoomSelectors.CAMERA_OFF_INDICATOR);
 
+    if (!_cameraSeen.has(name)) {
+      // First time we observe this participant — emit their initial camera state
+      // so modules that rely on camera_on events are primed correctly.
+      _cameraSeen.add(name);
+      if (isCamOff) {
+        _cameraOff.add(name);
+        dbg('Camera off (initial):', name);
+        _callbacks.onCameraOff && _callbacks.onCameraOff({ name });
+      } else {
+        dbg('Camera on (initial):', name);
+        _callbacks.onCameraOn && _callbacks.onCameraOn({ name });
+      }
+      return;
+    }
+
+    // Subsequent scans — emit only on state transitions
     if (isCamOff && !_cameraOff.has(name)) {
       _cameraOff.add(name);
       dbg('Camera off:', name);
