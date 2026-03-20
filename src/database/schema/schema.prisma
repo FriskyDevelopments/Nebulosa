@@ -1,0 +1,219 @@
+// Prisma schema for the Stix Magic platform.
+// Run `npx prisma generate` after editing this file.
+// Run `npx prisma migrate dev` to apply migrations.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Users & Accounts
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  username     String    @unique
+  passwordHash String    @map("password_hash")
+  role         UserRole  @default(USER)
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  account      Account?
+  sessions     Session[]
+  apiKeys      ApiKey[]
+  content      Content[]
+  activityLogs ActivityLog[]
+  analyticsEvents AnalyticsEvent[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  BOT
+}
+
+model Account {
+  id          String    @id @default(uuid())
+  userId      String    @unique @map("user_id")
+  displayName String?   @map("display_name")
+  avatarUrl   String?   @map("avatar_url")
+  bio         String?
+  telegramId  String?   @unique @map("telegram_id")
+  metadata    Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model ApiKey {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  name        String
+  keyHash     String    @unique @map("key_hash")
+  lastUsedAt  DateTime? @map("last_used_at")
+  expiresAt   DateTime? @map("expires_at")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+// ---------------------------------------------------------------------------
+// Content & Media
+// ---------------------------------------------------------------------------
+
+model Content {
+  id          String        @id @default(uuid())
+  userId      String        @map("user_id")
+  title       String
+  body        String?
+  type        ContentType   @default(TEXT)
+  status      ContentStatus @default(DRAFT)
+  tags        String[]
+  metadata    Json          @default("{}")
+  publishedAt DateTime?     @map("published_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media Media[]
+
+  @@map("content")
+}
+
+enum ContentType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+  MIXED
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  DELETED
+}
+
+model Media {
+  id           String      @id @default(uuid())
+  contentId    String?     @map("content_id")
+  filename     String
+  mimeType     String      @map("mime_type")
+  sizeBytes    BigInt      @map("size_bytes")
+  storageKey   String      @unique @map("storage_key")
+  storageUrl   String?     @map("storage_url")
+  status       MediaStatus @default(PENDING)
+  width        Int?
+  height       Int?
+  durationMs   Int?        @map("duration_ms")
+  thumbnailUrl String?     @map("thumbnail_url")
+  metadata     Json        @default("{}")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  content Content? @relation(fields: [contentId], references: [id], onDelete: SetNull)
+
+  @@map("media")
+}
+
+enum MediaStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+// ---------------------------------------------------------------------------
+// Integrations
+// ---------------------------------------------------------------------------
+
+model IntegrationToken {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  provider    String
+  accessToken String   @map("access_token")
+  refreshToken String? @map("refresh_token")
+  expiresAt   DateTime? @map("expires_at")
+  scopes      String[]
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, provider])
+  @@map("integration_tokens")
+}
+
+// ---------------------------------------------------------------------------
+// Analytics
+// ---------------------------------------------------------------------------
+
+model AnalyticsEvent {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  event      String
+  properties Json     @default("{}")
+  sessionId  String?  @map("session_id")
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([event])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+// ---------------------------------------------------------------------------
+// Audit Logging
+// ---------------------------------------------------------------------------
+
+model ActivityLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String
+  resource   String
+  resourceId String?  @map("resource_id")
+  details    Json     @default("{}")
+  ipAddress  String?  @map("ip_address")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
