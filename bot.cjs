@@ -3482,12 +3482,56 @@ bot.onText(/\/docs(.*)/, async (msg, match) => {
 // Populated on startup from the storage layer (best-effort).
 const stickerSpellRegistry = new Map();
 
+/**
+ * Best-effort resolution of the spell storage module.
+ * Tries JS/CJS build artifacts first, then falls back to TS if available.
+ * Returns a storage instance or null if it cannot be loaded.
+ */
+function resolveSpellStorage() {
+  const candidates = [
+    './server/storage.cjs',
+    './server/storage.js',
+    './server/storage',
+    './server/storage.ts',
+  ];
+
+  for (const modPath of candidates) {
+    try {
+      const mod = require(modPath);
+      // Support common export patterns:
+      //   module.exports = { storage }
+      //   export default { storage }
+      //   export default storage
+      if (mod && typeof mod === 'object') {
+        if (mod.storage) {
+          return mod.storage;
+        }
+        if (mod.default && typeof mod.default === 'object' && mod.default.storage) {
+          return mod.default.storage;
+        }
+        if (mod.default) {
+          return mod.default;
+        }
+      }
+      // As a last resort, treat the module itself as the storage instance.
+      return mod || null;
+    } catch (err) {
+      // Skip missing-module errors, warn on other failures, then continue.
+      const message = err && err.message ? String(err.message) : '';
+      if (err && (err.code === 'MODULE_NOT_FOUND' || /Cannot find module/.test(message))) {
+        continue;
+      }
+      console.warn('[SpellEngine] Failed to load storage from', modPath + ':', message);
+    }
+  }
+
+  return null;
+}
+
 // Resolve the storage module once — fail gracefully if unavailable
 // (e.g., the server/storage layer may not be compiled in all deployment modes).
-let _spellStorage = null;
-try {
-  _spellStorage = require('./server/storage').storage;
-} catch (_e) {
+let _spellStorage = resolveSpellStorage();
+if (!_spellStorage) {
   console.warn('[SpellEngine] server/storage unavailable — sticker spells disabled');
 }
 
