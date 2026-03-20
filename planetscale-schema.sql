@@ -98,6 +98,69 @@ CREATE TABLE bot_config (
     INDEX idx_config_key (config_key)
 );
 
+-- ============================================================
+-- Sticker Draft, Review, and Disposal System
+-- ============================================================
+
+-- Sticker drafts: every generated or received sticker starts here
+CREATE TABLE sticker_drafts (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    chat_id BIGINT NOT NULL,
+    source_file_id VARCHAR(255) NOT NULL,         -- original Telegram file_id sent by user
+    generated_file_id VARCHAR(255),               -- file_id produced after any generation step
+    file_type VARCHAR(20) NOT NULL DEFAULT 'photo', -- 'photo' or 'sticker'
+    status VARCHAR(20) NOT NULL DEFAULT 'draft',  -- draft | approved | rejected | archived | expired | published
+    message_id BIGINT,                            -- bot message id that shows the action buttons
+    linked_style_id VARCHAR(100),                 -- optional link to a style preset
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP,                         -- auto-expire timestamp (default: 7 days after creation)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_sd_user_id (user_id),
+    INDEX idx_sd_status (status),
+    INDEX idx_sd_expires_at (expires_at)
+);
+
+-- Approved sticker collections: only curated, approved stickers live here
+CREATE TABLE sticker_collections (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL DEFAULT 'personal', -- 'personal' | 'shared'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_sc_user_id (user_id)
+);
+
+-- Items inside a collection
+CREATE TABLE sticker_collection_items (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    collection_id BIGINT NOT NULL,
+    draft_id BIGINT NOT NULL,
+    telegram_file_id VARCHAR(255),
+    position INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (collection_id) REFERENCES sticker_collections(id) ON DELETE CASCADE,
+    FOREIGN KEY (draft_id) REFERENCES sticker_drafts(id) ON DELETE CASCADE,
+    INDEX idx_sci_collection_id (collection_id)
+);
+
+-- Trash / disposal: rejected and expired drafts land here before final deletion
+CREATE TABLE sticker_trash (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    draft_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    reason VARCHAR(255),
+    scheduled_delete_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (draft_id) REFERENCES sticker_drafts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_st_user_id (user_id),
+    INDEX idx_st_scheduled_delete_at (scheduled_delete_at)
+);
+
 -- Insert default configuration
 INSERT INTO bot_config (config_key, config_value, config_type, description) VALUES
 ('bot_version', '1.0.0', 'string', 'Current bot version'),

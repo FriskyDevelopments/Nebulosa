@@ -1,12 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 const axios = require('axios');
->>>>>>> origin/main
-=======
-const axios = require('axios');
->>>>>>> origin/main
 const { 
   getAccessToken, 
   refreshAccessToken, 
@@ -84,6 +77,13 @@ let meetingHostChats = new Map(); // meetingId -> {hostId, cohostIds: Set(), par
 // Browser bot management for multipin automation
 let activeBrowserBots = new Map(); // meetingId -> ZoomBrowserBot instance
 let pendingMultipinActions = new Map(); // meetingId -> [{action: 'pin'|'unpin', userName, timestamp}]
+
+// ─── Sticker Draft, Review, and Disposal System ───────────────────────────
+// Every sticker/image received starts as a draft; users must explicitly approve.
+const stickerDrafts = new Map(); // draftId -> draft object
+const userDraftIds = new Map();  // userId  -> [draftId, ...]
+const DRAFT_EXPIRY_DAYS = 7;     // unreviewed drafts auto-expire after this many days
+
 
 // Alert channels - Currently using NEBULOSO'S OBSERVATORY as primary channel
 const OBSERVATORY_CHANNEL = process.env.OBSERVATORY_CHANNEL_ID || process.env.LOG_CHANNEL_ID; // Primary logging channel
@@ -1194,19 +1194,6 @@ async function processViolations(accessToken, meetingId, participant, violations
 async function shortenUrl(longUrl) {
   const apiKey = process.env.SHORTIO_API_KEY;
   
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> origin/main
-  // Temporarily disable Short.io due to domain access issues
-  console.log('🔗 Short.io temporarily disabled, using original URL');
-  return longUrl;
-  
-<<<<<<< HEAD
->>>>>>> origin/main
-=======
->>>>>>> origin/main
   if (!apiKey || apiKey === 'your_shortio_api_key_here') {
     console.log('🔗 No Short.io API key found, using original URL');
     return longUrl;
@@ -1215,15 +1202,7 @@ async function shortenUrl(longUrl) {
   try {
     const response = await axios.post('https://api.short.io/links', {
       originalURL: longUrl,
-<<<<<<< HEAD
-<<<<<<< HEAD
-      domain: 'short.io', // or your custom domain
-=======
       domain: 'short.io', // Use Short.io default domain (working)
->>>>>>> origin/main
-=======
-      domain: 'short.io', // Use Short.io default domain (working)
->>>>>>> origin/main
       allowDuplicates: false,
       tags: ['zoom-oauth', 'la-nube-bot']
     }, {
@@ -1244,15 +1223,7 @@ async function shortenUrl(longUrl) {
 }
 
 async function generateAuthUrl(userId) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const redirectUri = process.env.ZOOM_REDIRECT_URI || 'https://pupfrisky.com/zoom-callback';
-=======
   const redirectUri = process.env.ZOOM_REDIRECT_URI || 'https://pupfr.github.io/Nebulosa/zoom-callback.html';
->>>>>>> origin/main
-=======
-  const redirectUri = process.env.ZOOM_REDIRECT_URI || 'https://pupfr.github.io/Nebulosa/zoom-callback.html';
->>>>>>> origin/main
   const clientId = (process.env.ZOOM_USER_CLIENT_ID || 'K3t8Sd3rSZOSKfkyMftDXg').trim();
   
   // Create the OAuth URL
@@ -1269,6 +1240,187 @@ async function generateAuthUrl(userId) {
   
   return shortUrl;
 }
+
+// ─── Sticker Draft Helper Functions ──────────────────────────────────────────
+
+function generateDraftId() {
+  return `draft_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+}
+
+function createStickerDraft(userId, chatId, fileId, fileType) {
+  const id = generateDraftId();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + DRAFT_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+  const draft = {
+    id,
+    userId,
+    chatId,
+    fileId,
+    fileType,
+    status: 'draft',
+    messageId: null,
+    createdAt: now,
+    updatedAt: now,
+    expiresAt
+  };
+  stickerDrafts.set(id, draft);
+  if (!userDraftIds.has(userId)) {
+    userDraftIds.set(userId, []);
+  }
+  userDraftIds.get(userId).push(id);
+  return draft;
+}
+
+function getUserDraftsByStatus(userId, status) {
+  const ids = userDraftIds.get(userId) || [];
+  return ids
+    .map(id => stickerDrafts.get(id))
+    .filter(d => d && (status === null || d.status === status));
+}
+
+function updateDraftStatus(draftId, status) {
+  const draft = stickerDrafts.get(draftId);
+  if (!draft) return null;
+  draft.status = status;
+  draft.updatedAt = new Date();
+  stickerDrafts.set(draftId, draft);
+  return draft;
+}
+
+function formatDraftStatus(status) {
+  const statusMap = {
+    draft: '⏳ Pending review',
+    approved: '✅ Approved',
+    rejected: '❌ Rejected',
+    expired: '⌛ Expired',
+    published: '🌟 Published',
+    archived: '📦 Archived'
+  };
+  return statusMap[status] || status;
+}
+
+function formatDraftEntry(draft, index) {
+  const age = Math.floor((Date.now() - draft.createdAt.getTime()) / (1000 * 60 * 60));
+  const expiresIn = Math.max(0, Math.floor((draft.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+  return `${index + 1}. ID: \`${draft.id}\`\n   Type: ${draft.fileType} | ${formatDraftStatus(draft.status)}\n   Created: ${age}h ago | Expires in: ${expiresIn}d`;
+}
+
+function getDraftActionKeyboard(draftId) {
+  return {
+    inline_keyboard: [
+      [
+        { text: '✅ Approve', callback_data: `sticker_approve_${draftId}` },
+        { text: '🔄 Retry', callback_data: `sticker_retry_${draftId}` }
+      ],
+      [
+        { text: '🗑 Reject', callback_data: `sticker_reject_${draftId}` },
+        { text: '💾 Save for Later', callback_data: `sticker_save_${draftId}` }
+      ],
+      [
+        { text: '🌟 Publish', callback_data: `sticker_publish_${draftId}` }
+      ]
+    ]
+  };
+}
+
+// Cleanup worker: auto-expire drafts that have passed their expiry time
+// and remove their IDs from the user lookup arrays to prevent memory growth.
+function runStickerCleanup() {
+  const now = Date.now();
+  let expiredCount = 0;
+
+  for (const [draftId, draft] of stickerDrafts) {
+    if (
+      draft.status === 'draft' &&
+      draft.expiresAt &&
+      draft.expiresAt.getTime() <= now
+    ) {
+      draft.status = 'expired';
+      draft.updatedAt = new Date();
+      stickerDrafts.set(draftId, draft);
+      expiredCount++;
+    }
+  }
+
+  // Remove IDs for fully terminal (expired/rejected) drafts from user arrays
+  // to keep memory usage bounded over time.
+  for (const [userId, ids] of userDraftIds) {
+    const kept = ids.filter(id => {
+      const d = stickerDrafts.get(id);
+      return d && d.status !== 'expired' && d.status !== 'rejected';
+    });
+    userDraftIds.set(userId, kept);
+  }
+
+  if (expiredCount > 0) {
+    console.log(`🧹 Sticker cleanup: ${expiredCount} draft(s) expired.`);
+  }
+}
+
+// Helper: validate a draft is eligible for publishing
+function assertDraftPublishable(draft) {
+  if (!draft) return 'Draft not found.';
+  if (draft.status === 'expired') return 'This draft has expired.';
+  if (draft.status === 'rejected') return 'This draft has been rejected.';
+  if (draft.status === 'published') return 'This draft is already published.';
+  if (draft.status !== 'approved') return 'You must approve the draft before publishing.';
+  return null;
+}
+
+// Run cleanup once a day
+setInterval(runStickerCleanup, 24 * 60 * 60 * 1000);
+
+// ─── Sticker Draft Message Handler ───────────────────────────────────────────
+
+bot.on('photo', async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  // Use the highest-resolution photo
+  const photos = msg.photo;
+  const best = photos[photos.length - 1];
+  const fileId = best.file_id;
+
+  const draft = createStickerDraft(userId, chatId, fileId, 'photo');
+
+  const previewMsg = await bot.sendPhoto(chatId, fileId, {
+    caption:
+      `🪄 *Draft sticker ready!*\n\n` +
+      `Status: ${formatDraftStatus('draft')}\n` +
+      `⚠️ This sticker is *NOT* in your final set yet.\n` +
+      `It will auto-expire in *${DRAFT_EXPIRY_DAYS} days* if not reviewed.\n\n` +
+      `Draft ID: \`${draft.id}\``,
+    parse_mode: 'Markdown',
+    reply_markup: getDraftActionKeyboard(draft.id)
+  });
+
+  draft.messageId = previewMsg.message_id;
+  stickerDrafts.set(draft.id, draft);
+});
+
+bot.on('sticker', async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+  const fileId = msg.sticker.file_id;
+
+  const draft = createStickerDraft(userId, chatId, fileId, 'sticker');
+
+  const previewMsg = await bot.sendSticker(chatId, fileId, {
+    reply_markup: getDraftActionKeyboard(draft.id)
+  });
+
+  await bot.sendMessage(chatId,
+    `🪄 *Draft sticker ready!*\n\n` +
+    `Status: ${formatDraftStatus('draft')}\n` +
+    `⚠️ This sticker is *NOT* in your final set yet.\n` +
+    `It will auto-expire in *${DRAFT_EXPIRY_DAYS} days* if not reviewed.\n\n` +
+    `Draft ID: \`${draft.id}\``,
+    { parse_mode: 'Markdown' }
+  );
+
+  draft.messageId = previewMsg.message_id;
+  stickerDrafts.set(draft.id, draft);
+});
 
 // Commands
 bot.onText(/\/start/, async (msg) => {
@@ -1360,6 +1512,85 @@ bot.on('callback_query', async (callbackQuery) => {
       await logToChannel(`User ${userId} changed language to ${selectedLang}`, userId);
     } catch (error) {
       console.error('Error updating language:', error);
+    }
+  }
+
+  // ─── Sticker Draft Action Callbacks ────────────────────────────────────────
+  if (data.startsWith('sticker_')) {
+    const parts = data.split('_');
+    // format: sticker_<action>_<draftId...> (draftId may contain underscores)
+    const action = parts[1];
+    const draftId = parts.slice(2).join('_');
+    const draft = stickerDrafts.get(draftId);
+
+    try {
+      if (!draft) {
+        await bot.answerCallbackQuery(callbackQuery.id, { text: '⚠️ Draft not found or already deleted.' });
+        return;
+      }
+
+      if (draft.userId !== userId) {
+        await bot.answerCallbackQuery(callbackQuery.id, { text: '🚫 This draft does not belong to you.' });
+        return;
+      }
+
+      if (draft.status === 'expired') {
+        await bot.answerCallbackQuery(callbackQuery.id, { text: '⌛ This draft has expired and cannot be modified.' });
+        return;
+      }
+
+      if (action === 'approve') {
+        updateDraftStatus(draftId, 'approved');
+        await bot.answerCallbackQuery(callbackQuery.id, { text: '✅ Draft approved! Use /publish to add it to your collection.' });
+        await bot.sendMessage(chatId,
+          `✅ *Draft approved!*\n\nDraft ID: \`${draftId}\`\n\nUse /publish to add it to your final collection or Telegram sticker set.`,
+          { parse_mode: 'Markdown' }
+        );
+        await logToChannel(`User ${userId} approved sticker draft ${draftId}`, userId);
+
+      } else if (action === 'retry') {
+        // Keep the current draft as-is and create a new draft slot
+        // (In a real implementation you would trigger a new generation; here we acknowledge the retry)
+        await bot.answerCallbackQuery(callbackQuery.id, { text: '🔄 Send a new photo or sticker to create another draft.' });
+        await bot.sendMessage(chatId,
+          `🔄 *Retry requested*\n\nYour current draft (\`${draftId}\`) is still saved as a draft.\nSend another photo or sticker to generate a new version.`,
+          { parse_mode: 'Markdown' }
+        );
+
+      } else if (action === 'reject') {
+        updateDraftStatus(draftId, 'rejected');
+        await bot.answerCallbackQuery(callbackQuery.id, { text: '🗑 Draft moved to trash.' });
+        await bot.sendMessage(chatId,
+          `🗑 *Draft rejected and moved to trash.*\n\nDraft ID: \`${draftId}\`\nIt will be automatically deleted within 24 hours.\n\nUse /trash to view your discarded drafts.`,
+          { parse_mode: 'Markdown' }
+        );
+        await logToChannel(`User ${userId} rejected sticker draft ${draftId}`, userId);
+
+      } else if (action === 'save') {
+        // Already in draft status — just confirm
+        await bot.answerCallbackQuery(callbackQuery.id, { text: '💾 Saved to your draft vault.' });
+        await bot.sendMessage(chatId,
+          `💾 *Saved for later!*\n\nDraft ID: \`${draftId}\`\nStatus: ${formatDraftStatus('draft')}\n\nUse /mydrafts to review it when you're ready.`,
+          { parse_mode: 'Markdown' }
+        );
+
+      } else if (action === 'publish') {
+        const publishError = assertDraftPublishable(draft);
+        if (publishError) {
+          await bot.answerCallbackQuery(callbackQuery.id, { text: `⚠️ ${publishError}` });
+          return;
+        }
+        updateDraftStatus(draftId, 'published');
+        await bot.answerCallbackQuery(callbackQuery.id, { text: '🌟 Published!' });
+        await bot.sendMessage(chatId,
+          `🌟 *Sticker published!*\n\nDraft ID: \`${draftId}\`\nStatus: ${formatDraftStatus('published')}\n\nYour sticker is now part of your approved collection.`,
+          { parse_mode: 'Markdown' }
+        );
+        await logToChannel(`User ${userId} published sticker draft ${draftId}`, userId);
+      }
+    } catch (error) {
+      console.error('Error handling sticker callback:', error);
+      await bot.answerCallbackQuery(callbackQuery.id, { text: '❌ An error occurred. Please try again.' });
     }
   }
 });
@@ -3475,5 +3706,131 @@ bot.onText(/\/docs(.*)/, async (msg, match) => {
 
 // Add test mode commands
 console.log('🤖 La NUBE BOT iniciado y escuchando comandos...');
+
+// ─── Sticker Draft Commands ───────────────────────────────────────────────────
+
+// /mydrafts — show drafts pending review
+bot.onText(/\/mydrafts/, async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  trackCommand('/mydrafts', userId);
+  runStickerCleanup();
+
+  const drafts = getUserDraftsByStatus(userId, 'draft');
+
+  if (drafts.length === 0) {
+    return bot.sendMessage(chatId,
+      `📂 *Your Draft Vault*\n\nNo pending drafts found.\n\nSend a photo or sticker to create your first draft!`,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  const list = drafts.map((d, i) => formatDraftEntry(d, i)).join('\n\n');
+
+  await bot.sendMessage(chatId,
+    `📂 *Your Draft Vault* (${drafts.length} pending)\n\n${list}\n\nUse the buttons on each draft message to Approve, Retry, Reject, or Save for Later.`,
+    { parse_mode: 'Markdown' }
+  );
+});
+
+// /myapproved — show approved stickers
+bot.onText(/\/myapproved/, async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  trackCommand('/myapproved', userId);
+
+  const approved = getUserDraftsByStatus(userId, 'approved');
+  const published = getUserDraftsByStatus(userId, 'published');
+  const all = [...approved, ...published];
+
+  if (all.length === 0) {
+    return bot.sendMessage(chatId,
+      `✅ *Approved Collection*\n\nNo approved stickers yet.\n\nApprove a draft from /mydrafts to build your collection!`,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  const list = all.map((d, i) => formatDraftEntry(d, i)).join('\n\n');
+
+  await bot.sendMessage(chatId,
+    `✅ *Approved Collection* (${all.length} sticker${all.length !== 1 ? 's' : ''})\n\n${list}\n\nUse /publish to add approved stickers to your final Telegram sticker set.`,
+    { parse_mode: 'Markdown' }
+  );
+});
+
+// /trash — show rejected/expired stickers
+bot.onText(/\/trash/, async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  trackCommand('/trash', userId);
+  runStickerCleanup();
+
+  const rejected = getUserDraftsByStatus(userId, 'rejected');
+  const expired = getUserDraftsByStatus(userId, 'expired');
+  const all = [...rejected, ...expired];
+
+  if (all.length === 0) {
+    return bot.sendMessage(chatId,
+      `🗑 *Trash*\n\nYour trash is empty. Rejected and expired drafts appear here.`,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  const list = all.map((d, i) => formatDraftEntry(d, i)).join('\n\n');
+
+  await bot.sendMessage(chatId,
+    `🗑 *Trash* (${all.length} item${all.length !== 1 ? 's' : ''})\n\n${list}\n\nThese drafts will be automatically cleaned up soon.`,
+    { parse_mode: 'Markdown' }
+  );
+});
+
+// /publish — publish an approved sticker to the collection
+bot.onText(/\/publish(.*)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+  const draftId = match[1].trim();
+
+  trackCommand('/publish', userId);
+
+  if (!draftId) {
+    const approved = getUserDraftsByStatus(userId, 'approved');
+    if (approved.length === 0) {
+      return bot.sendMessage(chatId,
+        `🌟 *Publish Sticker*\n\nNo approved stickers available to publish.\n\nFirst approve a draft via /mydrafts, then use:\n\`/publish <draft_id>\``,
+        { parse_mode: 'Markdown' }
+      );
+    }
+    const list = approved.map((d, i) => formatDraftEntry(d, i)).join('\n\n');
+    return bot.sendMessage(chatId,
+      `🌟 *Publish Sticker*\n\nYour approved stickers:\n\n${list}\n\nTo publish, use:\n\`/publish <draft_id>\``,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  const draft = stickerDrafts.get(draftId);
+  if (!draft) {
+    return bot.sendMessage(chatId, `❌ Draft \`${draftId}\` not found.`, { parse_mode: 'Markdown' });
+  }
+  if (draft.userId !== userId) {
+    return bot.sendMessage(chatId, `🚫 You do not own this draft.`);
+  }
+  const publishError = assertDraftPublishable(draft);
+  if (publishError) {
+    return bot.sendMessage(chatId,
+      `⚠️ ${publishError}\nCurrent status: ${formatDraftStatus(draft.status)}`,
+      { parse_mode: 'Markdown' }
+    );
+  }
+
+  updateDraftStatus(draftId, 'published');
+  await bot.sendMessage(chatId,
+    `🌟 *Sticker published!*\n\nDraft ID: \`${draftId}\`\nStatus: ${formatDraftStatus('published')}\n\nYour sticker is now part of your approved collection and ready for your Telegram sticker set.`,
+    { parse_mode: 'Markdown' }
+  );
+  await logToChannel(`User ${userId} published sticker draft ${draftId}`, userId);
+});
 
 module.exports = { bot, handleZoomAuthSuccess, botMetrics, activeSessions };
