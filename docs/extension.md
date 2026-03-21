@@ -106,4 +106,5 @@ Zoom's web client is a React SPA and its CSS class names change between releases
 
 - The extension requires the host or co-host to be using the **Zoom Web Client** (not the desktop app)
 - Multipin requires the host/co-host to have the "Multi-pin" feature enabled in their Zoom account
-- Zoom's SPA routing means the content script bootstraps once on initial page load. If you navigate away from a meeting and back, or the meeting ends and a new one starts in the same tab, you may need to reload the page for the extension to re-attach.
+- Zoom's SPA routing can prevent the content script from automatically re-initialising after you leave or end a meeting; the current implementation only detects and attaches to the meeting UI on the first load, so you may need to reload the page or re-open the meeting tab for the extension to re-attach.
+>>>>>>> origin/copilot/refactor-tampermonkey-script
