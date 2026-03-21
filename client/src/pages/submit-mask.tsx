@@ -71,16 +71,18 @@ export default function SubmitMaskPage({ userId }: SubmitFlowPageProps) {
         <div className="step-panel">
           <h2>📤 Upload Your Mask</h2>
           <p>Provide the URL to your mask/template file (SVG or PNG).</p>
-          <label>Mask File URL</label>
+          <label htmlFor="mask-file-url">Mask File URL</label>
           <input
+            id="mask-file-url"
             type="text"
             className="url-input"
             placeholder="https://example.com/my-mask.svg"
             value={maskFileUrl}
             onChange={(e) => setMaskFileUrl(e.target.value)}
           />
-          <label>Preview Image URL (optional)</label>
+          <label htmlFor="preview-image-url">Preview Image URL (optional)</label>
           <input
+            id="preview-image-url"
             type="text"
             className="url-input"
             placeholder="https://example.com/preview.png"
