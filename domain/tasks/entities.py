@@ -19,6 +19,7 @@ class TaskType(str, Enum):
     DEPLOYMENT_DESIGN = "deployment_design"
     ROADMAP = "roadmap"
     REPO_COMPARE = "repo_compare"
+    REPO_SEPARATION = "repo_separation"
 
 
 class TaskStatus(str, Enum):
