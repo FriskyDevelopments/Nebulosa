@@ -114,27 +114,69 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
- * Forward a message to the content script in the active Zoom tab.
- * Prefers the tracked tab; falls back to querying all Zoom tabs.
+ * Return true if urlString is a supported Zoom meeting URL.
+ * Accepts both zoom.us and vanity subdomains (e.g. company.zoom.us).
+ * @param {string|undefined} urlString
+ * @returns {boolean}
  */
-async function _forwardToZoomTab(message, sendResponse) {
+function _isSupportedZoomUrl(urlString) {
+  if (!urlString) return false;
+  let parsed;
   try {
-    let tabId = _activeZoomTabId;
+    parsed = new URL(urlString);
+  } catch (_) {
+    return false;
+  }
+  const host = parsed.hostname;
+  if (!host || (host !== 'zoom.us' && !host.endsWith('.zoom.us'))) return false;
+  const path = parsed.pathname || '';
+  return path.startsWith('/j/') || path.startsWith('/wc/');
+}
 
-    if (!tabId) {
-      const tabs = await chrome.tabs.query({ url: ['*://*.zoom.us/*'] });
-      if (!tabs.length) {
-        sendResponse({ ok: false, error: 'No Zoom tab found' });
-        return;
-      }
-      tabId = tabs[0].id;
+/**
+ * Forward a message to the content script in the active Zoom tab.
+ * Uses callback-based chrome APIs so it works in all MV3 environments
+ * (Chrome, Firefox, Edge) without relying on Promise availability.
+ *
+ * Resolution order:
+ *  1. Use `_activeZoomTabId` if set (tracked from the last CONTENT_STATUS message).
+ *  2. Fall back to querying active tab in the current window and validating its URL.
+ * @param {object} message
+ * @param {Function} sendResponse
+ */
+function _forwardToZoomTab(message, sendResponse) {
+  if (_activeZoomTabId) {
+    chrome.tabs.sendMessage(_activeZoomTabId, message, (response) => {
+      void chrome.runtime.lastError; // suppress "no receiver" if tab closed
+      sendResponse(response || { ok: false, error: 'No response from content script' });
+    });
+    return;
+  }
+
+  // No tracked tab — check the active tab in the current window first
+  chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
+    void chrome.runtime.lastError;
+    const activeTab = activeTabs && activeTabs[0];
+    if (activeTab && _isSupportedZoomUrl(activeTab.url)) {
+      chrome.tabs.sendMessage(activeTab.id, message, (response) => {
+        void chrome.runtime.lastError;
+        sendResponse(response || { ok: false, error: 'No response from content script' });
+      });
+      return;
     }
 
-    const response = await chrome.tabs.sendMessage(tabId, message);
-    sendResponse(response);
-  } catch (err) {
-    dbg('forwardToZoomTab error:', err);
-    sendResponse({ ok: false, error: err.message });
-  }
+    // Fall back: search all Zoom tabs
+    chrome.tabs.query({ url: ['*://*.zoom.us/j/*', '*://*.zoom.us/wc/*'] }, (tabs) => {
+      void chrome.runtime.lastError;
+      if (!tabs || !tabs.length) {
+        sendResponse({ ok: false, error: 'No Zoom meeting tab found' });
+        return;
+      }
+      chrome.tabs.sendMessage(tabs[0].id, message, (response) => {
+        void chrome.runtime.lastError;
+        sendResponse(response || { ok: false, error: 'No response from content script' });
+      });
+    });
+  });
 }
 
