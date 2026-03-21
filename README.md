@@ -41,12 +41,14 @@ docs/
   multipin-automation.md        ← Multipin automation deep-dive
   github-oauth-setup.md         ← GitHub Pages OAuth callback setup
   shortio-setup.md              ← Short.io domain redirect setup
+  browser-compat-roadmap.md    ← Test-first workflow + Chrome/Firefox/Safari phased plan
 ```
 
 | Guide | Description |
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | Full platform architecture |
 | [docs/extension.md](docs/extension.md) | Extension setup and usage |
+| [docs/browser-compat-roadmap.md](docs/browser-compat-roadmap.md) | Test-first workflow + Chrome → Firefox → Safari phased plan |
 | [docs/event-model.md](docs/event-model.md) | Event bus contract (event names, payloads, module map) |
 | [docs/tampermonkey-migration.md](docs/tampermonkey-migration.md) | Migration notes from original Puppeteer scripts |
 | [docs/setup-guide.md](docs/setup-guide.md) | Bot + server environment setup |
