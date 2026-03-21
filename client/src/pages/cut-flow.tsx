@@ -92,11 +92,13 @@ export default function CutFlowPage({ userId }: CutFlowPageProps) {
     },
   });
 
-  // Transition to result when the job completes
+  // Transition to result when the job completes or fails
   const STEPS: Step[] = ["upload", "choose-mask", "processing", "result"];
 
   useEffect(() => {
-    if (jobData?.jobStatus === "completed" && step === "processing") {
+    if (step !== "processing" || !jobData) return;
+
+    if (jobData.jobStatus === "completed" || jobData.jobStatus === "failed") {
       setStep("result");
     }
   }, [jobData?.jobStatus, step]);
