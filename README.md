@@ -82,11 +82,15 @@ Register a sticker `file_id` against one of these templates via the Admin API to
 
 1. Find the `file_id` of the Telegram sticker you want to use (forward the sticker to `@userinfobot` or log it from the bot console).
 2. Call `POST /api/spells` with the `file_id`, the desired `spell_name`, `action_type`, and `payload`.
-3. The spell is immediately active — no restart needed.
+3. The spell is immediately active — the Admin API updates the bot's in-memory registry instantly so the very next sticker send triggers the configured action.
 
 ### Optional token cost
 
-Set `token_cost > 0` on a spell to require tokens before it fires.  The token deduction logic lives in `bot.cjs` inside the `executeSpell` function and can be wired to your existing token balance system.
+Set `tokenCost > 0` on a spell to require tokens before it fires.  The bot tracks each user's token balance in memory (new users start with 100 tokens by default).  When a user sends a sticker whose spell has a non-zero `tokenCost`:
+- If the user has enough tokens, the cost is deducted and the spell executes.
+- If the user's balance is insufficient, the bot sends a notification and the spell is blocked.
+
+Use `getTokenBalance(userId)` and `deductTokens(userId, amount)` (exported from `bot.cjs`) to integrate with a persistent balance system when needed.
 
 
 ## Architecture

@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { ZodError } from "zod";
 import { storage } from "./storage";
 import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema, insertStickerSpellSchema } from "@shared/schema";
 
@@ -259,9 +260,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const spellData = insertStickerSpellSchema.parse(req.body);
       const spell = await storage.createStickerSpell(spellData);
+      // Immediately reflect the new spell in the bot's in-memory registry so
+      // it is active the moment the API call returns (no restart needed).
+      try {
+        const { addSpellToRegistry } = require('../bot.cjs');
+        addSpellToRegistry(spell);
+      } catch (_e) { /* bot module may not be loaded in all environments */ }
       res.status(201).json(spell);
     } catch (error) {
-      res.status(400).json({ error: "Invalid spell data", details: error instanceof Error ? error.message : String(error) });
+      if (error instanceof ZodError) {
+        res.status(400).json({ error: "Invalid spell data", details: error.message });
+      } else {
+        res.status(500).json({ error: "Failed to create spell" });
+      }
     }
   });
 
@@ -276,6 +287,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!deleted) {
         return res.status(404).json({ error: "Spell not found" });
       }
+      // Immediately remove the spell from the bot's in-memory registry.
+      try {
+        const { removeSpellFromRegistry } = require('../bot.cjs');
+        removeSpellFromRegistry(id);
+      } catch (_e) { /* bot module may not be loaded in all environments */ }
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete spell" });

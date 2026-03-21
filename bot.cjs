@@ -3479,7 +3479,9 @@ bot.onText(/\/docs(.*)/, async (msg, match) => {
 // ---------------------------------------------------------------------------
 
 // In-memory spell registry (file_id → spell record).
-// Populated on startup from the storage layer (best-effort).
+// Populated on startup from the storage layer (best-effort) and kept
+// up-to-date in real time via addSpellToRegistry / removeSpellFromRegistry
+// (called by the Admin API route handlers after each mutation).
 const stickerSpellRegistry = new Map();
 
 /**
@@ -3536,8 +3538,7 @@ if (!_spellStorage) {
 }
 
 /**
- * Reload the spell registry from the storage layer.
- * Called on startup and whenever a spell is created/deleted via the API.
+ * Reload the full spell registry from the storage layer (called on startup).
  */
 async function reloadSpellRegistry() {
   if (!_spellStorage) return;
@@ -3554,7 +3555,70 @@ async function reloadSpellRegistry() {
 }
 
 /**
+ * Add or update a single spell in the registry immediately.
+ * Called by the Admin API after POST /api/spells so changes are instant.
+ * @param {object} spell  - Persisted spell record (must have stickerFileId)
+ */
+function addSpellToRegistry(spell) {
+  stickerSpellRegistry.set(spell.stickerFileId, spell);
+  console.log(`[SpellEngine] Spell "${spell.spellName}" added to registry (fileId=${spell.stickerFileId})`);
+}
+
+/**
+ * Remove a spell from the registry immediately by its database id.
+ * Called by the Admin API after DELETE /api/spells/:id so changes are instant.
+ * @param {number} spellId  - The spell's database id
+ */
+function removeSpellFromRegistry(spellId) {
+  for (const [fileId, spell] of stickerSpellRegistry.entries()) {
+    if (spell.id === spellId) {
+      stickerSpellRegistry.delete(fileId);
+      console.log(`[SpellEngine] Spell id=${spellId} removed from registry`);
+      return;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Token balance tracking
+// userTokenBalances: Map<telegramUserId (number), tokenBalance (number)>
+// Default balance granted when a user is first seen.
+// ---------------------------------------------------------------------------
+const DEFAULT_TOKEN_BALANCE = 100;
+const userTokenBalances = new Map();
+
+/**
+ * Return the current token balance for a Telegram user.
+ * First-time users receive the default starting balance.
+ * @param {number} userId
+ * @returns {number}
+ */
+function getTokenBalance(userId) {
+  if (!userTokenBalances.has(userId)) {
+    userTokenBalances.set(userId, DEFAULT_TOKEN_BALANCE);
+  }
+  return userTokenBalances.get(userId);
+}
+
+/**
+ * Attempt to deduct tokens from a user's balance.
+ * Returns true on success, false when the balance is insufficient.
+ * @param {number} userId
+ * @param {number} amount
+ * @returns {boolean}
+ */
+function deductTokens(userId, amount) {
+  const balance = getTokenBalance(userId);
+  if (balance < amount) return false;
+  userTokenBalances.set(userId, balance - amount);
+  console.log(`[SpellEngine] Deducted ${amount} token(s) from user ${userId}. New balance: ${balance - amount}`);
+  return true;
+}
+
+/**
  * Execute a registered spell in response to a sticker message.
+ * When spell.tokenCost > 0 the user must have a sufficient token balance;
+ * otherwise the spell is blocked and the user is notified.
  * @param {object} spell  - Spell record from the registry
  * @param {object} msg    - Telegram message object
  */
@@ -3562,7 +3626,21 @@ async function executeSpell(spell, msg) {
   const chatId = msg.chat.id;
   const userId = msg.from && msg.from.id;
 
-  console.log(`[SpellEngine] Spell triggered — name="${spell.spellName}" action="${spell.actionType}" user=${userId} chat=${chatId}`);
+  console.log(`[SpellEngine] Spell triggered — name="${spell.spellName}" action="${spell.actionType}" user=${userId} chat=${chatId} stickerId=${msg.sticker?.file_id ?? 'unknown'}`);
+
+  // Token cost check
+  const tokenCost = spell.tokenCost || 0;
+  if (tokenCost > 0) {
+    const balance = getTokenBalance(userId);
+    if (!deductTokens(userId, tokenCost)) {
+      await bot.sendMessage(
+        chatId,
+        `⚠️ Insufficient tokens to cast "${spell.spellName}". You have ${balance} token(s) but this spell costs ${tokenCost}.`
+      );
+      console.log(`[SpellEngine] Spell "${spell.spellName}" blocked — user ${userId} has ${balance} token(s), needs ${tokenCost}`);
+      return;
+    }
+  }
 
   try {
     switch (spell.actionType) {
@@ -3573,9 +3651,8 @@ async function executeSpell(spell, msg) {
       case 'send_link':
         await bot.sendMessage(
           chatId,
-          `🌀 *${spell.spellName}* activated`,
+          `🌀 ${spell.spellName} activated`,
           {
-            parse_mode: 'Markdown',
             reply_markup: {
               inline_keyboard: [
                 [{ text: 'Open link', url: spell.payload }],
@@ -3596,8 +3673,7 @@ async function executeSpell(spell, msg) {
       case 'launch_feature':
         await bot.sendMessage(
           chatId,
-          `✨ *${spell.spellName}* feature launched\n\n${spell.payload}`,
-          { parse_mode: 'Markdown' }
+          `✨ ${spell.spellName} feature launched\n\n${spell.payload}`
         );
         break;
 
@@ -3627,4 +3703,16 @@ reloadSpellRegistry();
 // Add test mode commands
 console.log('🤖 La NUBE BOT iniciado y escuchando comandos...');
 
-module.exports = { bot, handleZoomAuthSuccess, botMetrics, activeSessions };
+module.exports = {
+  bot,
+  handleZoomAuthSuccess,
+  botMetrics,
+  activeSessions,
+  // Sticker Spell Engine — exported so Admin API routes can update the
+  // in-memory registry instantly after each POST/DELETE.
+  addSpellToRegistry,
+  removeSpellFromRegistry,
+  // Token helpers — exported for external inspection/top-up if needed.
+  getTokenBalance,
+  deductTokens,
+};
