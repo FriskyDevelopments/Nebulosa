@@ -11,10 +11,11 @@ import CatalogPage from "./catalog";
 
 type View = "home" | "catalog" | "cut" | "submit";
 
-// Demo user — in production this would come from auth context
-const DEMO_USER_ID = 1;
+type MagicCutDashboardProps = {
+  userId: number;
+};
 
-export default function MagicCutDashboard() {
+export default function MagicCutDashboard({ userId }: MagicCutDashboardProps) {
   const [view, setView] = useState<View>("home");
 
   return (
@@ -61,12 +62,12 @@ export default function MagicCutDashboard() {
         )}
 
         {view === "catalog" && (
-          <CatalogPage userId={DEMO_USER_ID} onSelectMask={() => setView("cut")} />
+          <CatalogPage userId={userId} onSelectMask={() => setView("cut")} />
         )}
 
-        {view === "cut" && <CutFlowPage userId={DEMO_USER_ID} />}
+        {view === "cut" && <CutFlowPage userId={userId} />}
 
-        {view === "submit" && <SubmitMaskPage userId={DEMO_USER_ID} />}
+        {view === "submit" && <SubmitMaskPage userId={userId} />}
       </main>
     </div>
   );
