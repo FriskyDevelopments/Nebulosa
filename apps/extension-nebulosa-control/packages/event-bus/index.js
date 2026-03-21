@@ -5,7 +5,7 @@
  * business modules. All modules communicate through this event bus
  * instead of calling each other directly.
  *
- * Supported events:
+ * Supported events (emitted by the Zoom integration layer):
  *   participant_joined   – a participant entered the meeting
  *   participant_left     – a participant left the meeting
  *   hand_raised          – a participant raised their hand
@@ -13,6 +13,8 @@
  *   camera_on            – a participant turned their camera on
  *   camera_off           – a participant turned their camera off
  *   chat_message         – a chat message was received
+ *
+ * Reserved events (not yet emitted — planned):
  *   meeting_detected     – the extension detected a Zoom meeting page
  *   meeting_ended        – the meeting ended / user left
  */

@@ -111,7 +111,7 @@ The background worker caches the last known status so the popup always has data 
 2. **Decoupled modules** — Modules communicate through the event bus only. No direct calls between modules.
 3. **Preserved behaviour** — The original working multipin logic from `zoomBrowserBot.js` is preserved and wrapped, not rewritten.
 4. **No fake completeness** — Scaffold modules are clearly marked with TODOs and `SCAFFOLD` status.
-5. **Cross-browser readiness** — No Chrome-specific APIs beyond `chrome.*` (which has a standardised `browser.*` polyfill for Firefox/Safari). The DOM logic uses standard Web APIs.
+5. **Cross-browser readiness** — Extension code currently targets Chrome's `chrome.*` APIs. Cross-browser support for Firefox/Safari is planned via a `browser.*`-style wrapper (e.g. webextension-polyfill). The DOM logic uses standard Web APIs throughout.
 
 ---
 

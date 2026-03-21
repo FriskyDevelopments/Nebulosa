@@ -119,21 +119,19 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   switch (message.type) {
     case 'GET_STATUS':
       sendResponse(_buildStatus());
-      break;
+      return false;
 
     case 'TOGGLE_MODULE': {
       const { module: mod, enabled } = message;
       _handleToggle(mod, enabled);
       sendResponse({ ok: true });
-      break;
+      return false;
     }
 
     default:
       sendResponse({ ok: false, error: 'Unknown message type' });
+      return false;
   }
-
-  // Return true to keep the message channel open for async responses
-  return true;
 });
 
 function _handleToggle(mod, enabled) {
