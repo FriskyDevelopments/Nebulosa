@@ -131,9 +131,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     default:
       sendResponse({ ok: false, error: 'Unknown message type' });
   }
-
-  // Return true to keep the message channel open for async responses
-  return true;
 });
 
 function _handleToggle(mod, enabled) {
