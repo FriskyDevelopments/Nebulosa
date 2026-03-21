@@ -11,6 +11,8 @@ Nebulosa codebase were reused to build them.
 The following files were added in this PR and are **fully self-contained**.
 They have no dependency on any Nebulosa/Zoom code.
 
+> **Repository note:** If you need demo pages for the animation work (including ASCII art animation demos), put them in the standalone **Stix Magic** repository, not in the main Nebulosa repository.
+
 ### Core Stix Magic files
 
 ```

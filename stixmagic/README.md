@@ -237,3 +237,11 @@ The system is ready for the following additions:
 - **Telegram wallet commands** — `/balance`, `/buy`
 - **AI sticker generation jobs** — background queue triggered by plan features
 - **Monthly token grants** — subscriptions that award credits on renewal
+
+---
+
+## Demo Pages
+
+If you are looking for the demo pages for the animation work, including ASCII art animation demos, use the standalone **`stixmagic` repository** instead of the main Nebulosa repository.
+
+The standalone Stix Magic repo is the intended home for the demo site, GitHub Pages deployment, and any animation showcase pages tied to this feature.
