@@ -35,10 +35,24 @@ packages/
 docs/
   architecture.md               ← Full architecture overview
   extension.md                  ← Extension setup and usage
+  event-model.md                ← Event bus contract: all event names, payloads, module map
   tampermonkey-migration.md     ← Migration notes from original scripts
+  setup-guide.md                ← Bot + server environment setup
+  multipin-automation.md        ← Multipin automation deep-dive
+  github-oauth-setup.md         ← GitHub Pages OAuth callback setup
+  shortio-setup.md              ← Short.io domain redirect setup
 ```
 
-See **[docs/architecture.md](docs/architecture.md)** for the complete architecture guide.
+| Guide | Description |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | Full platform architecture |
+| [docs/extension.md](docs/extension.md) | Extension setup and usage |
+| [docs/event-model.md](docs/event-model.md) | Event bus contract (event names, payloads, module map) |
+| [docs/tampermonkey-migration.md](docs/tampermonkey-migration.md) | Migration notes from original Puppeteer scripts |
+| [docs/setup-guide.md](docs/setup-guide.md) | Bot + server environment setup |
+| [docs/multipin-automation.md](docs/multipin-automation.md) | Multipin automation deep-dive |
+| [docs/github-oauth-setup.md](docs/github-oauth-setup.md) | GitHub Pages OAuth callback setup |
+| [docs/shortio-setup.md](docs/shortio-setup.md) | Short.io domain redirect setup |
 
 ---
 
