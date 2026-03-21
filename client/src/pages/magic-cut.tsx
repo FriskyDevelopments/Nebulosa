@@ -38,21 +38,33 @@ export default function MagicCutDashboard({ userId }: MagicCutDashboardProps) {
             <p className="subtitle">Turn any image into a custom sticker with one click.</p>
 
             <div className="flow-overview">
-              <div className="flow-card" onClick={() => setView("cut")}>
+              <button
+                type="button"
+                className="flow-card"
+                onClick={() => setView("cut")}
+              >
                 <span className="flow-icon">🖼️</span>
                 <h3>Create a Sticker</h3>
                 <p>Upload an image, choose a cut style, and generate your sticker.</p>
-              </div>
-              <div className="flow-card" onClick={() => setView("catalog")}>
+              </button>
+              <button
+                type="button"
+                className="flow-card"
+                onClick={() => setView("catalog")}
+              >
                 <span className="flow-icon">✂️</span>
                 <h3>Browse Catalog</h3>
                 <p>Explore all available cut styles and masks.</p>
-              </div>
-              <div className="flow-card" onClick={() => setView("submit")}>
+              </button>
+              <button
+                type="button"
+                className="flow-card"
+                onClick={() => setView("submit")}
+              >
                 <span className="flow-icon">📤</span>
                 <h3>Submit a Mask</h3>
                 <p>Create and submit your own mask template to the platform.</p>
-              </div>
+              </button>
             </div>
 
             <div className="formula-box">
