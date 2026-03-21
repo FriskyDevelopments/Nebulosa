@@ -8,6 +8,7 @@ function Router() {
     <Switch>
       <Route path="/" component={MagicCutDashboard} />
       <Route path="/magic-cut" component={MagicCutDashboard} />
+      <Route component={() => <div>Page not found</div>} />
     </Switch>
   );
 }
