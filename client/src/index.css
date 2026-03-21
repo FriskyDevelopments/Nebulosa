@@ -290,7 +290,8 @@
 
 .step-panel.center { text-align: center; }
 
-label { display: block; font-weight: 600; margin: 1rem 0 0.25rem; font-size: 0.9rem; }
+.magic-cut-app label,
+.step-panel label { display: block; font-weight: 600; margin: 1rem 0 0.25rem; font-size: 0.9rem; }
 
 .url-input {
   width: 100%;
