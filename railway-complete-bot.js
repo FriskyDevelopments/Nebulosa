@@ -13,8 +13,10 @@ class CompleteRailwayBot {
         this.ZOOM_CLIENT_ID = process.env.ZOOM_CLIENT_ID;
         this.ZOOM_CLIENT_SECRET = process.env.ZOOM_CLIENT_SECRET;
         // Fix for 4700 error: Use consistent callback URL
-        this.ZOOM_REDIRECT_URI = process.env.ZOOM_REDIRECT_URI || `https://nebulosa-production.railway.app/auth/zoom/callback`;
-        this.WEBHOOK_URL = `https://${process.env.RAILWAY_STATIC_URL || 'nebulosa-production.railway.app'}/webhook`;
+        // APP_DOMAIN can be set to any domain/subdomain (e.g. nebulosa.pupfrisky.com)
+        const appDomain = process.env.APP_DOMAIN || process.env.RAILWAY_STATIC_URL || 'nebulosa.pupfrisky.com';
+        this.ZOOM_REDIRECT_URI = process.env.ZOOM_REDIRECT_URI || `https://${appDomain}/auth/zoom/callback`;
+        this.WEBHOOK_URL = process.env.WEBHOOK_URL || `https://${appDomain}/webhook`;
 
         // Validate environment
         this.validateEnvironment();

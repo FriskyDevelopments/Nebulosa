@@ -16,10 +16,15 @@ function getCleanClientSecret() {
 // Get access token from authorization code
 async function getAccessToken(code) {
   // Fix for 4700 error: Use correct redirect URI from environment
-  const redirectUri = process.env.ZOOM_REDIRECT_URI || 'https://nebulosa-production.railway.app/auth/zoom/callback';
-  const url = `https://zoom.us/oauth/token?grant_type=authorization_code&code=${code}&redirect_uri=${redirectUri}`;
+  // APP_DOMAIN can be set to any domain/subdomain (e.g. nebulosa.pupfrisky.com)
+  const appDomain = process.env.APP_DOMAIN || process.env.RAILWAY_STATIC_URL || 'nebulosa.pupfrisky.com';
+  const redirectUri = process.env.ZOOM_REDIRECT_URI || `https://${appDomain}/auth/zoom/callback`;
 
-  const response = await axios.post(url, {}, {
+  const response = await axios.post('https://zoom.us/oauth/token', new URLSearchParams({
+    grant_type: 'authorization_code',
+    code,
+    redirect_uri: redirectUri,
+  }), {
     auth: {
       username: getCleanClientId(),
       password: getCleanClientSecret(),
