@@ -6,6 +6,15 @@ const axios = require('axios');
 const crypto = require('crypto');
 require('dotenv').config();
 
+// Rate limit OAuth callback: max 10 requests per IP per minute
+const oauthCallbackRateLimit = rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: '<h1>Too Many Requests</h1><p>Please wait before trying again.</p>',
+});
+
 class CompleteRailwayBot {
     constructor() {
         // Railway configuration
@@ -64,22 +73,13 @@ class CompleteRailwayBot {
         // ======================
         // ZOOM OAUTH CALLBACK - Fix for 4700 error
         // ======================
-        // Rate limit: max 10 callback attempts per IP per minute
-        const callbackRateLimit = rateLimit({
-            windowMs: 60 * 1000,
-            max: 10,
-            standardHeaders: true,
-            legacyHeaders: false,
-            message: '<h1>Too Many Requests</h1><p>Please wait before trying again.</p>',
-        });
-
         // Support both callback URLs to handle existing configurations
         const callbackHandler = async (req, res) => {
             const { code, state, error, error_description } = req.query;
 
             console.log('🔗 OAuth callback received on:', req.path);
             console.log('Code:', code ? `${code.substring(0, 10)}...` : 'Missing');
-            console.log('State:', state);
+            console.log('State:', state ? '[present]' : '[missing]');
             console.log('Error:', error);
 
             // Handle OAuth errors
@@ -95,7 +95,7 @@ class CompleteRailwayBot {
 
             // Enforce state presence and validity to prevent CSRF and orphaned sessions
             if (!state || !this.oauthSessions.has(state)) {
-                console.error('❌ Invalid or missing OAuth state:', state);
+                console.error('❌ Invalid or missing OAuth state');
                 return res.status(400).send(this.getInvalidStatePage());
             }
 
@@ -117,9 +117,9 @@ class CompleteRailwayBot {
             }
         };
 
-        // Support both callback URLs for compatibility
-        this.app.get('/oauth/callback', callbackRateLimit, callbackHandler);
-        this.app.get('/auth/zoom/callback', callbackRateLimit, callbackHandler);
+        // Support both callback URLs for compatibility (rate limited at module level)
+        this.app.get('/oauth/callback', oauthCallbackRateLimit, callbackHandler);
+        this.app.get('/auth/zoom/callback', oauthCallbackRateLimit, callbackHandler);
 
         // ======================
         // HEALTH & STATUS
