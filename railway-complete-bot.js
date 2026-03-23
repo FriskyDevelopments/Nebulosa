@@ -13,8 +13,8 @@ class CompleteRailwayBot {
         this.ZOOM_CLIENT_ID = process.env.ZOOM_CLIENT_ID;
         this.ZOOM_CLIENT_SECRET = process.env.ZOOM_CLIENT_SECRET;
         // Fix for 4700 error: Use consistent callback URL
-        // APP_DOMAIN can be set to any domain/subdomain (e.g. nebulosa.pupfrisky.com)
-        const appDomain = process.env.APP_DOMAIN || process.env.RAILWAY_STATIC_URL || 'nebulosa.pupfrisky.com';
+        // APP_DOMAIN can be set to any domain/subdomain (e.g. nebulosa.frisydev.com)
+        const appDomain = process.env.APP_DOMAIN || process.env.RAILWAY_STATIC_URL || 'nebulosa.frisydev.com';
         this.ZOOM_REDIRECT_URI = process.env.ZOOM_REDIRECT_URI || `https://${appDomain}/auth/zoom/callback`;
         this.WEBHOOK_URL = process.env.WEBHOOK_URL || `https://${appDomain}/webhook`;
 
@@ -83,17 +83,21 @@ class CompleteRailwayBot {
                 return res.status(400).send(this.getMissingCodePage());
             }
 
+            // Enforce state presence and validity to prevent CSRF and orphaned sessions
+            if (!state || !this.oauthSessions.has(state)) {
+                console.error('❌ Invalid or missing OAuth state:', state);
+                return res.status(400).send(this.getInvalidStatePage());
+            }
+
             try {
                 // Exchange code for tokens
                 const tokenData = await this.exchangeCodeForTokens(code);
                 console.log('✅ Token exchange successful');
 
-                // Handle success in Telegram
-                if (state && this.oauthSessions.has(state)) {
-                    const { chatId, username } = this.oauthSessions.get(state);
-                    await this.handleZoomAuthSuccess(chatId, username, tokenData);
-                    this.oauthSessions.delete(state);
-                }
+                // Link Zoom account to the originating Telegram chat
+                const { chatId, username } = this.oauthSessions.get(state);
+                await this.handleZoomAuthSuccess(chatId, username, tokenData);
+                this.oauthSessions.delete(state);
 
                 res.send(this.getSuccessPage());
 
@@ -404,6 +408,18 @@ Hello ${username}! Your Zoom account is now connected.
             <h1>❌ Authorization Error</h1>
             <p>Authorization code not received from Zoom.</p>
             <p>Please try again from Telegram with /zoomlogin</p>
+        </body>
+        </html>`;
+    }
+
+    getInvalidStatePage() {
+        return `
+        <html>
+        <head><title>❌ Invalid Session</title></head>
+        <body style="font-family: Arial; text-align: center; padding: 50px;">
+            <h1>❌ Invalid or Expired Session</h1>
+            <p>This authorization link is invalid or has already been used.</p>
+            <p>Please start a new login session from Telegram with /zoomlogin</p>
         </body>
         </html>`;
     }
