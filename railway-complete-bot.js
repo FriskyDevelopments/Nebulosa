@@ -63,6 +63,26 @@ class CompleteRailwayBot {
         // ======================
         // ZOOM OAUTH CALLBACK - Fix for 4700 error
         // ======================
+        // Simple in-memory rate limiter: max 10 callback attempts per IP per minute
+        const callbackRateLimit = new Map();
+        const rateLimitMiddleware = (req, res, next) => {
+            const ip = req.ip || req.connection.remoteAddress;
+            const now = Date.now();
+            const windowMs = 60 * 1000;
+            const maxRequests = 10;
+            const record = callbackRateLimit.get(ip) || { count: 0, resetAt: now + windowMs };
+            if (now > record.resetAt) {
+                record.count = 0;
+                record.resetAt = now + windowMs;
+            }
+            record.count++;
+            callbackRateLimit.set(ip, record);
+            if (record.count > maxRequests) {
+                return res.status(429).send('<h1>Too Many Requests</h1><p>Please wait before trying again.</p>');
+            }
+            next();
+        };
+
         // Support both callback URLs to handle existing configurations
         const callbackHandler = async (req, res) => {
             const { code, state, error, error_description } = req.query;
@@ -108,8 +128,8 @@ class CompleteRailwayBot {
         };
 
         // Support both callback URLs for compatibility
-        this.app.get('/oauth/callback', callbackHandler);
-        this.app.get('/auth/zoom/callback', callbackHandler);
+        this.app.get('/oauth/callback', rateLimitMiddleware, callbackHandler);
+        this.app.get('/auth/zoom/callback', rateLimitMiddleware, callbackHandler);
 
         // ======================
         // HEALTH & STATUS
