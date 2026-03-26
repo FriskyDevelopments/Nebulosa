@@ -101,7 +101,17 @@ export const stickerSpells = pgTable("sticker_spells", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertStickerSpellSchema = createInsertSchema(stickerSpells).omit({
+const stickerActionTypeSchema = z.enum([
+  "send_message",
+  "send_link",
+  "send_sticker",
+  "trigger_reaction",
+  "launch_feature",
+]);
+
+export const insertStickerSpellSchema = createInsertSchema(stickerSpells, {
+  actionType: stickerActionTypeSchema,
+}).omit({
   id: true,
   createdAt: true,
 });
