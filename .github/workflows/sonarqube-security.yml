@@ -29,14 +29,14 @@ jobs:
       - name: Run npm audit for dependency security
         run: npm audit --json > npm-audit-results.json || true
       
-      - name: SonarQube Scan
-        uses: sonarqube-quality-gate-action@master
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       
       - name: Upload audit results as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-audit-results
           path: |

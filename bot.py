@@ -24,6 +24,11 @@ WAITING_PACK_NAME = 1
 WAITING_STICKER = 2
 WAITING_PACK_SELECTION = 3
 
+# Maximum allowed length for a pack name.
+# Keeps button labels readable and ensures the "pack:{index}" callback_data
+# stays well within Telegram's 64-byte limit.
+MAX_PACK_NAME_LEN = 40
+
 WELCOME_MESSAGE = (
     "╔══════════════════════════════╗\n"
     "        🧪 STICKER LAB\n"
@@ -67,6 +72,13 @@ async def receive_pack_name(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         )
         return WAITING_PACK_NAME
 
+    if len(pack_name) > MAX_PACK_NAME_LEN:
+        await update.message.reply_text(
+            f"⚠️ Pack name is too long (max {MAX_PACK_NAME_LEN} characters). "
+            "Please enter a shorter name:"
+        )
+        return WAITING_PACK_NAME
+
     user_id = update.effective_user.id
     if "packs" not in context.bot_data:
         context.bot_data["packs"] = {}
@@ -102,8 +114,8 @@ async def addsticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         return ConversationHandler.END
 
     keyboard = [
-        [InlineKeyboardButton(name, callback_data=f"pack:{name}")]
-        for name in user_packs
+        [InlineKeyboardButton(name, callback_data=f"pack:{idx}")]
+        for idx, name in enumerate(user_packs)
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
@@ -121,18 +133,25 @@ async def receive_pack_selection(
     query = update.callback_query
     await query.answer()
 
-    selected = query.data.removeprefix("pack:")
+    data = query.data or ""
+    prefix = "pack:"
+    try:
+        pack_idx = int(data[len(prefix):]) if data.startswith(prefix) else -1
+    except ValueError:
+        pack_idx = -1
+
     user_id = update.effective_user.id
     user_packs = context.bot_data.get("packs", {}).get(user_id, [])
 
-    if selected not in user_packs:
-        logger.warning("Pack %r not found for user %s — possible stale keyboard", selected, user_id)
+    if pack_idx < 0 or pack_idx >= len(user_packs):
+        logger.warning("Pack index %r invalid for user %s — possible stale keyboard", data, user_id)
         await query.edit_message_text(
-            f"⚠️ Pack <b>{escape(selected)}</b> not found. Use /addsticker to try again.",
+            "⚠️ Pack not found. Use /addsticker to try again.",
             parse_mode="HTML",
         )
         return ConversationHandler.END
 
+    selected = user_packs[pack_idx]
     context.user_data["selected_pack"] = selected
     await query.edit_message_text(
         f"📎 Send an image to add to <b>{escape(selected)}</b>:",
