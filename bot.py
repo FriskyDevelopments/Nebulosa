@@ -24,10 +24,11 @@ WAITING_PACK_NAME = 1
 WAITING_STICKER = 2
 WAITING_PACK_SELECTION = 3
 
-# Maximum allowed length for a pack name.
-# Keeps button labels readable and ensures the "pack:{index}" callback_data
-# stays well within Telegram's 64-byte limit.
+# Maximum allowed length for a pack name (UX safeguard at creation time).
 MAX_PACK_NAME_LEN = 40
+
+# Maximum characters shown on an inline button label.
+_BUTTON_LABEL_MAX = 32
 
 WELCOME_MESSAGE = (
     "╔══════════════════════════════╗\n"
@@ -41,6 +42,11 @@ WELCOME_MESSAGE = (
     "/help — show this menu\n"
     "/cancel — cancel current operation"
 )
+
+
+def _truncate_label(text, max_len=_BUTTON_LABEL_MAX):
+    """Return *text* truncated to *max_len* characters with a trailing ellipsis."""
+    return text if len(text) <= max_len else text[:max_len - 1] + "…"
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -113,15 +119,24 @@ async def addsticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         )
         return ConversationHandler.END
 
-    keyboard = [
-        [InlineKeyboardButton(name, callback_data=f"pack:{idx}")]
-        for idx, name in enumerate(user_packs)
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    # Build a short-token → pack-name map stored in context.user_data so that
+    # callback_data never contains user-supplied text (avoids Telegram's 64-byte
+    # limit regardless of pack name length or encoding).
+    pack_map = {}
+    keyboard = []
+    for i, name in enumerate(user_packs):
+        token = f"p:{i}"
+        pack_map[token] = name
+        keyboard.append(
+            [InlineKeyboardButton(_truncate_label(name), callback_data=token)]
+        )
+
+    context.user_data["addsticker_pack_map"] = pack_map
+
     await update.message.reply_text(
         "🧪 <b>Add Sticker Protocol</b>\n\nSelect a pack to add a sticker to:",
         parse_mode="HTML",
-        reply_markup=reply_markup,
+        reply_markup=InlineKeyboardMarkup(keyboard),
     )
     return WAITING_PACK_SELECTION
 
@@ -129,29 +144,28 @@ async def addsticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def receive_pack_selection(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    """Store the selected pack (via inline button) and ask for the sticker image."""
+    """Resolve the tapped button token → pack name and ask for the sticker image."""
     query = update.callback_query
     await query.answer()
 
-    data = query.data or ""
-    prefix = "pack:"
-    try:
-        pack_idx = int(data[len(prefix):]) if data.startswith(prefix) else -1
-    except ValueError:
-        pack_idx = -1
+    token = query.data or ""
+    # Consume the map so stale keyboards from a previous /addsticker invocation
+    # cannot successfully complete a new flow.
+    pack_map = context.user_data.pop("addsticker_pack_map", {})
+    selected = pack_map.get(token)
 
-    user_id = update.effective_user.id
-    user_packs = context.bot_data.get("packs", {}).get(user_id, [])
-
-    if pack_idx < 0 or pack_idx >= len(user_packs):
-        logger.warning("Pack index %r invalid for user %s — possible stale keyboard", data, user_id)
+    if not selected:
+        logger.warning(
+            "Token %r not in pack_map for user %s — stale or invalid keyboard",
+            token,
+            update.effective_user.id,
+        )
         await query.edit_message_text(
             "⚠️ Pack not found. Use /addsticker to try again.",
             parse_mode="HTML",
         )
         return ConversationHandler.END
 
-    selected = user_packs[pack_idx]
     context.user_data["selected_pack"] = selected
     await query.edit_message_text(
         f"📎 Send an image to add to <b>{escape(selected)}</b>:",
@@ -241,7 +255,7 @@ def main() -> None:
         entry_points=[CommandHandler("addsticker", addsticker)],
         states={
             WAITING_PACK_SELECTION: [
-                CallbackQueryHandler(receive_pack_selection, pattern=r"^pack:")
+                CallbackQueryHandler(receive_pack_selection, pattern=r"^p:\d+$")
             ],
             WAITING_STICKER: [
                 MessageHandler(filters.PHOTO | filters.Document.IMAGE, receive_sticker)
@@ -255,6 +269,7 @@ def main() -> None:
     application.add_handler(newpack_conv)
     application.add_handler(addsticker_conv)
     application.add_handler(CommandHandler("mypacks", mypacks))
+    application.add_handler(CommandHandler("cancel", cancel))
 
     logger.info("🧪 Sticker Lab bot is running...")
     application.run_polling()
