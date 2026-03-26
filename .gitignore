@@ -26,3 +26,6 @@ venv/
 
 #Ignore vscode AI rules
 .github/copilot-instructions.md
+
+# Prevent accidental submodule re-addition (was previously misconfigured as a submodule)
+Nebulosa

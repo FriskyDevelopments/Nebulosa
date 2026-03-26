@@ -42,3 +42,16 @@ class TestPlanRetrieval:
     def test_focus_keywords_extracted(self):
         plan = plan_retrieval(TaskType.ARCHITECTURE_REPORT, "analyze the auth module")
         assert "analyze" in plan.focus_keywords or "auth" in plan.focus_keywords
+
+    def test_repo_separation_uses_structured_facts(self):
+        plan = plan_retrieval(TaskType.REPO_SEPARATION, "separate nebulosa from stixmagic")
+        assert RetrievalTier.STRUCTURED_FACTS in plan.tiers
+
+    def test_repo_separation_does_not_add_live_tier_by_default(self):
+        plan = plan_retrieval(TaskType.REPO_SEPARATION, "separate nebulosa from stixmagic")
+        assert RetrievalTier.LIVE_GITHUB not in plan.tiers
+        assert plan.need_fresh_data is False
+
+    def test_repo_separation_focus_keywords_extracted(self):
+        plan = plan_retrieval(TaskType.REPO_SEPARATION, "separate nebulosa from stixmagic")
+        assert "separate" in plan.focus_keywords or "nebulosa" in plan.focus_keywords

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema } from "@shared/schema";
+import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema, insertEmojiPackSchema, insertEmojiAssetSchema, insertEmojiFontSchema, insertEmojiFontGlyphSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard API routes
@@ -237,6 +237,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(insight);
     } catch (error) {
       res.status(400).json({ error: "Failed to end meeting" });
+    }
+  });
+
+  // ─── Emoji Packs API ──────────────────────────────────────────────────
+
+  // GET /api/emoji/packs — list packs with optional category/visibility/status filters
+  app.get("/api/emoji/packs", async (req, res) => {
+    try {
+      const { category, visibility, status } = req.query as Record<string, string | undefined>;
+      const packs = await storage.getEmojiPacks({ category, visibility, status });
+      res.json(packs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch emoji packs" });
+    }
+  });
+
+  // GET /api/emoji/packs/:id/assets — list assets for a specific pack
+  app.get("/api/emoji/packs/:id/assets", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid pack id" });
+      const pack = await storage.getEmojiPack(id);
+      if (!pack) return res.status(404).json({ error: "Emoji pack not found" });
+      const assets = await storage.getEmojiAssets(id);
+      res.json(assets);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch emoji assets" });
+    }
+  });
+
+  // POST /api/emoji/packs — create a new pack
+  app.post("/api/emoji/packs", async (req, res) => {
+    try {
+      const packData = insertEmojiPackSchema.parse(req.body);
+      const pack = await storage.createEmojiPack(packData);
+      res.status(201).json(pack);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid emoji pack data" });
+    }
+  });
+
+  // POST /api/emoji/packs/:id/assets — add an asset to a pack
+  app.post("/api/emoji/packs/:id/assets", async (req, res) => {
+    try {
+      const packId = parseInt(req.params.id, 10);
+      if (isNaN(packId)) return res.status(400).json({ error: "Invalid pack id" });
+      const pack = await storage.getEmojiPack(packId);
+      if (!pack) return res.status(404).json({ error: "Emoji pack not found" });
+      const assetData = insertEmojiAssetSchema.parse({ ...req.body, packId });
+      const asset = await storage.createEmojiAsset(assetData);
+      res.status(201).json(asset);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid emoji asset data" });
+    }
+  });
+
+  // ─── Emoji Fonts API ──────────────────────────────────────────────────
+
+  // GET /api/emoji/fonts — list fonts with optional visibility/status filters
+  app.get("/api/emoji/fonts", async (req, res) => {
+    try {
+      const { visibility, status } = req.query as Record<string, string | undefined>;
+      const fonts = await storage.getEmojiFonts({ visibility, status });
+      res.json(fonts);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch emoji fonts" });
+    }
+  });
+
+  // GET /api/emoji/fonts/:id/glyphs — list glyphs for a specific font
+  app.get("/api/emoji/fonts/:id/glyphs", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid font id" });
+      const font = await storage.getEmojiFont(id);
+      if (!font) return res.status(404).json({ error: "Emoji font not found" });
+      const glyphs = await storage.getEmojiFontGlyphs(id);
+      res.json(glyphs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch emoji font glyphs" });
+    }
+  });
+
+  // POST /api/emoji/fonts — create a new font
+  app.post("/api/emoji/fonts", async (req, res) => {
+    try {
+      const fontData = insertEmojiFontSchema.parse(req.body);
+      const font = await storage.createEmojiFont(fontData);
+      res.status(201).json(font);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid emoji font data" });
+    }
+  });
+
+  // POST /api/emoji/fonts/:id/glyphs — add a glyph to a font
+  app.post("/api/emoji/fonts/:id/glyphs", async (req, res) => {
+    try {
+      const fontId = parseInt(req.params.id, 10);
+      if (isNaN(fontId)) return res.status(400).json({ error: "Invalid font id" });
+      const font = await storage.getEmojiFont(fontId);
+      if (!font) return res.status(404).json({ error: "Emoji font not found" });
+      const glyphData = insertEmojiFontGlyphSchema.parse({ ...req.body, fontId });
+      const glyph = await storage.createEmojiFontGlyph(glyphData);
+      res.status(201).json(glyph);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid emoji font glyph data" });
     }
   });
 

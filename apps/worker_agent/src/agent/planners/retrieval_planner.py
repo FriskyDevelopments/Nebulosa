@@ -49,6 +49,7 @@ _STRUCTURED_ONLY: frozenset[TaskType] = frozenset(
         TaskType.ARCHITECTURE_REPORT,
         TaskType.ARCHITECTURE_PROBLEMS,
         TaskType.FOLDER_STRUCTURE,
+        TaskType.REPO_SEPARATION,
     }
 )
 
