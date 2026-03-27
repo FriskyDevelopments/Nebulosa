@@ -1,0 +1,29 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ main, copilot/create-labstickerbot-repo, copilot/update-ease-of-use ]
+  pull_request:
+    branches: [ main, copilot/create-labstickerbot-repo ]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint and validate Python
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check syntax
+        run: python -m py_compile bot.py && echo "Syntax OK"
