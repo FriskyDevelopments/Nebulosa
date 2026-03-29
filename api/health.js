@@ -1,7 +1,7 @@
 // Vercel Serverless Function for Health Check & Metrics
 const axios = require('axios');
 
-const RAILWAY_BACKEND = process.env.RAILWAY_BACKEND || 'https://nebulosa-production.railway.app';
+const RAILWAY_BACKEND = process.env.RAILWAY_BACKEND || 'https://nebulosa.friskydev.com';
 
 export default async function handler(req, res) {
     // Handle CORS

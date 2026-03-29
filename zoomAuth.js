@@ -16,8 +16,8 @@ function getCleanClientSecret() {
 // Get access token from authorization code
 async function getAccessToken(code) {
   // Fix for 4700 error: Use correct redirect URI from environment
-  // APP_DOMAIN can be set to any domain/subdomain (e.g. nebulosa.frisydev.com)
-  const appDomain = process.env.APP_DOMAIN || process.env.RAILWAY_STATIC_URL || 'nebulosa.frisydev.com';
+  // APP_DOMAIN can be set to any domain/subdomain (e.g. nebulosa.friskydev.com)
+  const appDomain = process.env.APP_DOMAIN || process.env.RAILWAY_STATIC_URL || 'nebulosa.friskydev.com';
   const redirectUri = process.env.ZOOM_REDIRECT_URI || `https://${appDomain}/auth/zoom/callback`;
 
   const response = await axios.post('https://zoom.us/oauth/token', new URLSearchParams({

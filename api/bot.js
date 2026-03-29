@@ -4,7 +4,7 @@ const axios = require('axios');
 
 // Initialize bot instance
 let bot = null;
-const RAILWAY_BACKEND = process.env.RAILWAY_BACKEND || 'https://nebulosa-production.railway.app';
+const RAILWAY_BACKEND = process.env.RAILWAY_BACKEND || 'https://nebulosa.friskydev.com';
 
 function initBot() {
     if (!bot && process.env.BOT_TOKEN) {
