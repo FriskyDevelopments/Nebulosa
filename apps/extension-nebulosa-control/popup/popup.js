@@ -17,6 +17,15 @@ const pinnedNames = document.getElementById('pinned-names');
 const diagToggleBtn = document.getElementById('diag-toggle');
 const diagArrow = document.getElementById('diag-arrow');
 const diagPanel = document.getElementById('diag-panel');
+const diagSurface = document.getElementById('diag-surface');
+const diagMeetingState = document.getElementById('diag-meeting-state');
+const diagRole = document.getElementById('diag-role');
+const diagPanelFound = document.getElementById('diag-panel-found');
+const diagRows = document.getElementById('diag-rows');
+const diagHandSource = document.getElementById('diag-hand-source');
+const diagCameraSource = document.getElementById('diag-camera-source');
+const diagArmed = document.getElementById('diag-armed');
+const diagReason = document.getElementById('diag-reason');
 const diagObservers = document.getElementById('diag-observers');
 const diagLastEvent = document.getElementById('diag-last-event');
 const diagEventTime = document.getElementById('diag-event-time');
@@ -68,11 +77,8 @@ Object.entries(toggles).forEach(([mod, input]) => {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function _applyStatus(status) {
-  const detected = !!status.meetingDetected;
-  _setStatus(
-    detected,
-    detected ? 'Zoom meeting detected' : 'Not on a supported Zoom page'
-  );
+  const detected = !!status.automationArmed;
+  _setStatus(detected, _humanStatus(status));
 
   // Disable toggles when no meeting is active
   Object.values(toggles).forEach((t) => {
@@ -99,7 +105,29 @@ function _applyStatus(status) {
   _updateDiagnostics(status);
 }
 
+
+function _humanStatus(status) {
+  if (status.surface === 'not_zoom') return 'Not on a Zoom page';
+  if (status.meetingState === 'zoom_not_meeting') return 'Zoom page detected, but not inside an active meeting';
+  if (status.meetingState === 'joining_meeting') return 'Joining meeting — waiting for Zoom UI';
+  if (status.meetingState === 'in_meeting_dom_not_ready') return 'Meeting detected, participant panel not available yet';
+  if (status.meetingState === 'in_meeting_unsupported_layout') return 'Meeting detected, but current Zoom layout is unsupported';
+  if (status.meetingState === 'in_meeting_ready' && !status.hostCapable) return 'Meeting detected, but host/cohost permissions not found';
+  if (status.automationArmed) return 'Automation armed and observing meeting';
+  return 'Waiting for supported Zoom state';
+}
+
 function _updateDiagnostics(status) {
+  diagSurface.textContent = status.surface || '—';
+  diagMeetingState.textContent = status.meetingState || '—';
+  diagRole.textContent = status.role || '—';
+  diagPanelFound.textContent = status.participantPanelFound ? 'yes' : 'no';
+  diagRows.textContent = String(status.participantRowsFound ?? 0);
+  diagHandSource.textContent = status.handRaiseSourceDetected ? 'yes' : 'no';
+  diagCameraSource.textContent = status.cameraStateSourceDetected ? 'yes' : 'no';
+  diagArmed.textContent = status.automationArmed ? 'yes' : 'no';
+  diagReason.textContent = status.lastFailureReason || status.unsupportedReason || '—';
+
   const active = !!status.observersActive;
   diagObservers.textContent = active ? 'active' : 'inactive';
   diagObservers.className = 'diag-val ' + (active ? 'ok' : 'warn');
