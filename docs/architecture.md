@@ -1,138 +1,123 @@
-# Stix Magic Platform – System Architecture
+# Nebulosa Architecture
 
 ## Overview
 
-The Stix Magic Platform is a **modular monolith** backend designed to power:
+Nebulosa is an automation and moderation toolkit for live meeting hosts, built on a modular architecture that supports browser extensions, automation modules, and future cloud services.
 
-- A **web frontend** via a RESTful JSON API
-- A **Telegram bot interface** via the Telegram Bot API
-
-It is architected to migrate cleanly into independent microservices as the platform scales.
+The first product is **Nebulosa Control** — a Manifest V3 browser extension that automates host actions in Zoom Web meetings.
 
 ---
 
 ## Repository Structure
 
 ```
-src/
-├── api/                     # HTTP API layer
-│   ├── app.js               # Express application factory
-│   ├── server.js            # Server entry point
-│   ├── controllers/         # Route handlers
-│   │   ├── auth.controller.js
-│   │   ├── users.controller.js
-│   │   ├── content.controller.js
-│   │   ├── media.controller.js
-│   │   ├── analytics.controller.js
-│   │   └── health.controller.js
-│   ├── middleware/          # Cross-cutting concerns
-│   │   ├── authenticate.js  # JWT + API key authentication
-│   │   ├── validate.js      # Zod request validation
-│   │   └── error-handler.js # Structured error handling
-│   └── routes/              # Express router definitions
-│       ├── auth.routes.js
-│       ├── users.routes.js
-│       ├── content.routes.js
-│       ├── media.routes.js
-│       ├── analytics.routes.js
-│       ├── integrations.routes.js
-│       └── health.routes.js
+Nebulosa/
 │
-├── auth/                    # Authentication & authorization
-│   ├── authentication/      # JWT, API keys, password hashing
-│   └── authorization/       # RBAC role guards
+├── apps/
+│   └── extension-nebulosa-control/   # Browser extension (primary product)
+│       ├── manifest.json             # MV3 manifest
+│       ├── background.js             # Service worker
+│       ├── content/
+│       │   └── zoom.js               # Content script entry point
+│       ├── modules/                  # Business logic modules
+│       │   ├── multipin.js           # ✅ Hand-raise → pin automation
+│       │   ├── camera-monitor.js     # ⚡ Partial: tracking done, reminder TBD
+│       │   ├── moderation.js         # 🔲 Scaffold: detection done, action TBD
+│       │   └── waiting-room.js       # 🔲 Scaffold: architecture only
+│       ├── integrations/             # Bundled copies of shared integration code
+│       │   └── zoom/
+│       ├── packages/                 # Bundled copies of shared packages
+│       │   └── event-bus/
+│       ├── popup/
+│       │   ├── popup.html            # Extension popup UI
+│       │   └── popup.js
+│       └── icons/
 │
-├── core/                    # Platform primitives
-│   ├── config/              # Environment-based configuration
-│   ├── logger/              # Structured Winston logger
-│   └── utilities/           # Shared helpers
+├── integrations/
+│   └── zoom/                         # Canonical Zoom integration layer
+│       ├── selectors.js              # All CSS selectors in one place
+│       ├── events.js                 # DOM observation + MutationObserver
+│       └── adapter.js                # DOM → EventBus translation + host actions
 │
-├── database/                # Data layer
-│   ├── schema/              # Prisma schema (schema.prisma)
-│   ├── migrations/          # SQL migration files
-│   ├── repositories/        # Data-access objects
-│   └── client.js            # Prisma client singleton
+├── packages/
+│   └── event-bus/
+│       └── index.js                  # Lightweight pub/sub event system
 │
-├── integrations/            # External service adapters
-│   ├── telegram/            # Telegram Bot API integration
-│   ├── storage/             # File storage (local / S3)
-│   └── external-apis/       # Generic HTTP client with retry
+├── docs/
+│   ├── architecture.md               # This file
+│   ├── extension.md                  # How to load and use the extension
+│   └── tampermonkey-migration.md     # Migration notes from original scripts
 │
-├── services/                # Business logic layer
-│   ├── user-service/        # User account management
-│   ├── content-service/     # Content CRUD
-│   ├── media-service/       # Media metadata management
-│   └── analytics-service/   # Event tracking & aggregation
-│
-├── workers/                 # Background job processing
-│   ├── index.js             # Worker entry point
-│   ├── queues/              # Bull/Redis queue setup
-│   ├── jobs/                # Job enqueuer functions
-│   └── processors/          # Job handler functions
-│
-└── tests/                   # Node.js unit & integration tests
+└── README.md
 ```
 
 ---
 
-## Architecture Layers
+## Data Flow
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                     HTTP / Telegram                       │
-├──────────────────────────────────────────────────────────┤
-│                   API Layer (Express)                     │
-│   Routes → Middleware → Controllers                       │
-├──────────────────────────────────────────────────────────┤
-│                   Service Layer                           │
-│   UserService │ ContentService │ MediaService │ Analytics │
-├──────────────────────────────────────────────────────────┤
-│                 Repository / Database Layer               │
-│         Prisma ORM  ←→  PostgreSQL                        │
-├──────────────────────────────────────────────────────────┤
-│           Background Workers (Bull / Redis)               │
-│   MediaProcessor │ AnalyticsProcessor │ WebhookProcessor  │
-├──────────────────────────────────────────────────────────┤
-│                   Integrations                            │
-│   Telegram Bot │ Storage Provider │ External APIs         │
-└──────────────────────────────────────────────────────────┘
+Zoom Web Client DOM
+        │
+        ▼
+integrations/zoom/events.js   (MutationObserver + polling)
+        │
+        ▼
+integrations/zoom/adapter.js  (translates DOM events → EventBus)
+        │
+        ▼
+packages/event-bus/index.js   (pub/sub: emit / on / off)
+        │
+   ┌────┴────────────────┐
+   ▼                     ▼
+modules/multipin.js   modules/camera-monitor.js  ...
+   │
+   ▼
+integrations/zoom/adapter.js  (host actions: pin, unpin)
+   │
+   ▼
+Zoom Web Client DOM
 ```
 
 ---
 
-## Key Design Decisions
+## Extension Communication
 
-| Concern | Choice | Rationale |
+```
+Content Script (zoom.js)
+    ↕  chrome.runtime.sendMessage
+Background Service Worker (background.js)
+    ↕  chrome.runtime.sendMessage
+Popup (popup.js)
+```
+
+The background worker caches the last known status so the popup always has data to display even if the content script hasn't sent a recent message.
+
+---
+
+## Module Status
+
+| Module | Status | Description |
 |---|---|---|
-| Runtime | Node.js 18+ | LTS, excellent async I/O, broad ecosystem |
-| HTTP Framework | Express 4 | Mature, minimal, flexible middleware model |
-| Database | PostgreSQL | ACID compliance, rich querying, JSON support |
-| ORM | Prisma | Type-safe, migration tooling, readable schema DSL |
-| Queue | Bull (Redis) | Reliable job queues with retries and priority |
-| Validation | Zod | Runtime schema validation with TypeScript-style ergonomics |
-| Auth | JWT + API Keys | Stateless access tokens; API keys for bot/service clients |
-| Logging | Winston | Structured JSON in prod, colorised in dev |
+| multipin | ✅ Implemented | Hand-raise + camera-on → auto-pin. 60s grace on camera-off. |
+| camera-monitor | ⚡ Partial | Tracks camera-off duration. Reminder chat-send not yet validated in extension mode. |
+| moderation | 🔲 Scaffold | Chat keyword detection wired. Mute/remove DOM action TBD. |
+| waiting-room | 🔲 Scaffold | Architecture boundary only. Auto-admit rules TBD. |
 
 ---
 
-## Security Model
+## Design Principles
 
-- All routes except `/health` and `/auth` require authentication.
-- Authentication supports **JWT Bearer tokens** and **API keys** (`x-api-key` header).
-- Role-based access control: `ADMIN > USER > BOT`.
-- Passwords are hashed with bcrypt (12 rounds).
-- API keys are bcrypt-hashed before storage.
-- Rate limiting is applied globally (configurable via env vars).
-- Helmet provides HTTP security headers.
-- Secrets are loaded exclusively from environment variables – never hardcoded.
+1. **Selector isolation** — All Zoom CSS selectors live in `integrations/zoom/selectors.js`. When Zoom updates its UI, only that file changes.
+2. **Decoupled modules** — Modules communicate through the event bus only. No direct calls between modules.
+3. **Preserved behaviour** — The original working multipin logic from `zoomBrowserBot.js` is preserved and wrapped, not rewritten.
+4. **No fake completeness** — Scaffold modules are clearly marked with TODOs and `SCAFFOLD` status.
+5. **Cross-browser readiness** — Extension code currently targets Chrome `chrome.*` APIs; cross-browser support for Firefox/Safari will be added via a standard `browser.*`-style wrapper/polyfill. The DOM logic uses standard Web APIs.
 
 ---
 
-## Scaling Path
+## Future Extensions
 
-The modular monolith can be split into microservices by:
-
-1. Extracting each `src/services/*` into its own Node.js process.
-2. Moving inter-service calls to message-passing via the existing Redis queues.
-3. Deploying each service independently with its own database connection pool.
-4. Introducing an API gateway (e.g. Kong or nginx) to route traffic.
+- `packages/analytics/` — Usage tracking (opt-in)
+- `packages/licensing/` — Feature gating
+- `integrations/teams/` — Microsoft Teams support
+- `apps/cloud-service/` — Backend for cross-device sync
