@@ -26,12 +26,15 @@ function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-va
   const status = err.status || err.statusCode || 500;
   const message = err.message || 'Internal server error';
 
-  log.error('Request error', {
+  const requestLog = req.log || log;
+
+  requestLog.error('Request error', {
     method: req.method,
     url: req.url,
     status,
     error: message,
     stack: config.env !== 'production' ? err.stack : undefined,
+    correlationId: req.correlationId,
   });
 
   const body = { error: message };

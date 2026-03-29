@@ -6,6 +6,8 @@
 'use strict';
 
 process.env.NODE_ENV = 'test';
+process.env.APP_MODE = 'api';
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/stixmagic_test';
 
 const request = require('supertest');
 const { createApp } = require('../api/app');
@@ -14,6 +16,8 @@ const { createApp } = require('../api/app');
 // Using var so the declaration is hoisted, matching jest.mock hoisting.
 // eslint-disable-next-line no-var
 var mockDb;
+// eslint-disable-next-line no-var
+var mockDependencies;
 
 jest.mock('../database/client', () => {
   mockDb = {
@@ -36,6 +40,15 @@ jest.mock('../database/client', () => {
   return { getPrismaClient: () => mockDb };
 });
 
+jest.mock('../core/dependencies', () => {
+  mockDependencies = {
+    refreshDependencyState: jest.fn().mockResolvedValue(undefined),
+    getDependencyState: jest.fn().mockReturnValue({ db: { ready: true }, redis: { ready: true } }),
+    isReady: jest.fn().mockReturnValue(true),
+  };
+  return mockDependencies;
+});
+
 const app = createApp();
 
 describe('GET /health', () => {
@@ -44,14 +57,25 @@ describe('GET /health', () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('ok');
     expect(res.body.timestamp).toBeDefined();
+    expect(res.body.mode).toBe('api');
   });
 });
 
 describe('GET /health/ready', () => {
-  it('returns 200 with status ready', async () => {
+  it('returns 200 with status ready when dependencies are ready', async () => {
+    mockDependencies.isReady.mockReturnValueOnce(true);
+
     const res = await request(app).get('/health/ready');
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('ready');
+  });
+
+  it('returns 503 with status not_ready when dependencies are unavailable', async () => {
+    mockDependencies.isReady.mockReturnValueOnce(false);
+
+    const res = await request(app).get('/health/ready');
+    expect(res.status).toBe(503);
+    expect(res.body.status).toBe('not_ready');
   });
 });
 

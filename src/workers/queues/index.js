@@ -21,6 +21,12 @@ function createQueue(name) {
       removeOnComplete: 100,
       removeOnFail: 500,
     },
+    settings: {
+      stalledInterval: 30000,
+      guardInterval: 5000,
+      retryProcessDelay: 2000,
+      drainDelay: 5,
+    },
   });
 }
 
@@ -29,4 +35,18 @@ const analyticsQueue = createQueue('analytics-aggregation');
 const webhookQueue = createQueue('webhook-processing');
 const scheduledQueue = createQueue('scheduled-tasks');
 
-module.exports = { mediaQueue, analyticsQueue, webhookQueue, scheduledQueue, createQueue };
+const allQueues = [mediaQueue, analyticsQueue, webhookQueue, scheduledQueue];
+
+async function closeAllQueues() {
+  await Promise.allSettled(allQueues.map((queue) => queue.close()));
+}
+
+module.exports = {
+  mediaQueue,
+  analyticsQueue,
+  webhookQueue,
+  scheduledQueue,
+  createQueue,
+  allQueues,
+  closeAllQueues,
+};
