@@ -6,7 +6,7 @@ const { canInteractWithToggles, humanStatus } = require('../popup/status-helpers
 test('toggle interactivity is independent from automationArmed', () => {
   assert.equal(
     canInteractWithToggles({
-      surface: 'wc_meeting',
+      surface: 'zoom_web_client',
       meetingState: 'joining_meeting',
       automationArmed: false,
     }),
@@ -23,29 +23,29 @@ test('toggle interactivity is independent from automationArmed', () => {
   );
 });
 
-test('human status distinguishes waiting room, joining, attendee, and unsupported layout', () => {
+test('human status distinguishes waiting room, loading, attendee partial mode, and unsupported layout', () => {
   assert.equal(
-    humanStatus({ surface: 'wc_meeting', meetingState: 'joining_meeting', reason: 'waiting_room_detected' }),
+    humanStatus({ surface: 'zoom_web_client', meetingState: 'joining_meeting', reason: 'waiting_room_detected' }),
     'In waiting room — waiting for host admission'
   );
 
   assert.equal(
-    humanStatus({ surface: 'wc_join', meetingState: 'joining_meeting', reason: 'meeting_shell_not_loaded' }),
-    'Joining meeting — waiting for Zoom UI'
+    humanStatus({ surface: 'zoom_web_client', meetingState: 'loading', reason: 'meeting_shell_not_loaded' }),
+    'Zoom Web Client loading…'
   );
 
   assert.equal(
     humanStatus({
-      surface: 'wc_meeting',
+      surface: 'zoom_web_client',
       meetingState: 'in_meeting_ready',
       hostCapable: false,
       automationArmed: false,
     }),
-    'In meeting as attendee — host/cohost permissions not found'
+    'Zoom Web Client partial mode active (attendee)'
   );
 
   assert.equal(
-    humanStatus({ surface: 'wc_meeting', meetingState: 'in_meeting_unsupported_layout' }),
+    humanStatus({ surface: 'zoom_web_client', meetingState: 'in_meeting_unsupported_layout' }),
     'In meeting, but current Zoom layout is unsupported'
   );
 });

@@ -16,6 +16,7 @@ let _observer = null;
 let _pollInterval = null;
 let _debounceTimer = null;
 let _selectorFailureCb = null;
+let _surface = 'unknown';
 
 const _callbacks = {
   onParticipantJoined: null,
@@ -60,8 +61,9 @@ function registerSelectorFailureCallback(cb) {
   _selectorFailureCb = cb;
 }
 
-function start() {
+function start(options = {}) {
   if (_observer) return;
+  _surface = options.surface || 'unknown';
   log('observation_start');
 
   _scanAll();
@@ -99,6 +101,7 @@ function stop() {
   _cameraOff.clear();
   _cameraSeen.clear();
   _selectorFailures.clear();
+  _surface = 'unknown';
   log('observation_stop');
 }
 
@@ -108,7 +111,8 @@ function _extractName(el) {
 }
 
 function _scanParticipants() {
-  const rows = _queryAll(ZoomSelectors.PARTICIPANT_ROW);
+  const rowSelector = _surface === 'zoom_web_client' ? ZoomSelectors.WC_PARTICIPANT_ROW : ZoomSelectors.PARTICIPANT_ROW;
+  const rows = _queryAll(rowSelector);
   if (!rows.length && document.readyState === 'complete') _markSelectorFailure('PARTICIPANT_ROW', ZoomSelectors.PARTICIPANT_ROW);
 
   const current = new Set();
@@ -134,7 +138,8 @@ function _scanParticipants() {
 }
 
 function _scanHandRaises() {
-  const rows = _queryAll(ZoomSelectors.PARTICIPANT_ROW);
+  const rowSelector = _surface === 'zoom_web_client' ? ZoomSelectors.WC_PARTICIPANT_ROW : ZoomSelectors.PARTICIPANT_ROW;
+  const rows = _queryAll(rowSelector);
   const currentRaised = new Set();
   rows.forEach((row) => {
     const name = _extractName(row);
@@ -158,7 +163,8 @@ function _scanHandRaises() {
 }
 
 function _scanCameras() {
-  const tiles = _queryAll(ZoomSelectors.VIDEO_TILE);
+  const tileSelector = _surface === 'zoom_web_client' ? ZoomSelectors.WC_VIDEO_TILE : ZoomSelectors.VIDEO_TILE;
+  const tiles = _queryAll(tileSelector);
   if (!tiles.length && document.readyState === 'complete') _markSelectorFailure('VIDEO_TILE', ZoomSelectors.VIDEO_TILE);
 
   tiles.forEach((tile) => {

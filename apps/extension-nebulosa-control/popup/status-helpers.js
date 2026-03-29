@@ -8,6 +8,8 @@ function canInteractWithToggles(status = {}) {
 
   const meetingState = status.meetingState || 'unknown';
   const meetingLikeStates = new Set([
+    'loading',
+    'prejoin',
     'joining_meeting',
     'in_meeting_dom_not_ready',
     'in_meeting_ready',
@@ -21,6 +23,10 @@ function humanStatus(status = {}) {
   if ((status.lastFailureReason || '').startsWith('bootstrap_failed:')) return 'Automation failed to initialize — reload Zoom tab';
   if (status.surface === 'not_zoom') return 'Not on a Zoom page';
   if (status.meetingState === 'zoom_not_meeting') return 'Zoom page detected, but not inside an active meeting';
+  if (status.meetingState === 'unsupported') return 'Zoom surface unsupported for this extension build';
+  if (status.meetingState === 'ended') return 'Meeting ended';
+  if (status.meetingState === 'loading') return 'Zoom Web Client loading…';
+  if (status.meetingState === 'prejoin') return 'Pre-join screen detected — waiting to enter meeting';
 
   if (status.meetingState === 'joining_meeting') {
     if (status.reason === 'waiting_room_detected') return 'In waiting room — waiting for host admission';
@@ -38,7 +44,7 @@ function humanStatus(status = {}) {
   }
 
   if (status.meetingState === 'in_meeting_ready' && !status.hostCapable) {
-    return 'In meeting as attendee — host/cohost permissions not found';
+    return 'Zoom Web Client partial mode active (attendee)';
   }
 
   if (status.automationArmed) return 'Automation armed and observing meeting';

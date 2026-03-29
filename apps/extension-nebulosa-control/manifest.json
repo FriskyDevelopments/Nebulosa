@@ -37,6 +37,7 @@
       "js": [
         "packages/event-bus/index.js",
         "integrations/zoom/selectors.js",
+        "integrations/zoom/wc-probe.js",
         "integrations/zoom/events.js",
         "integrations/zoom/state.js",
         "integrations/zoom/adapter.js",
