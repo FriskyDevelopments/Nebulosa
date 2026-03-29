@@ -28,6 +28,13 @@ let _lastStatus = {
   moderation: false,
   waitingRoom: false,
   pinned: [],
+  surface: 'unknown',
+  meetingState: 'unknown',
+  role: 'unknown',
+  hostCapable: false,
+  automationArmed: false,
+  unsupportedReason: '',
+  lastFailureReason: '',
 };
 
 /**
@@ -47,6 +54,13 @@ function _resetStatus() {
     moderation: false,
     waitingRoom: false,
     pinned: [],
+    surface: 'unknown',
+    meetingState: 'unknown',
+    role: 'unknown',
+    hostCapable: false,
+    automationArmed: false,
+    unsupportedReason: '',
+    lastFailureReason: '',
   };
   _broadcastStatus();
 }
@@ -128,7 +142,9 @@ function _isSupportedZoomUrl(urlString) {
     return false;
   }
   const host = parsed.hostname;
-  if (!host || (host !== 'zoom.us' && !host.endsWith('.zoom.us'))) return false;
+  if (!host) return false;
+  const isZoomHost = host === 'app.zoom.us' || host === 'zoom.us' || host.endsWith('.zoom.us');
+  if (!isZoomHost) return false;
   const path = parsed.pathname || '';
   return path.startsWith('/j/') || path.startsWith('/wc/');
 }
@@ -166,7 +182,7 @@ function _forwardToZoomTab(message, sendResponse) {
     }
 
     // Fall back: search all Zoom tabs
-    chrome.tabs.query({ url: ['*://*.zoom.us/j/*', '*://*.zoom.us/wc/*'] }, (tabs) => {
+    chrome.tabs.query({ url: ['*://*.zoom.us/j/*', '*://*.zoom.us/wc/*', 'https://app.zoom.us/wc/*'] }, (tabs) => {
       void chrome.runtime.lastError;
       if (!tabs || !tabs.length) {
         sendResponse({ ok: false, error: 'No Zoom meeting tab found' });

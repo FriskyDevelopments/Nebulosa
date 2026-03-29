@@ -1,44 +1,19 @@
-/**
- * Zoom Content Script — apps/extension-nebulosa-control/content/zoom.js
- *
- * Entry point injected into every https://*.zoom.us/* page.
- *
- * Responsibilities:
- *  1. Detect whether this is an active Zoom meeting page
- *  2. Initialise the ZoomAdapter (which starts DOM observation and
- *     wires events to the event bus)
- *  3. Enable configured modules based on saved settings
- *  4. Relay status to the background service worker via chrome.runtime.sendMessage
- *  5. Listen for commands from background.js (e.g. toggle a module)
- *
- * All Zoom-specific DOM interaction lives in integrations/zoom/.
- * All business logic lives in modules/.
- * This file only bootstraps and coordinates.
- */
-
-/* global window, document, chrome */
-
-// ── Load dependencies (injected as content_scripts in manifest.json) ────────
-// Scripts are loaded in the order declared in the manifest content_scripts list.
-// Each sets a window.* global that subsequent scripts (and this file) consume.
+/* global window, document, chrome, MutationObserver */
 
 const bus = window.NebulosaBus;
 const ZoomAdapter = window.ZoomAdapter;
-const ZoomEvents = window.ZoomEvents;
+const ZoomState = window.ZoomState;
 
 const MultipinModule = window.NebulosaMultipin;
 const CameraMonitorModule = window.NebulosaCameraMonitor;
 const ModerationModule = window.NebulosaModeration;
 const WaitingRoomModule = window.NebulosaWaitingRoom;
 
-// ── Debug flag ───────────────────────────────────────────────────────────────
-// Set window.__NEBULOSA_DEBUG = true in the console to enable verbose logging.
 const DEBUG = window.__NEBULOSA_DEBUG === true;
-function dbg(...args) {
-  if (DEBUG) console.log('[Nebulosa:ContentScript]', ...args); // eslint-disable-line no-console
+function log(event, payload = {}) {
+  if (DEBUG) console.log('[Nebulosa][Content]', { event, ...payload }); // eslint-disable-line no-console
 }
 
-// ── Settings defaults ─────────────────────────────────────────────────────────
 const DEFAULT_SETTINGS = {
   multipinEnabled: true,
   cameraMonitorEnabled: false,
@@ -46,53 +21,95 @@ const DEFAULT_SETTINGS = {
   waitingRoomEnabled: false,
 };
 
-// ── Bootstrap ─────────────────────────────────────────────────────────────────
-
 let _initialised = false;
-/** @type {{ type: string, payload: object, ts: number }|null} */
+let _watchStarted = false;
 let _lastEvent = null;
+let _lastFailureReason = '';
+let _status = {
+  surface: 'unknown',
+  meetingState: 'unknown',
+  role: 'unknown',
+  hostCapable: false,
+  participantPanelFound: false,
+  participantRowsFound: 0,
+  handRaiseSourceDetected: false,
+  cameraStateSourceDetected: false,
+  automationArmed: false,
+  unsupportedReason: '',
+  meetingDetected: false,
+  observersActive: false,
+};
 
 async function init() {
-  if (_initialised) return;
-
-  // Wait until the meeting UI is present before starting
-  if (!ZoomEvents.isMeetingPage()) {
-    dbg('Not a meeting page — waiting for navigation…');
-    // Poll until meeting UI appears (Zoom is a SPA)
-    const checkId = window.setInterval(() => {
-      if (ZoomEvents.isMeetingPage()) {
-        window.clearInterval(checkId);
-        _bootstrap();
-      }
-    }, 2000);
-    return;
-  }
-
-  _bootstrap();
+  log('content_script_injected', { url: window.location.href });
+  _startReadinessWatch();
 }
 
-async function _bootstrap() {
+function _startReadinessWatch() {
+  if (_watchStarted) return;
+  _watchStarted = true;
+
+  const evaluate = () => {
+    const cap = ZoomState.detectCapabilities();
+    const previousState = _status.meetingState;
+    _status = { ..._status, ...cap, meetingDetected: cap.meetingState.startsWith('in_meeting') || cap.meetingState === 'joining_meeting' };
+
+    if (cap.meetingState !== previousState) {
+      log('meeting_state_changed', { from: previousState, to: cap.meetingState, reason: cap.reason, surface: cap.surface });
+    }
+
+    if (!_initialised && cap.meetingState === ZoomState.MeetingState.IN_MEETING_READY) {
+      _bootstrap(cap).catch((err) => {
+        _lastFailureReason = `bootstrap_failed:${String(err?.message || err)}`;
+        _status.unsupportedReason = _lastFailureReason;
+        _sendStatus();
+      });
+    } else {
+      if (!_initialised) {
+        _lastFailureReason = cap.reason;
+      }
+      _sendStatus();
+    }
+  };
+
+  evaluate();
+  const observer = new MutationObserver(() => evaluate());
+  observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true });
+  window.setInterval(evaluate, 2000);
+}
+
+async function _bootstrap(capabilities) {
   if (_initialised) return;
   _initialised = true;
 
-  dbg('Meeting page detected — bootstrapping');
-
-  // Load persisted settings
   const settings = await _loadSettings();
 
-  // Start the Zoom integration layer
   ZoomAdapter.init();
+  _status.observersActive = true;
+  log('observers_attached');
 
-  // Enable modules per saved settings
+  bus.on('zoom_selector_failure', (payload) => {
+    _lastFailureReason = `selector_failure:${payload.name}`;
+    log('selector_failure', payload);
+    _sendStatus();
+  });
+
   if (settings.multipinEnabled) MultipinModule.enable();
   if (settings.cameraMonitorEnabled) CameraMonitorModule.enable();
   if (settings.moderationEnabled) ModerationModule.enable();
   if (settings.waitingRoomEnabled) WaitingRoomModule.enable();
 
-  // Notify background / popup that a meeting was detected
-  _sendStatus({ meetingDetected: true });
+  const role = capabilities.role;
+  log('role_resolved', { role, hostCapable: capabilities.hostCapable });
+  if (!capabilities.hostCapable) {
+    _status.automationArmed = false;
+    _status.unsupportedReason = 'host_permissions_not_found';
+    _lastFailureReason = 'host_permissions_not_found';
+  } else {
+    _status.automationArmed = true;
+    log('automation_enabled', { modules: _enabledModules() });
+  }
 
-  // Forward key bus events to background — also record last event for popup diagnostics
   const _trackEvent = (type) => (payload) => {
     _lastEvent = { type, payload, ts: Date.now() };
     _sendStatus();
@@ -103,31 +120,29 @@ async function _bootstrap() {
   bus.on('camera_off', _trackEvent('camera_off'));
   bus.on('moderation_triggered', _trackEvent('moderation_triggered'));
 
-  dbg('Bootstrap complete. Active modules:', {
+  _sendStatus();
+}
+
+function _enabledModules() {
+  return {
     multipin: MultipinModule.isEnabled(),
     cameraMonitor: CameraMonitorModule.isEnabled(),
     moderation: ModerationModule.isEnabled(),
     waitingRoom: WaitingRoomModule.isEnabled(),
-  });
+  };
 }
 
-// ── Message handling (commands from background/popup) ────────────────────────
-
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  dbg('Message received:', message);
-
   switch (message.type) {
     case 'GET_STATUS':
       sendResponse(_buildStatus());
       return false;
-
     case 'TOGGLE_MODULE': {
       const { module: mod, enabled } = message;
       _handleToggle(mod, enabled);
       sendResponse({ ok: true });
       return false;
     }
-
     default:
       sendResponse({ ok: false, error: 'Unknown message type' });
       return false;
@@ -135,47 +150,40 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 });
 
 function _handleToggle(mod, enabled) {
-  const map = {
-    multipin: MultipinModule,
-    cameraMonitor: CameraMonitorModule,
-    moderation: ModerationModule,
-    waitingRoom: WaitingRoomModule,
-  };
+  const map = { multipin: MultipinModule, cameraMonitor: CameraMonitorModule, moderation: ModerationModule, waitingRoom: WaitingRoomModule };
   const m = map[mod];
   if (!m) return;
   enabled ? m.enable() : m.disable();
   _saveSettings();
-  dbg('Module toggled:', mod, enabled);
+  _sendStatus();
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function _buildStatus() {
+  const diag = ZoomAdapter.getDiagnosticsSnapshot ? ZoomAdapter.getDiagnosticsSnapshot() : { selectorFailures: {} };
   return {
-    meetingDetected: _initialised,
-    observersActive: _initialised,
+    ..._status,
     multipin: MultipinModule.isEnabled(),
     cameraMonitor: CameraMonitorModule.isEnabled(),
     moderation: ModerationModule.isEnabled(),
     waitingRoom: WaitingRoomModule.isEnabled(),
     pinned: MultipinModule.getPinned(),
     lastEvent: _lastEvent,
+    lastFailureReason: _lastFailureReason,
+    selectorFailures: diag.selectorFailures || {},
   };
 }
 
-function _sendStatus(extra = {}) {
+function _sendStatus() {
   try {
-    chrome.runtime.sendMessage({ type: 'CONTENT_STATUS', ..._buildStatus(), ...extra });
+    chrome.runtime.sendMessage({ type: 'CONTENT_STATUS', ..._buildStatus() });
   } catch (_) {
-    // Extension context may have been invalidated — safe to ignore
+    // ignore invalidated extension context
   }
 }
 
 function _loadSettings() {
   return new Promise((resolve) => {
-    chrome.storage.sync.get(DEFAULT_SETTINGS, (result) => {
-      resolve(result);
-    });
+    chrome.storage.sync.get(DEFAULT_SETTINGS, (result) => resolve(result));
   });
 }
 
@@ -188,5 +196,4 @@ function _saveSettings() {
   });
 }
 
-// Start on load
 init();
