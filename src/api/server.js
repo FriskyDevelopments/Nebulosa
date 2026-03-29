@@ -14,6 +14,13 @@ const app = createApp();
 
 let server;
 
+/**
+ * Initialize required dependencies and start the HTTP server listening on the configured port.
+ *
+ * Awaits dependency initialization before creating the listener and logs startup information.
+ *
+ * @returns {import('http').Server} The started HTTP server instance.
+ */
 async function start() {
   await createDependencies();
 
@@ -28,6 +35,12 @@ async function start() {
   return server;
 }
 
+/**
+ * Gracefully shut down the HTTP server and application resources in response to a termination signal.
+ *
+ * Closes the listening server if present, attempts to disconnect the Prisma client (logging a warning on failure), logs shutdown completion, and exits the process with code 0.
+ * @param {string} signal - The termination signal that initiated shutdown (e.g., 'SIGTERM' or 'SIGINT').
+ */
 async function shutdown(signal) {
   logger.info(`${signal} received – shutting down gracefully`);
 

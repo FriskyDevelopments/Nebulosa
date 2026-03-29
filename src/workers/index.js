@@ -11,6 +11,11 @@ const { getPrismaClient } = require('../database/client');
 
 let isShuttingDown = false;
 
+/**
+ * Initialize application dependencies and register worker processors.
+ *
+ * Awaits creation of required dependencies, loads each self-registering Bull processor, and logs when workers are started.
+ */
 async function startWorkers() {
   await createDependencies();
 
@@ -22,6 +27,10 @@ async function startWorkers() {
   logger.info('Stix Magic workers started');
 }
 
+/**
+ * Orchestrates a graceful shutdown in response to a process signal by stopping queue processing, attempting to disconnect the Prisma client, logging progress, and exiting the process.
+ * @param {string} signal - Received process signal (e.g., 'SIGINT' or 'SIGTERM') that initiated the shutdown.
+ */
 async function shutdown(signal) {
   if (isShuttingDown) {
     return;

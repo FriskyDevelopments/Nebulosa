@@ -24,6 +24,13 @@ const integrationsRoutes = require('./routes/integrations.routes');
 const { errorHandler, notFound } = require('./middleware/error-handler');
 const { requestContext } = require('./middleware/request-context');
 
+/**
+ * Create and configure an Express application instance with security, parsing, request context, rate limiting, routes, and error handling.
+ *
+ * The returned app is configured but not started (no HTTP server is created or bound).
+ *
+ * @returns {import('express').Application} An Express application configured with middleware and route handlers.
+ */
 function createApp() {
   const app = express();
 

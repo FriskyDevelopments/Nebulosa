@@ -8,9 +8,9 @@ const Bull = require('bull');
 const config = require('../../core/config');
 
 /**
- * Creates a Bull queue with the shared Redis config.
- * @param {string} name
- * @returns {import('bull').Queue}
+ * Create a Bull queue preconfigured to use the module Redis URL and sensible defaults.
+ * @param {string} name - The queue name.
+ * @returns {import('bull').Queue} The configured Bull Queue instance.
  */
 function createQueue(name) {
   return new Bull(name, {
@@ -37,6 +37,11 @@ const scheduledQueue = createQueue('scheduled-tasks');
 
 const allQueues = [mediaQueue, analyticsQueue, webhookQueue, scheduledQueue];
 
+/**
+ * Close every configured Bull queue and wait for each close attempt to complete.
+ *
+ * Waits for all queue close operations to settle; individual close failures do not cause this function to throw.
+ */
 async function closeAllQueues() {
   await Promise.allSettled(allQueues.map((queue) => queue.close()));
 }
