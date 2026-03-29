@@ -10,10 +10,8 @@ const helmet = require('helmet');
 const cors = require('cors');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-const morgan = require('morgan');
 
 const config = require('../core/config');
-const { logger } = require('../core/logger');
 
 const healthRoutes = require('./routes/health.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -24,7 +22,15 @@ const analyticsRoutes = require('./routes/analytics.routes');
 const integrationsRoutes = require('./routes/integrations.routes');
 
 const { errorHandler, notFound } = require('./middleware/error-handler');
+const { requestContext } = require('./middleware/request-context');
 
+/**
+ * Create and configure an Express application instance with security, parsing, request context, rate limiting, routes, and error handling.
+ *
+ * The returned app is configured but not started (no HTTP server is created or bound).
+ *
+ * @returns {import('express').Application} An Express application configured with middleware and route handlers.
+ */
 function createApp() {
   const app = express();
 
@@ -37,12 +43,8 @@ function createApp() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // ----- Logging -----
-  if (config.env !== 'test') {
-    app.use(morgan('combined', {
-      stream: { write: (msg) => logger.http(msg.trim()) },
-    }));
-  }
+  // ----- Request context + structured HTTP logs -----
+  app.use(requestContext);
 
   // ----- Rate limiting -----
   const limiter = rateLimit({

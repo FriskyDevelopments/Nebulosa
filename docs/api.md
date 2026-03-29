@@ -28,11 +28,16 @@ Returns platform liveness status. No authentication required.
 ```
 
 ### `GET /health/ready`
-Returns readiness status.
+Returns runtime dependency readiness.
 
-**Response 200**
+**Response 200** (all mode-required dependencies available)
 ```json
-{ "status": "ready", "timestamp": "2024-01-01T00:00:00.000Z" }
+{ "status": "ready", "mode": "api", "dependencies": { "db": { "ready": true } }, "timestamp": "2024-01-01T00:00:00.000Z" }
+```
+
+**Response 503** (one or more required dependencies unavailable)
+```json
+{ "status": "not_ready", "mode": "api", "dependencies": { "db": { "ready": false, "error": "..." } }, "timestamp": "2024-01-01T00:00:00.000Z" }
 ```
 
 ---
