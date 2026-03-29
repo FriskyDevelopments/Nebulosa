@@ -90,6 +90,13 @@ function detectRole() {
   return RoleState.UNKNOWN;
 }
 
+function _looksLikeWaitingRoom() {
+  const participantText = (document.body?.innerText || '').toLowerCase();
+  return participantText.includes('waiting room')
+    || participantText.includes('waiting for the host')
+    || participantText.includes('host will let you in');
+}
+
 function detectMeetingReadiness() {
   const surface = classifySurface();
   if (surface === 'not_zoom') {
@@ -103,6 +110,9 @@ function detectMeetingReadiness() {
   }
 
   const hasMeetingRoot = _anySelector(ZoomSelectors.MEETING_ROOT);
+  if (!hasMeetingRoot && _looksLikeWaitingRoom()) {
+    return { surface, meetingState: MeetingState.JOINING, reason: 'waiting_room_detected' };
+  }
   if (!hasMeetingRoot) {
     return { surface, meetingState: MeetingState.JOINING, reason: 'meeting_shell_not_loaded' };
   }
