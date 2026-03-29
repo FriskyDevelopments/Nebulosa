@@ -44,6 +44,7 @@
         "modules/camera-monitor.js",
         "modules/moderation.js",
         "modules/waiting-room.js",
+        "content/bootstrap-gate.js",
         "content/zoom.js"
       ],
       "run_at": "document_idle"

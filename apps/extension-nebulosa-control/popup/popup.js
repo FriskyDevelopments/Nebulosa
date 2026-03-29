@@ -5,7 +5,9 @@
  * Communicates with background.js which relays to the content script.
  */
 
-/* global chrome, document */
+/* global chrome, document, window */
+
+const PopupStatusHelpers = window.PopupStatusHelpers;
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const statusDot = document.getElementById('status-dot');
@@ -77,24 +79,22 @@ Object.entries(toggles).forEach(([mod, input]) => {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function _applyStatus(status) {
-  const detected = !!status.automationArmed;
-  _setStatus(detected, _humanStatus(status));
+  const active = !!status.automationArmed;
+  const interactive = PopupStatusHelpers.canInteractWithToggles(status);
+  _setStatus(active, PopupStatusHelpers.humanStatus(status));
 
-  // Disable toggles when no meeting is active
   Object.values(toggles).forEach((t) => {
-    t.disabled = !detected;
+    t.disabled = !interactive;
   });
 
-  if (detected) {
-    toggles.multipin.checked = !!status.multipin;
-    toggles.cameraMonitor.checked = !!status.cameraMonitor;
-    toggles.moderation.checked = !!status.moderation;
-    toggles.waitingRoom.checked = !!status.waitingRoom;
-  }
+  toggles.multipin.checked = !!status.multipin;
+  toggles.cameraMonitor.checked = !!status.cameraMonitor;
+  toggles.moderation.checked = !!status.moderation;
+  toggles.waitingRoom.checked = !!status.waitingRoom;
 
   // Show pinned participants list
   const pinned = Array.isArray(status.pinned) ? status.pinned : [];
-  if (detected && pinned.length > 0) {
+  if (active && pinned.length > 0) {
     pinnedList.classList.remove('hidden');
     pinnedNames.textContent = pinned.join(', ');
   } else {
@@ -103,18 +103,6 @@ function _applyStatus(status) {
 
   // Diagnostics
   _updateDiagnostics(status);
-}
-
-
-function _humanStatus(status) {
-  if (status.surface === 'not_zoom') return 'Not on a Zoom page';
-  if (status.meetingState === 'zoom_not_meeting') return 'Zoom page detected, but not inside an active meeting';
-  if (status.meetingState === 'joining_meeting') return 'Joining meeting — waiting for Zoom UI';
-  if (status.meetingState === 'in_meeting_dom_not_ready') return 'Meeting detected, participant panel not available yet';
-  if (status.meetingState === 'in_meeting_unsupported_layout') return 'Meeting detected, but current Zoom layout is unsupported';
-  if (status.meetingState === 'in_meeting_ready' && !status.hostCapable) return 'Meeting detected, but host/cohost permissions not found';
-  if (status.automationArmed) return 'Automation armed and observing meeting';
-  return 'Waiting for supported Zoom state';
 }
 
 function _updateDiagnostics(status) {
@@ -126,7 +114,7 @@ function _updateDiagnostics(status) {
   diagHandSource.textContent = status.handRaiseSourceDetected ? 'yes' : 'no';
   diagCameraSource.textContent = status.cameraStateSourceDetected ? 'yes' : 'no';
   diagArmed.textContent = status.automationArmed ? 'yes' : 'no';
-  diagReason.textContent = status.lastFailureReason || status.unsupportedReason || '—';
+  diagReason.textContent = status.lastFailureReason || status.unsupportedReason || status.reason || '—';
 
   const active = !!status.observersActive;
   diagObservers.textContent = active ? 'active' : 'inactive';

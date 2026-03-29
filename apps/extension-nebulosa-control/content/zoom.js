@@ -3,6 +3,7 @@
 const bus = window.NebulosaBus;
 const ZoomAdapter = window.ZoomAdapter;
 const ZoomState = window.ZoomState;
+const ZoomBootstrapGate = window.ZoomBootstrapGate;
 
 const MultipinModule = window.NebulosaMultipin;
 const CameraMonitorModule = window.NebulosaCameraMonitor;
@@ -58,7 +59,7 @@ function _startReadinessWatch() {
       log('meeting_state_changed', { from: previousState, to: cap.meetingState, reason: cap.reason, surface: cap.surface });
     }
 
-    if (!_initialised && cap.meetingState === ZoomState.MeetingState.IN_MEETING_READY) {
+    if (!_initialised && ZoomBootstrapGate.shouldBootstrapAutomation(cap)) {
       _bootstrap(cap).catch((err) => {
         _lastFailureReason = `bootstrap_failed:${String(err?.message || err)}`;
         _status.unsupportedReason = _lastFailureReason;
@@ -66,7 +67,7 @@ function _startReadinessWatch() {
       });
     } else {
       if (!_initialised) {
-        _lastFailureReason = cap.reason;
+        _lastFailureReason = cap.unsupportedReason || cap.reason;
       }
       _sendStatus();
     }
@@ -79,7 +80,7 @@ function _startReadinessWatch() {
 }
 
 async function _bootstrap(capabilities) {
-  if (_initialised) return;
+  if (_initialised || !ZoomBootstrapGate.shouldBootstrapAutomation(capabilities)) return;
   _initialised = true;
 
   const settings = await _loadSettings();
@@ -101,14 +102,8 @@ async function _bootstrap(capabilities) {
 
   const role = capabilities.role;
   log('role_resolved', { role, hostCapable: capabilities.hostCapable });
-  if (!capabilities.hostCapable) {
-    _status.automationArmed = false;
-    _status.unsupportedReason = 'host_permissions_not_found';
-    _lastFailureReason = 'host_permissions_not_found';
-  } else {
-    _status.automationArmed = true;
-    log('automation_enabled', { modules: _enabledModules() });
-  }
+  _status.automationArmed = true;
+  log('automation_enabled', { modules: _enabledModules() });
 
   const _trackEvent = (type) => (payload) => {
     _lastEvent = { type, payload, ts: Date.now() };
