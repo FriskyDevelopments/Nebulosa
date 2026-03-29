@@ -24,11 +24,16 @@ const DEFAULT_SETTINGS = {
 
 let _initialised = false;
 let _watchStarted = false;
+let _bootstrapStarted = false;
+let _bootstrapStartTs = 0;
+let _bootstrapInterval = null;
 let _lastEvent = null;
 let _lastFailureReason = '';
 let _status = {
+  url: window.location.href,
   surface: 'unknown',
   meetingState: 'unknown',
+  bootstrapPhase: 'init',
   role: 'unknown',
   hostCapable: false,
   participantPanelFound: false,
@@ -53,24 +58,23 @@ function _startReadinessWatch() {
   const evaluate = () => {
     const cap = ZoomState.detectCapabilities();
     const previousState = _status.meetingState;
-    _status = { ..._status, ...cap, meetingDetected: cap.meetingState.startsWith('in_meeting') || cap.meetingState === 'joining_meeting' };
+    _status = {
+      ..._status,
+      ...cap,
+      url: window.location.href,
+      meetingDetected: cap.meetingState.startsWith('in_meeting') || cap.meetingState === 'joining_meeting' || cap.meetingState === 'prejoin',
+    };
 
     if (cap.meetingState !== previousState) {
       log('meeting_state_changed', { from: previousState, to: cap.meetingState, reason: cap.reason, surface: cap.surface });
     }
 
-    if (!_initialised && ZoomBootstrapGate.shouldBootstrapAutomation(cap)) {
-      _bootstrap(cap).catch((err) => {
-        _lastFailureReason = `bootstrap_failed:${String(err?.message || err)}`;
-        _status.unsupportedReason = _lastFailureReason;
-        _sendStatus();
-      });
-    } else {
-      if (!_initialised) {
-        _lastFailureReason = cap.unsupportedReason || cap.reason;
-      }
-      _sendStatus();
+    if (!_initialised) _lastFailureReason = cap.unsupportedReason || cap.reason || '';
+
+    if (!_initialised && !_bootstrapStarted) {
+      _beginBootstrap();
     }
+    _sendStatus();
   };
 
   evaluate();
@@ -79,15 +83,69 @@ function _startReadinessWatch() {
   window.setInterval(evaluate, 2000);
 }
 
-async function _bootstrap(capabilities) {
-  if (_initialised || !ZoomBootstrapGate.shouldBootstrapAutomation(capabilities)) return;
-  _initialised = true;
+function _beginBootstrap() {
+  _bootstrapStarted = true;
+  _bootstrapStartTs = Date.now();
+  _status.bootstrapPhase = 'detect_surface';
+  _bootstrapInterval = window.setInterval(() => {
+    _runBootstrapStep().catch((err) => {
+      _lastFailureReason = `bootstrap_failed:${String(err?.message || err)}`;
+      _status.bootstrapPhase = 'failed';
+      _status.unsupportedReason = _lastFailureReason;
+      _sendStatus();
+    });
+  }, 500);
+  _runBootstrapStep();
+}
 
+async function _runBootstrapStep() {
+  if (_initialised) return;
+  const elapsed = Date.now() - _bootstrapStartTs;
+  const cap = ZoomState.detectCapabilities();
+  _status = { ..._status, ...cap, url: window.location.href };
+
+  if (elapsed > 15000) {
+    _status.bootstrapPhase = 'failed';
+    _lastFailureReason = cap.reason || cap.unsupportedReason || 'bootstrap_timeout_waiting_for_zoom_ui';
+    _stopBootstrapLoop();
+    _sendStatus();
+    return;
+  }
+
+  _status.bootstrapPhase = 'wait_dom_ready';
+  if (cap.surface !== 'zoom_web_client') {
+    _lastFailureReason = cap.reason || 'unsupported_surface';
+    _sendStatus();
+    return;
+  }
+
+  _status.bootstrapPhase = 'probe_wc_anchors';
+  if (cap.meetingState === 'loading' || cap.meetingState === 'joining_meeting' || cap.meetingState === 'prejoin') {
+    _lastFailureReason = cap.reason || 'zoom_wc_ui_not_ready';
+    _sendStatus();
+    return;
+  }
+
+  _status.bootstrapPhase = 'arm_observers';
+  await _bootstrap(cap);
+  _status.bootstrapPhase = 'running';
+  _stopBootstrapLoop();
+  _sendStatus();
+}
+
+function _stopBootstrapLoop() {
+  if (_bootstrapInterval !== null) window.clearInterval(_bootstrapInterval);
+  _bootstrapInterval = null;
+}
+
+async function _bootstrap(capabilities) {
+  if (_initialised) return;
+  _initialised = true;
   const settings = await _loadSettings();
 
-  ZoomAdapter.init();
+  ZoomAdapter.init({ surface: capabilities.surface });
   _status.observersActive = true;
-  log('observers_attached');
+  log('observers_attached', { surface: capabilities.surface });
 
   bus.on('zoom_selector_failure', (payload) => {
     _lastFailureReason = `selector_failure:${payload.name}`;
@@ -102,7 +160,7 @@ async function _bootstrap(capabilities) {
 
   const role = capabilities.role;
   log('role_resolved', { role, hostCapable: capabilities.hostCapable });
-  _status.automationArmed = true;
+  _status.automationArmed = capabilities.automationArmed;
   log('automation_enabled', { modules: _enabledModules() });
 
   const _trackEvent = (type) => (payload) => {

@@ -123,7 +123,10 @@ async function admitParticipant(name) {
   }
 }
 
-function init() {
+let _activeSurface = 'unknown';
+
+function init(options = {}) {
+  _activeSurface = options.surface || 'unknown';
   ZoomEvents.register({
     onParticipantJoined: (payload) => bus.emit('participant_joined', payload),
     onParticipantLeft: (payload) => bus.emit('participant_left', payload),
@@ -139,7 +142,7 @@ function init() {
     dbg('selector_failure', payload);
   });
 
-  ZoomEvents.start();
+  ZoomEvents.start({ surface: _activeSurface });
   dbg('initialised');
 }
 

@@ -20,6 +20,8 @@ const diagToggleBtn = document.getElementById('diag-toggle');
 const diagArrow = document.getElementById('diag-arrow');
 const diagPanel = document.getElementById('diag-panel');
 const diagSurface = document.getElementById('diag-surface');
+const diagUrl = document.getElementById('diag-url');
+const diagBootstrapPhase = document.getElementById('diag-bootstrap-phase');
 const diagMeetingState = document.getElementById('diag-meeting-state');
 const diagRole = document.getElementById('diag-role');
 const diagPanelFound = document.getElementById('diag-panel-found');
@@ -107,6 +109,8 @@ function _applyStatus(status) {
 
 function _updateDiagnostics(status) {
   diagSurface.textContent = status.surface || '—';
+  diagUrl.textContent = status.url || '—';
+  diagBootstrapPhase.textContent = status.bootstrapPhase || '—';
   diagMeetingState.textContent = status.meetingState || '—';
   diagRole.textContent = status.role || '—';
   diagPanelFound.textContent = status.participantPanelFound ? 'yes' : 'no';

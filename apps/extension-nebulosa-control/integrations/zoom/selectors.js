@@ -3,13 +3,55 @@
  */
 
 const ZoomSelectors = {
+  WC_MEETING_ROOT: [
+    '[data-testid="meeting-client"]',
+    '[data-testid="meeting-web-client"]',
+    '[aria-label*="Zoom Meeting"]',
+    '#wc-container-left',
+    '#zoom-meeting-root',
+  ],
+  WC_PREJOIN_ROOT: [
+    '[data-testid*="prejoin"]',
+    '[aria-label*="Join Meeting"]',
+    '[data-testid*="preview"]',
+  ],
+  WC_ENDED_BANNER: [
+    '[data-testid*="meeting-ended"]',
+    '[aria-label*="meeting has ended"]',
+    '[role="alert"][aria-live="assertive"]',
+  ],
+  WC_PARTICIPANTS_PANEL: [
+    '#participants-panel',
+    '[aria-label*="Participants"]',
+    '[data-testid*="participants-panel"]',
+    '[role="region"][aria-label*="Participants"]',
+  ],
+  WC_PARTICIPANT_ROW: [
+    '[data-testid*="participants-item"]',
+    '[data-testid*="participant-item"]',
+    '[role="listitem"][aria-label]',
+    '[role="listitem"]',
+  ],
+  WC_VIDEO_TILE: [
+    '[data-testid*="video-tile"]',
+    '[aria-label*="video tile"]',
+    '[data-participant-id]',
+    '[class*="video-tile"]',
+  ],
+  WC_CONTROL_BAR: [
+    '[data-testid*="footer"]',
+    '#wc-footer',
+    '[role="toolbar"]',
+    '[aria-label*="meeting controls"]',
+  ],
+
   MEETING_ROOT: ['#wc-container-left', '[class*="meeting-client"]', '#zoom-meeting-root', '[data-testid="meeting-client"]'],
 
   VIDEO_TILE: ['[data-testid*="video-tile"]', '.video-avatar__avatar', '[class*="video-avatar"]', '[class*="video-tile"]'],
   VIDEO_TILE_NAME: ['[data-testid*="display-name"]', '[class*="display-name"]', '[class*="participant-name"]'],
 
-  PARTICIPANTS_PANEL: ['#participants-panel', '[aria-label*="Participants"]', '[class*="participants-panel"]', '[data-testid*="participants-panel"]'],
-  PARTICIPANT_ROW: ['[data-testid*="participants-item"]', '[class*="participants-item"]', '[class*="participant-item"]', '[role="listitem"]'],
+  PARTICIPANTS_PANEL: ['#participants-panel', '[aria-label*="Participants"]', '[class*="participants-panel"]', '[data-testid*="participants-panel"]', '[role="region"][aria-label*="Participants"]'],
+  PARTICIPANT_ROW: ['[data-testid*="participants-item"]', '[class*="participants-item"]', '[class*="participant-item"]', '[role="listitem"][aria-label]', '[role="listitem"]'],
   PARTICIPANT_ROW_NAME: ['[data-testid*="display-name"]', '[class*="participants-item__display-name"]', '[class*="participant__name"]'],
 
   HAND_RAISED_INDICATOR: ['[class*="hand-raise"]', '[aria-label*="Raise Hand"]', '[class*="raise-hand"]', '[aria-label*="Hand Raised"]'],
@@ -30,7 +72,7 @@ const ZoomSelectors = {
   CHAT_MESSAGE: ['[class*="chat-message__text"]', '[class*="chat-item"]'],
   CHAT_SENDER: ['[class*="chat-message__sender"]', '[class*="message-sender"]'],
 
-  TOOLBAR: ['#wc-footer', '[class*="footer-toolbar"]', '[data-testid*="footer"]'],
+  TOOLBAR: ['#wc-footer', '[class*="footer-toolbar"]', '[data-testid*="footer"]', '[role="toolbar"]'],
   LEAVE_BTN: ['[aria-label*="Leave"]', 'button[class*="leave-meeting"]'],
 
   ROLE_HOST_BADGE: ['[aria-label*="Host"]', '[data-testid*="host-badge"]', '[class*="host-badge"]'],
