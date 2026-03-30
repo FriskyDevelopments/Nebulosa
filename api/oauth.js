@@ -3,6 +3,14 @@ const axios = require('axios');
 
 const RAILWAY_BACKEND = process.env.RAILWAY_BACKEND || 'https://nebulosa.friskydev.com';
 
+/**
+ * Handle Zoom OAuth callback: validate query parameters, forward the callback to the configured Railway backend, and if forwarding fails attempt a local token exchange as a fallback, responding with user-facing HTML pages for success, failure, or invalid requests.
+ *
+ * This handler also sets CORS headers and responds to preflight OPTIONS requests.
+ *
+ * @param {import('http').IncomingMessage & { query: Record<string, string|undefined> }} req - HTTP request; expects query parameters `code`, `state`, and optional `error`.
+ * @param {import('http').ServerResponse & { status: (code: number) => any, json: (body: any) => any, send: (body: any) => any, setHeader: (name: string, value: string) => void, end: () => void }} res - HTTP response used to send HTML or JSON responses.
+ */
 export default async function handler(req, res) {
     // Handle CORS
     res.setHeader('Access-Control-Allow-Origin', '*');

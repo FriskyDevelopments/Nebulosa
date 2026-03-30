@@ -8,6 +8,15 @@ console.log('🎯 NEBULOSA BOT - OAuth 4700 Error Fix Validation');
 console.log('='.repeat(60));
 console.log('');
 
+/**
+ * Collects Zoom- and bot-related settings from environment variables and prints a presence checklist.
+ *
+ * The function reads BOT_TOKEN, ZOOM_CLIENT_ID, ZOOM_CLIENT_SECRET, ZOOM_REDIRECT_URI, and PORT from
+ * process.env, prints a human-readable status line for each value (the Zoom client secret is partially
+ * masked when present), and returns the assembled configuration object.
+ *
+ * @returns {{botToken: (string|undefined), zoomClientId: (string|undefined), zoomClientSecret: (string|undefined), zoomRedirectUri: (string|undefined), port: (string|number)}} The configuration object built from environment variables. `port` defaults to 3000 when not set.
+ */
 async function validateConfiguration() {
     console.log('1️⃣ CONFIGURATION VALIDATION');
     console.log('===============================');
@@ -30,6 +39,12 @@ async function validateConfiguration() {
     return config;
 }
 
+/**
+ * Generate a Zoom OAuth authorization URL using the provided client credentials and redirect URI and log test details to the console.
+ *
+ * @param {{zoomClientId?: string, zoomRedirectUri?: string}} config - Configuration object containing Zoom OAuth settings.
+ * @returns {string|false} The constructed OAuth authorization URL when both client ID and redirect URI are present, `false` otherwise.
+ */
 function validateOAuthURL(config) {
     console.log('2️⃣ OAUTH URL GENERATION TEST');
     console.log('==============================');
@@ -64,6 +79,15 @@ function validateOAuthURL(config) {
     return oauthUrl;
 }
 
+/**
+ * Prints deployment and testing instructions for resolving the Zoom OAuth 4700 error.
+ *
+ * Outputs a step-by-step checklist that instructs the user to update Zoom OAuth settings (including the redirect URI),
+ * configure environment variables for deployment, redeploy the application, and test the OAuth flow via Telegram.
+ *
+ * @param {{botToken?: string, zoomClientId?: string, zoomClientSecret?: string, zoomRedirectUri?: string}} config - Configuration values used to populate the instructions; missing values are shown as placeholders.
+ * @param {string|false} oauthUrl - The generated OAuth URL (included for context; not required by this function).
+ */
 function provideFinalInstructions(config, oauthUrl) {
     console.log('3️⃣ DEPLOYMENT INSTRUCTIONS');
     console.log('============================');
@@ -93,6 +117,9 @@ function provideFinalInstructions(config, oauthUrl) {
     console.log('');
 }
 
+/**
+ * Prints a structured summary of implemented changes, fixed issues, bot features, and available commands to the console.
+ */
 function summarizeChanges() {
     console.log('4️⃣ SUMMARY OF CHANGES MADE');
     console.log('============================');
@@ -120,6 +147,11 @@ function summarizeChanges() {
     console.log('');
 }
 
+/**
+ * Prints step-by-step local and production testing recommendations and basic troubleshooting tips for the Zoom OAuth 4700 fix workflow.
+ *
+ * Outputs instructions for running local test scripts, starting the bot, checking the health endpoint, deploying and testing in production, and common troubleshooting checks (redirect URI, bot token/URL, client credentials).
+ */
 function showTestingRecommendations() {
     console.log('5️⃣ TESTING RECOMMENDATIONS');
     console.log('============================');
@@ -143,6 +175,13 @@ function showTestingRecommendations() {
     console.log('');
 }
 
+/**
+ * Run a full validation and guidance sequence for Zoom OAuth configuration and deployment.
+ *
+ * Executes configuration validation, attempts to generate a test OAuth authorization URL,
+ * and prints structured deployment instructions, a summary of changes, and testing recommendations.
+ * Logs progress and completion messages to the console and prints the generated OAuth URL if available.
+ */
 async function runValidation() {
     console.log('🚀 Running comprehensive validation...\n');
     

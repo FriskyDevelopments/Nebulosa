@@ -6,6 +6,10 @@ const axios = require('axios');
 let bot = null;
 const RAILWAY_BACKEND = process.env.RAILWAY_BACKEND || 'https://nebulosa.friskydev.com';
 
+/**
+ * Lazily initializes and returns the module-scoped Telegram bot instance.
+ * @returns {TelegramBot|null} The initialized Telegram bot instance, or `null` if the bot token is missing and initialization did not occur.
+ */
 function initBot() {
     if (!bot && process.env.BOT_TOKEN) {
         bot = new TelegramBot(process.env.BOT_TOKEN);
