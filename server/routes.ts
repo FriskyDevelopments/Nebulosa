@@ -4,6 +4,15 @@ import { storage } from "./storage";
 import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema, insertEmojiPackSchema, insertEmojiAssetSchema, insertEmojiFontSchema, insertEmojiFontGlyphSchema } from "@shared/schema";
 import { registerNebulosaRoutes } from "./nebulosa/routes";
 
+/**
+ * Register API and callback routes on the given Express application and create an HTTP server.
+ *
+ * Attaches Nebulosa routes and registers route groups for dashboard/bot, Zoom OAuth callback,
+ * meeting insights, emoji packs, and emoji fonts, then returns the underlying Node `http` server.
+ *
+ * @param app - The Express application to attach routes to
+ * @returns The created Node `http` Server instance
+ */
 export async function registerRoutes(app: Express): Promise<Server> {
   registerNebulosaRoutes(app);
 

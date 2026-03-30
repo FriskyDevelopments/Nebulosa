@@ -15,6 +15,12 @@ import { nebulosaState } from "./state";
 
 const requestCounts = new Map<string, { count: number; resetAt: number }>();
 
+/**
+ * Creates an Express middleware that rate-limits requests per IP and path.
+ *
+ * @param maxPerMinute - Maximum allowed requests per minute for a single IP:path key
+ * @returns An Express middleware that enforces the configured requests-per-minute limit; when the limit is exceeded it responds with HTTP 429 and a JSON payload `{ code: "rate_limited", message: "Too many requests. Try again shortly." }`
+ */
 function rateLimit(maxPerMinute: number) {
   return (req: any, res: any, next: any) => {
     const key = `${req.ip}:${req.path}`;
@@ -34,6 +40,16 @@ function rateLimit(maxPerMinute: number) {
   };
 }
 
+/**
+ * Registers Nebulosa HTTP routes on the provided Express application.
+ *
+ * Adds REST endpoints under `/api/v1` for health checks, authentication (login),
+ * session summaries, command listing/creation/cancellation, executor heartbeat/claim/report,
+ * alerts, audit, and executor listing. Endpoints enforce authentication and rate limiting
+ * where applicable and return standard JSON responses and status codes for success and error cases.
+ *
+ * @param app - The Express application instance to register routes on
+ */
 export function registerNebulosaRoutes(app: Express) {
   app.get("/api/v1/health", (_req, res) => {
     res.json(healthSnapshot());

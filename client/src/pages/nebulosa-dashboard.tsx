@@ -31,6 +31,15 @@ const COMMAND_TYPES = [
   "session.send_warning",
 ];
 
+/**
+ * Render the Nebulosa operator dashboard with session metrics, command dispatch controls, and alert feeds.
+ *
+ * Renders a login card when the session summary is unauthorized; otherwise renders metric cards, a command dispatch form
+ * (with command-type selection, session/participant inputs, and queue action), and scrollable command and alert lists.
+ * Queries poll session summary, commands, and alerts at configured intervals and mutations invalidate relevant queries on success.
+ *
+ * @returns A React element representing the full operator dashboard UI.
+ */
 export default function NebulosaDashboard() {
   const queryClient = useQueryClient();
   const [username, setUsername] = useState("admin");
@@ -186,6 +195,13 @@ export default function NebulosaDashboard() {
   );
 }
 
+/**
+ * Renders a compact metric card that displays a label and its corresponding value.
+ *
+ * @param label - Short descriptive text shown as the card description
+ * @param value - Primary metric text shown as the card title
+ * @returns A Card element containing the `label` as a description and the `value` as the title
+ */
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
     <Card>

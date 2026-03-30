@@ -41,10 +41,26 @@ export type AuditEvent = {
   createdAt: string;
 };
 
+/**
+ * Derives a hex-encoded password hash from a plaintext password and salt using scrypt.
+ *
+ * @param password - The plaintext password to hash
+ * @param salt - The salt value to use (expected as a hex string)
+ * @returns The scrypt-derived key encoded as a hex string
+ */
 function hashPassword(password: string, salt: string): string {
   return crypto.scryptSync(password, salt, 64).toString("hex");
 }
 
+/**
+ * Create a new Operator record with a generated salt and the password stored as a derived hash.
+ *
+ * @param id - Unique identifier for the operator
+ * @param username - Operator's username
+ * @param role - Operator's role
+ * @param password - Plaintext password used to derive the stored password hash
+ * @returns An `Operator` object containing `id`, `username`, `role`, a generated `salt` (8-byte hex string), and the derived `passwordHash`
+ */
 function makeOperator(id: string, username: string, role: OperatorRole, password: string): Operator {
   const salt = crypto.randomBytes(8).toString("hex");
   return {
