@@ -2,8 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertBotLogSchema, insertBotMetricsSchema, insertMeetingInsightsSchema, insertEmojiPackSchema, insertEmojiAssetSchema, insertEmojiFontSchema, insertEmojiFontGlyphSchema } from "@shared/schema";
+import { registerNebulosaRoutes } from "./nebulosa/routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  registerNebulosaRoutes(app);
+
   // Dashboard API routes
   app.get("/api/bot/status", async (req, res) => {
     try {

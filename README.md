@@ -245,3 +245,48 @@ For technical support or feature requests:
 ---
 
 **LA NUBE BOT** - Revolutionizing virtual collaboration through intelligent automation.
+## Nebulosa Production Control API (v1)
+
+The repository now includes a production-oriented Nebulosa control surface under `server/nebulosa/*`.
+
+### Architecture slices
+- **UI layer:** `client/src/pages/nebulosa-dashboard.tsx`
+- **Auth/session layer:** `/api/v1/auth/login` + expiring secure session cookie (`nb_session`)
+- **API layer:** `/api/v1/*` routes in `server/nebulosa/routes.ts`
+- **Command orchestration:** validated command queue + lifecycle in `server/nebulosa/service.ts`
+- **Executor integration:** signed heartbeat, polling claim endpoint, execution reports
+- **Audit + alerts:** immutable audit stream and alert feed
+- **Config/environment:** `server/nebulosa/config.ts`
+
+### Environment variables
+```env
+NEBULOSA_ENV=dev|staging|prod
+NEBULOSA_SESSION_SECRET=replace-me-in-prod
+NEBULOSA_EXECUTOR_SECRET=shared-secret-with-executors
+NEBULOSA_OPERATOR_ALLOWLIST=admin,operator
+NEBULOSA_ADMIN_PASSWORD=ChangeMe_Admin123!
+NEBULOSA_OPERATOR_PASSWORD=ChangeMe_Operator123!
+NEBULOSA_VIEWER_PASSWORD=ChangeMe_Viewer123!
+NEBULOSA_FAILED_COMMAND_THRESHOLD=5
+```
+
+### Core API contract
+- `POST /api/v1/auth/login`
+- `GET /api/v1/session/summary`
+- `GET /api/v1/health`
+- `GET /api/v1/commands`
+- `POST /api/v1/commands`
+- `POST /api/v1/commands/:commandId/cancel`
+- `POST /api/v1/executor/heartbeat` (signed via `x-nebulosa-signature`)
+- `POST /api/v1/executor/claim`
+- `POST /api/v1/executor/report`
+- `GET /api/v1/alerts`
+- `GET /api/v1/audit`
+- `GET /api/v1/executors`
+
+### Notes for production rollout
+- Rotate all seeded operator passwords before launch.
+- Keep `NEBULOSA_SESSION_SECRET` and `NEBULOSA_EXECUTOR_SECRET` in secret managers.
+- Run behind HTTPS and enforce HSTS at ingress.
+- Wire structured logs from server runtime to your log sink.
+- Add persistent backing storage for long-retention audits and command history.
