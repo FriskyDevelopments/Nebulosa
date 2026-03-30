@@ -3,6 +3,14 @@ const axios = require('axios');
 
 const RAILWAY_BACKEND = process.env.RAILWAY_BACKEND || 'https://nebulosa.friskydev.com';
 
+/**
+ * HTTP handler that responds to health-check requests with combined Vercel and Railway status.
+ *
+ * Performs CORS handling, accepts `OPTIONS` (200) and `GET` requests, probes the configured Railway backend's /health endpoint, and returns a consolidated health object whose overall status determines the HTTP response (200 when healthy, 503 when degraded). On unexpected errors returns a 500 JSON error payload; non-GET methods receive 405.
+ *
+ * @param {import('http').IncomingMessage & { method?: string }} req - Incoming HTTP request; only `method` is inspected (`OPTIONS`/`GET`).
+ * @param {import('http').ServerResponse & { status(code:number): any, json(body:any): any, setHeader(name:string, value:string): void, end(): void }} res - HTTP response used to set headers and send status/json responses.
+ */
 export default async function handler(req, res) {
     // Handle CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
