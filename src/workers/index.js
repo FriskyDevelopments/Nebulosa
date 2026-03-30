@@ -14,7 +14,7 @@ let isShuttingDown = false;
 /**
  * Initialize application dependencies and register worker processors.
  *
- * Awaits creation of required dependencies, loads each self-registering Bull processor, and logs when workers are started.
+ * Loads processor modules so they register with Bull and logs when startup completes.
  */
 async function startWorkers() {
   await createDependencies();

@@ -12,13 +12,9 @@ const log = withContext({ module: 'media-processor' });
 const mediaService = new MediaService();
 
 /**
- * Deletes a filesystem path if provided, ignoring any errors.
+ * Remove the file at the given path, suppressing any errors.
  *
- * Attempts to unlink the file at `filePath`. If `filePath` is falsy or the unlink operation fails
- * (for example because the file is missing or due to a race condition), the function performs no action
- * and suppresses the error.
- *
- * @param {string|undefined|null} filePath - Path to the file to remove; falsy values are treated as no-op.
+ * @param {string|undefined|null} filePath - Path to remove; falsy values are treated as no-op.
  */
 async function safeUnlink(filePath) {
   if (!filePath) {

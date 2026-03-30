@@ -36,9 +36,9 @@ async function start() {
 }
 
 /**
- * Gracefully shut down the HTTP server and application resources in response to a termination signal.
+ * Shut down the HTTP server and application resources in response to a termination signal.
  *
- * Closes the listening server if present, attempts to disconnect the Prisma client (logging a warning on failure), logs shutdown completion, and exits the process with code 0.
+ * Closes the listening server if it exists, attempts to disconnect the Prisma client (logs a warning on failure), logs completion, and exits the process with code 0.
  * @param {string} signal - The termination signal that initiated shutdown (e.g., 'SIGTERM' or 'SIGINT').
  */
 async function shutdown(signal) {
