@@ -92,10 +92,10 @@ async function probeRedis() {
 }
 
 /**
- * Refreshes the known readiness and metadata for external dependencies by probing each and updating the shared state.
+ * Refreshes stored readiness metadata for external dependencies.
  *
- * Updates dependencyState.db, dependencyState.redis, and dependencyState.lastUpdatedAt. Concurrent invocations share a single in-flight refresh to avoid duplicate probes.
- * @returns {object} The updated dependencyState object containing per-dependency probe results and metadata.
+ * If a refresh is already in progress, callers will receive the same in-flight result instead of starting a new probe.
+ * @returns {object} The updated `dependencyState` containing per-dependency probe results (`db`, `redis`), `lastUpdatedAt`, and other metadata.
  */
 async function refreshDependencyState() {
   if (refreshInFlight) {
@@ -146,8 +146,8 @@ function requiredDependenciesForMode() {
 }
 
 /**
- * Provide a snapshot of the current dependency state augmented with which dependencies are required for the current mode.
- * @returns {{mode: string, startedAt: (number|null), lastUpdatedAt: (number|null), db: object, redis: object, required: string[]}} The current dependency state object with a `required` array listing dependency names required by the configured mode.
+ * Return a snapshot of the current dependency state augmented with which dependencies are required for the current mode.
+ * @returns {object} The dependency state snapshot including a `required` array of dependency names required by the configured mode.
  */
 function getDependencyState() {
   return {

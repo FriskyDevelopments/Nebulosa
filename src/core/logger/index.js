@@ -10,10 +10,10 @@ const config = require('../config');
 const SENSITIVE_KEYS = ['password', 'secret', 'token', 'authorization', 'cookie', 'apiKey', 'key', 'url'];
 
 /**
- * Redacts username and password credentials from a URL by replacing them with `'***'`.
- * 
- * @param {*} value - Value to inspect; if it is a URL string containing credentials, those credentials will be redacted.
- * @returns {*} The URL string with `username` and `password` replaced by `'***'` when credentials are present; otherwise returns the original value unchanged.
+ * Redacts username and password credentials in a URL string by replacing them with '***'.
+ *
+ * @param {*} value - Input to inspect; non-string values are returned unchanged.
+ * @returns {*} The input string with `username` and `password` replaced by `'***'` when URL credentials are present, otherwise the original input.
  */
 function redactUrlCredentials(value) {
   if (typeof value !== 'string') {
@@ -34,12 +34,16 @@ function redactUrlCredentials(value) {
 }
 
 /**
- * Recursively sanitizes metadata by redacting sensitive values and removing URL credentials.
+ * Sanitize log metadata by redacting sensitive fields and removing credentials from URLs.
  *
- * Processes arrays and objects recursively; for object keys that match known sensitive substrings the value is replaced with "[REDACTED]". Keys containing "url" (or when the parent key contains "url" for string values) have their credentials redacted via `redactUrlCredentials`.
- * @param {*} value - The value to sanitize (may be a primitive, array, or object).
- * @param {string} [parentKey=''] - The parent object's key name used to decide URL-based redaction for string children.
- * @returns {*} The sanitized value with sensitive entries replaced by `"[REDACTED]"` and URL credentials replaced as applicable.
+ * Traverses arrays and objects and:
+ * - Replaces values for object keys that match configured sensitive substrings (e.g., "password", "secret", "token") with `"[REDACTED]"`.
+ * - For keys containing `"url"`, redacts username and password embedded in URL strings.
+ * - For string values whose parent key contains `"url"`, redacts URL credentials as well.
+ *
+ * @param {*} value - The value to sanitize (primitive, array, or object).
+ * @param {string} [parentKey=''] - Parent object's key name used to decide URL-based redaction for string children.
+ * @returns {*} The sanitized value with sensitive entries replaced by `"[REDACTED]"` and URL credentials removed where applicable.
  */
 function sanitizeMeta(value, parentKey = '') {
   if (Array.isArray(value)) {
