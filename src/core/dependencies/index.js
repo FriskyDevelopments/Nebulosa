@@ -51,6 +51,29 @@ async function probeDatabase() {
 }
 
 /**
+ * Masks credentials in a Redis URL by replacing username and password with asterisks.
+ * @param {string} url - The Redis URL to mask.
+ * @returns {string} The URL with credentials masked, or the original value if parsing fails.
+ */
+function maskRedisUrl(url) {
+  if (typeof url !== 'string') {
+    return url;
+  }
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.username || parsed.password) {
+      parsed.username = '***';
+      parsed.password = '***';
+      return parsed.toString();
+    }
+    return url;
+  } catch {
+    return url;
+  }
+}
+
+/**
  * Checks Redis availability and returns a status object describing configuration, readiness, check time, and any error.
  *
  * Attempts to connect to the configured Redis URL and perform a ping; on success the status will indicate readiness,
@@ -83,7 +106,7 @@ async function probeRedis() {
     result.ready = true;
   } catch (err) {
     result.error = err.message;
-    log.warn('Redis dependency not ready', { error: err.message, redisUrl: config.redis.url });
+    log.warn('Redis dependency not ready', { error: err.message, redisUrl: maskRedisUrl(config.redis.url) });
   } finally {
     redis.disconnect();
   }

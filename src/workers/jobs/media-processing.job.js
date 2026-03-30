@@ -11,7 +11,8 @@ const log = withContext({ module: 'media-job' });
 
 /**
  * Enqueues a media processing job.
- * @param {{ mediaId: string, storageKey: string, mimeType: string }} data
+ * @param {{ mediaId: string, storageKey: string, mimeType: string, tempInputPath?: string, tempOutputPath?: string }} data
+ * Job data payload containing mediaId and storageKey (required), plus optional tempInputPath and tempOutputPath for cleanup.
  */
 async function enqueueMediaProcessing(data) {
   const job = await mediaQueue.add('process', data, { priority: 1 });

@@ -42,6 +42,7 @@ jest.mock('../database/client', () => {
 
 jest.mock('../core/dependencies', () => {
   mockDependencies = {
+    createDependencies: jest.fn().mockResolvedValue({}),
     refreshDependencyState: jest.fn().mockResolvedValue(undefined),
     getDependencyState: jest.fn().mockReturnValue({ db: { ready: true }, redis: { ready: true } }),
     isReady: jest.fn().mockReturnValue(true),
