@@ -31,8 +31,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.zoom.us/*",
-        "https://app.zoom.us/*"
+        "https://*.zoom.us/*"
       ],
       "js": [
         "packages/event-bus/index.js",
