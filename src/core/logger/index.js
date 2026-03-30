@@ -7,11 +7,12 @@
 const { createLogger, format, transports } = require('winston');
 const config = require('../config');
 
-const SENSITIVE_KEYS = ['password', 'secret', 'token', 'authorization', 'cookie', 'apiKey', 'key', 'url'];
+const SENSITIVE_KEYS = ['password', 'secret', 'token', 'authorization', 'cookie', 'apiKey', 'key'];
+const MAX_DEPTH = 10;
 
 /**
  * Redacts username and password credentials from a URL by replacing them with `'***'`.
- * 
+ *
  * @param {*} value - Value to inspect; if it is a URL string containing credentials, those credentials will be redacted.
  * @returns {*} The URL string with `username` and `password` replaced by `'***'` when credentials are present; otherwise returns the original value unchanged.
  */
@@ -37,17 +38,34 @@ function redactUrlCredentials(value) {
  * Recursively sanitizes metadata by redacting sensitive values and removing URL credentials.
  *
  * Processes arrays and objects recursively; for object keys that match known sensitive substrings the value is replaced with "[REDACTED]". Keys containing "url" (or when the parent key contains "url" for string values) have their credentials redacted via `redactUrlCredentials`.
+ * Guards against deep nesting and circular references.
  * @param {*} value - The value to sanitize (may be a primitive, array, or object).
  * @param {string} [parentKey=''] - The parent object's key name used to decide URL-based redaction for string children.
+ * @param {number} [depth=0] - Current recursion depth.
+ * @param {WeakSet} [seen=new WeakSet()] - Set tracking visited objects to detect circular references.
  * @returns {*} The sanitized value with sensitive entries replaced by `"[REDACTED]"` and URL credentials replaced as applicable.
  */
-function sanitizeMeta(value, parentKey = '') {
+function sanitizeMeta(value, parentKey = '', depth = 0, seen = new WeakSet()) {
+  if (depth > MAX_DEPTH) {
+    return '[MAX_DEPTH]';
+  }
+
   if (Array.isArray(value)) {
-    return value.map((entry) => sanitizeMeta(entry, parentKey));
+    if (seen.has(value)) {
+      return '[CIRCULAR]';
+    }
+    seen.add(value);
+    const result = value.map((entry) => sanitizeMeta(entry, parentKey, depth + 1, seen));
+    seen.delete(value);
+    return result;
   }
 
   if (value && typeof value === 'object') {
-    return Object.fromEntries(
+    if (seen.has(value)) {
+      return '[CIRCULAR]';
+    }
+    seen.add(value);
+    const result = Object.fromEntries(
       Object.entries(value).map(([key, entry]) => {
         const lowered = key.toLowerCase();
         const isSensitive = SENSITIVE_KEYS.some((sensitive) => lowered.includes(sensitive.toLowerCase()));
@@ -59,9 +77,11 @@ function sanitizeMeta(value, parentKey = '') {
           return [key, redactUrlCredentials(entry)];
         }
 
-        return [key, sanitizeMeta(entry, key)];
+        return [key, sanitizeMeta(entry, key, depth + 1, seen)];
       })
     );
+    seen.delete(value);
+    return result;
   }
 
   if (typeof value === 'string' && parentKey.toLowerCase().includes('url')) {

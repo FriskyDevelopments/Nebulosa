@@ -19,9 +19,13 @@ const mediaService = new MediaService();
  * and suppresses the error.
  *
  * @param {string|undefined|null} filePath - Path to the file to remove; falsy values are treated as no-op.
+ * @param {string} label - Label for logging when path is missing.
  */
-async function safeUnlink(filePath) {
+async function safeUnlink(filePath, label) {
   if (!filePath) {
+    if (label) {
+      log.warn(`Missing ${label} in job data; skipping cleanup`);
+    }
     return;
   }
 
@@ -50,8 +54,8 @@ mediaQueue.process('process', async (job) => {
   } finally {
     // Always clean up temporary artifacts to prevent disk leaks.
     await Promise.allSettled([
-      safeUnlink(tempInputPath),
-      safeUnlink(tempOutputPath),
+      safeUnlink(tempInputPath, 'tempInputPath'),
+      safeUnlink(tempOutputPath, 'tempOutputPath'),
     ]);
   }
 });

@@ -10,6 +10,7 @@ const { closeAllQueues } = require('./queues');
 const { getPrismaClient } = require('../database/client');
 
 let isShuttingDown = false;
+let inFlightShutdownPromise = null;
 
 /**
  * Initialize application dependencies and register worker processors.
@@ -33,22 +34,31 @@ async function startWorkers() {
  */
 async function shutdown(signal) {
   if (isShuttingDown) {
-    return;
+    return inFlightShutdownPromise;
   }
 
   isShuttingDown = true;
-  logger.info(`${signal} received – stopping workers`);
 
-  await closeAllQueues();
+  inFlightShutdownPromise = (async () => {
+    logger.info(`${signal} received – stopping workers`);
+
+    await closeAllQueues();
+
+    try {
+      await getPrismaClient().$disconnect();
+    } catch (err) {
+      logger.warn('Error disconnecting Prisma during worker shutdown', { error: err.message });
+    }
+
+    logger.info('Workers stopped cleanly');
+    process.exit(0);
+  })();
 
   try {
-    await getPrismaClient().$disconnect();
-  } catch (err) {
-    logger.warn('Error disconnecting Prisma during worker shutdown', { error: err.message });
+    return await inFlightShutdownPromise;
+  } finally {
+    inFlightShutdownPromise = null;
   }
-
-  logger.info('Workers stopped cleanly');
-  process.exit(0);
 }
 
 process.on('SIGTERM', () => {

@@ -13,6 +13,7 @@ const { getPrismaClient } = require('../database/client');
 const app = createApp();
 
 let server;
+let isShuttingDown = false;
 
 /**
  * Initialize required dependencies and start the HTTP server listening on the configured port.
@@ -42,6 +43,11 @@ async function start() {
  * @param {string} signal - The termination signal that initiated shutdown (e.g., 'SIGTERM' or 'SIGINT').
  */
 async function shutdown(signal) {
+  if (isShuttingDown) {
+    return;
+  }
+
+  isShuttingDown = true;
   logger.info(`${signal} received – shutting down gracefully`);
 
   if (server) {
