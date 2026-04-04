@@ -1,5 +1,6 @@
 .env
 .env.local
+.env.backup*
 logs.json
 node_modules/
 .DS_Store

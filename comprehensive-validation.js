@@ -29,13 +29,18 @@ async function validateConfiguration() {
         port: process.env.PORT || 3000
     };
     
-    console.log(`• Bot Token: ${config.botToken ? '✅ SET' : '❌ MISSING'}`);
+    console.log(`• Bot Token: ${config.botToken ? '✅ SET (redacted)' : '❌ MISSING'}`);
     console.log(`• Zoom Client ID: ${config.zoomClientId ? '✅ SET (' + config.zoomClientId + ')' : '❌ MISSING'}`);
-    console.log(`• Zoom Client Secret: ${config.zoomClientSecret ? '✅ SET (' + config.zoomClientSecret.substring(0, 8) + '...)' : '❌ MISSING'}`);
+    console.log(`• Zoom Client Secret: ${config.zoomClientSecret ? '✅ SET (redacted)' : '❌ MISSING'}`);
     console.log(`• Zoom Redirect URI: ${config.zoomRedirectUri ? '✅ SET (' + config.zoomRedirectUri + ')' : '❌ MISSING'}`);
     console.log(`• Port: ${config.port}`);
     console.log('');
-    
+
+    if (!config.zoomClientId || !config.zoomRedirectUri) {
+        console.log('❌ CRITICAL: Missing required configuration');
+        process.exit(1);
+    }
+
     return config;
 }
 
@@ -48,10 +53,10 @@ async function validateConfiguration() {
 function validateOAuthURL(config) {
     console.log('2️⃣ OAUTH URL GENERATION TEST');
     console.log('==============================');
-    
+
     if (!config.zoomClientId || !config.zoomRedirectUri) {
         console.log('❌ Cannot generate OAuth URL - missing configuration');
-        return false;
+        process.exit(1);
     }
     
     const state = crypto.randomBytes(16).toString('hex');
@@ -103,9 +108,9 @@ function provideFinalInstructions(config, oauthUrl) {
     console.log('');
     console.log('B. Deploy to Railway:');
     console.log('   1. Set environment variables in Railway dashboard:');
-    console.log('      - BOT_TOKEN=' + (config.botToken || 'your_bot_token'));
-    console.log('      - ZOOM_CLIENT_ID=' + (config.zoomClientId || 'your_client_id'));
-    console.log('      - ZOOM_CLIENT_SECRET=' + (config.zoomClientSecret || 'your_client_secret'));
+    console.log('      - BOT_TOKEN=<your-bot-token>');
+    console.log('      - ZOOM_CLIENT_ID=' + (config.zoomClientId || '<your-zoom-client-id>'));
+    console.log('      - ZOOM_CLIENT_SECRET=<your-zoom-client-secret>');
     console.log('      - ZOOM_REDIRECT_URI=' + (config.zoomRedirectUri || 'https://your-app.railway.app/auth/zoom/callback'));
     console.log('   2. Deploy with: npm start');
     console.log('');
@@ -173,6 +178,9 @@ function showTestingRecommendations() {
     console.log('   • If webhook fails: Verify Telegram bot token and Railway URL');
     console.log('   • If OAuth fails: Check client secret and ID');
     console.log('');
+
+    // Exit with success code if we reached this point
+    process.exit(0);
 }
 
 /**

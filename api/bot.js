@@ -4,7 +4,10 @@ const axios = require('axios');
 
 // Initialize bot instance
 let bot = null;
-const RAILWAY_BACKEND = process.env.RAILWAY_BACKEND || 'https://nebulosa.friskydev.com';
+const RAILWAY_BACKEND = process.env.RAILWAY_BACKEND ||
+    (process.env.APP_DOMAIN ?
+        (process.env.APP_DOMAIN.startsWith('http') ? process.env.APP_DOMAIN : `https://${process.env.APP_DOMAIN}`) :
+        'https://nebulosa.friskydev.com');
 
 /**
  * Lazily initializes and returns the module-scoped Telegram bot instance.
