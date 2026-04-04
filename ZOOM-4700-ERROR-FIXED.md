@@ -29,21 +29,21 @@ The Zoom OAuth error 4700 "Invalid redirect URI" has been **completely resolved*
 
 ### **STEP 1: Update Zoom App Settings**
 1. Go to **https://marketplace.zoom.us/develop/apps**
-2. Find your app with Client ID: `vGVyI0IRv6si45iKO_qIw`
+2. Find your app with Client ID: `<your-zoom-client-id>`
 3. Navigate to OAuth settings
 4. **Add this exact redirect URI:**
    ```
-   https://nebulosa-production.railway.app/auth/zoom/callback
+   https://nebulosa.friskydev.com/auth/zoom/callback
    ```
 5. Save the changes
 
 ### **STEP 2: Deploy to Railway**
-Environment variables are already configured in `.env`:
+Configure the following environment variables (load them from your environment):
 ```env
-BOT_TOKEN=8113796108:AAHvZqXdqTRzor5ep7tV0OCDWzQO_8TjBUg
-ZOOM_CLIENT_ID=vGVyI0IRv6si45iKO_qIw
-ZOOM_CLIENT_SECRET=qL0UeGFWeQM2Csu1Z1G2J4RAZt4QGzi6
-ZOOM_REDIRECT_URI=https://nebulosa-production.railway.app/auth/zoom/callback
+BOT_TOKEN=<your-bot-token>
+ZOOM_CLIENT_ID=<your-zoom-client-id>
+ZOOM_CLIENT_SECRET=<your-zoom-client-secret>
+ZOOM_REDIRECT_URI=https://nebulosa.friskydev.com/auth/zoom/callback
 ```
 
 Deploy with:
@@ -78,7 +78,7 @@ npm start
 
 ### **Test OAuth URL:**
 ```
-https://zoom.us/oauth/authorize?response_type=code&client_id=vGVyI0IRv6si45iKO_qIw&redirect_uri=https%3A%2F%2Fnebulosa-production.railway.app%2Fauth%2Fzoom%2Fcallback&state=test&scope=meeting%3Aread+meeting%3Awrite+user%3Aread
+https://zoom.us/oauth/authorize?response_type=code&client_id=<your-zoom-client-id>&redirect_uri=https%3A%2F%2Fnebulosa.friskydev.com%2Fauth%2Fzoom%2Fcallback&state=test&scope=meeting%3Aread+meeting%3Awrite+user%3Aread
 ```
 
 ---
@@ -113,7 +113,7 @@ When everything is working correctly:
 
 ### **If 4700 Error Still Occurs:**
 - Verify the redirect URI is correctly added to Zoom app settings
-- Check that the URL exactly matches: `https://nebulosa-production.railway.app/auth/zoom/callback`
+- Check that the URL exactly matches: `https://nebulosa.friskydev.com/auth/zoom/callback`
 - Wait 2-5 minutes after saving Zoom app settings
 
 ### **If Webhook Fails:**
@@ -132,9 +132,9 @@ When everything is working correctly:
 
 **App Details for Zoom Support:**
 - App Name: NEBULOSA BOT for Zoom meeting manage...
-- Client ID: `vGVyI0IRv6si45iKO_qIw`
+- Client ID: `<your-zoom-client-id>`
 - Error Fixed: 4.700 Invalid Redirect URI
-- Redirect URI: `https://nebulosa-production.railway.app/auth/zoom/callback`
+- Redirect URI: `https://nebulosa.friskydev.com/auth/zoom/callback`
 
 ---
 
