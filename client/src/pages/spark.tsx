@@ -1,3 +1,4 @@
+import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -86,7 +87,7 @@ export default function SparkPage() {
   const { data: packs = [], isLoading, isError, refetch } = useQuery<EmojiPack[]>({
     queryKey: ["/api/emoji/packs"],
     queryFn: async () => {
-      const res = await fetch("/api/emoji/packs");
+      const res = await apiRequest("GET", "/api/emoji/packs");
       if (!res.ok) throw new Error("Failed to load projects");
       return res.json();
     },
