@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
+
+import { analytics } from "@/lib/analytics";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,6 +82,11 @@ const ALL_CATEGORIES = ["all", "basic", "reactions", "magic", "symbols", "premiu
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function SparkPage() {
+
+  useEffect(() => {
+    analytics.track('landing_engagement', { page: 'spark' });
+  }, []);
+
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
 
@@ -123,7 +130,7 @@ export default function SparkPage() {
             — where you find your projects
           </span>
           <div className="ml-auto">
-            <Button className="gap-2" size="sm">
+            <Button className="gap-2" size="sm" onClick={() => analytics.track('flow_start', { flowName: 'create_project', source: 'header' })}>
               <Plus className="h-4 w-4" />
               New project
             </Button>
@@ -148,7 +155,13 @@ export default function SparkPage() {
               className="pl-9"
               placeholder="Search projects…"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                // Debounce in a real app, but for now just send on typing if length > 3
+                if (e.target.value.length > 2) {
+                  analytics.track('feature_interaction', { featureName: 'project_search', interactionData: { term: e.target.value } });
+                }
+              }}
             />
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -157,7 +170,10 @@ export default function SparkPage() {
                 key={cat}
                 variant={activeCategory === cat ? "default" : "outline"}
                 size="sm"
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => {
+                setActiveCategory(cat);
+                analytics.track('feature_interaction', { featureName: 'category_filter', interactionData: { category: cat } });
+              }}
                 className="capitalize"
               >
                 {cat !== "all" && (
@@ -204,7 +220,7 @@ export default function SparkPage() {
               </p>
             </div>
             {!search && activeCategory === "all" && (
-              <Button className="gap-2">
+              <Button className="gap-2" onClick={() => analytics.track('flow_start', { flowName: 'create_project', source: 'empty_state' })}>
                 <Plus className="h-4 w-4" />
                 New project
               </Button>
@@ -234,7 +250,7 @@ function ProjectCard({ pack }: { pack: EmojiPack }) {
   const categoryColor = CATEGORY_COLORS[pack.category] ?? "bg-gray-50 text-gray-700 border-gray-200";
 
   return (
-    <Card className="hover:shadow-md transition-shadow flex flex-col">
+    <Card className="hover:shadow-md transition-shadow flex flex-col cursor-pointer" onClick={() => analytics.track('feature_interaction', { featureName: 'view_project', interactionData: { projectId: pack.id, projectSlug: pack.slug } })}>
       {pack.coverImageUrl ? (
         <div className="h-32 w-full overflow-hidden rounded-t-lg bg-muted">
           <img

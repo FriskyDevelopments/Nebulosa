@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { analytics } from "@/lib/analytics";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +33,11 @@ const COMMAND_TYPES = [
 ];
 
 export default function NebulosaDashboard() {
+
+  useEffect(() => {
+    analytics.track('landing_engagement', { page: 'nebulosa_dashboard' });
+  }, []);
+
   const queryClient = useQueryClient();
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("ChangeMe_Admin123!");
@@ -61,13 +67,23 @@ export default function NebulosaDashboard() {
   });
 
   const loginMutation = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/v1/auth/login", { username, password }),
-    onSuccess: () => queryClient.invalidateQueries(),
+    mutationFn: () => {
+      analytics.track('action_submit', { actionName: 'operator_login_attempt', context: { username } });
+      return apiRequest("POST", "/api/v1/auth/login", { username, password });
+    },
+    onSuccess: () => {
+      analytics.track('flow_completion', { flowName: 'operator_login' });
+      queryClient.invalidateQueries();
+    },
+    onError: (error: Error) => {
+      analytics.track('flow_failure', { flowName: 'operator_login', errorType: error.name, errorMessage: error.message });
+    }
   });
 
   const createCommandMutation = useMutation({
-    mutationFn: () =>
-      apiRequest("POST", "/api/v1/commands", {
+    mutationFn: () => {
+      analytics.track('action_submit', { actionName: 'queue_command', context: { type: commandType } });
+      return apiRequest("POST", "/api/v1/commands", {
         type: commandType,
         payload: {
           sessionId,
@@ -75,8 +91,15 @@ export default function NebulosaDashboard() {
           reason: "Operator requested action",
         },
         ttlSeconds: 180,
-      }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["commands"] }),
+      });
+    },
+    onSuccess: () => {
+      analytics.track('flow_completion', { flowName: 'queue_command' });
+      queryClient.invalidateQueries({ queryKey: ["commands"] });
+    },
+    onError: (error: Error) => {
+      analytics.track('flow_failure', { flowName: 'queue_command', errorType: error.name, errorMessage: error.message });
+    }
   });
 
   const orderedCommands = useMemo(

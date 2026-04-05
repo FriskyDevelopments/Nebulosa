@@ -2,8 +2,15 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Bot, Zap, Layers } from "lucide-react";
+import { useEffect } from "react";
+import { analytics } from "@/lib/analytics";
 
 export default function Dashboard() {
+
+  useEffect(() => {
+    analytics.track('landing_engagement', { page: 'home' });
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -14,7 +21,7 @@ export default function Dashboard() {
             <span className="text-xl font-bold">Nebulosa</span>
           </div>
           <nav className="flex items-center gap-4">
-            <Link href="/spark">
+            <Link href="/spark" onClick={() => analytics.track('action_submit', { actionName: 'spark_navigation_click', context: { location: 'header' } })}>
               <Button variant="ghost" className="gap-2">
                 <Zap className="h-4 w-4" />
                 Spark
@@ -39,7 +46,7 @@ export default function Dashboard() {
           Telegram community — all from one place.
         </p>
         <div className="flex items-center justify-center gap-4">
-          <Link href="/spark">
+          <Link href="/spark" onClick={() => analytics.track('action_submit', { actionName: 'spark_navigation_click', context: { location: 'hero' } })}>
             <Button size="lg" className="gap-2">
               <Zap className="h-5 w-5" />
               Go to Spark
@@ -60,7 +67,7 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/spark">
+            <Link href="/spark" onClick={() => analytics.track('action_submit', { actionName: 'spark_navigation_click', context: { location: 'card' } })}>
               <Button variant="outline" className="w-full">
                 Open Spark
               </Button>
