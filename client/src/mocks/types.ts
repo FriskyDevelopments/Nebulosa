@@ -8,8 +8,8 @@ export type SessionSummary = {
 
 export type Command = {
   id: string;
-  type: string;
-  status: string;
+  type: "provision" | "deploy" | "scale" | "inspect" | "restore";
+  status: "pending" | "claimed" | "executing" | "complete" | "failed" | "cancelled";
   requestedBy: string;
   createdAt: string;
   expiresAt: string;
@@ -17,9 +17,9 @@ export type Command = {
 
 export type Alert = {
   id: string;
-  severity: string;
+  severity: "info" | "warning" | "error" | "critical";
   message: string;
-    createdAt: string;
+  createdAt: string;
 };
 
 export interface EmojiPack {

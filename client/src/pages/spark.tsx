@@ -1,4 +1,5 @@
 import { apiRequest } from "@/lib/queryClient";
+import { EmojiPack } from "@/mocks/types";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -22,19 +23,6 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface EmojiPack {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  coverImageUrl: string | null;
-  category: string;
-  visibility: string;
-  status: string;
-  createdBy: string | null;
-  createdAt: string | null;
-  updatedAt: string | null;
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

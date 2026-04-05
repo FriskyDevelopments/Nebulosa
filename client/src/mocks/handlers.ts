@@ -3,14 +3,14 @@ import { commandsFixture } from "./fixtures/commands";
 import { alertsFixture } from "./fixtures/alerts";
 import { emojiPacksFixture } from "./fixtures/emojiPacks";
 
-// Different states that can be toggled via local storage or env vars
-export type MockScenario = "happy" | "empty" | "error" | "partial";
+const SCENARIOS = ["happy", "empty", "error", "partial"] as const;
+export type MockScenario = (typeof SCENARIOS)[number];
 
 function getScenario(): MockScenario {
   // Try to read from localStorage if available, otherwise default to "happy"
   try {
     const scenario = localStorage.getItem("VITE_MOCK_SCENARIO");
-    if (scenario && ["happy", "empty", "error", "partial"].includes(scenario)) {
+    if (scenario && (SCENARIOS as readonly string[]).includes(scenario)) {
       return scenario as MockScenario;
     }
   } catch (e) {
@@ -20,7 +20,8 @@ function getScenario(): MockScenario {
 }
 
 export const getMockResponse = (method: string, url: string): { status: number, data: any } | null => {
-  const routeKey = `${method.toUpperCase()}:${url}`;
+  const urlPath = url.split('?')[0];
+  const routeKey = `${method.toUpperCase()}:${urlPath}`;
   const scenario = getScenario();
 
   if (scenario === "error") {
@@ -44,7 +45,7 @@ export const getMockResponse = (method: string, url: string): { status: number, 
     },
     "GET:/api/emoji/packs": () => {
       if (scenario === "empty") return [];
-      if (scenario === "partial") return [emojiPacksFixture[0]]; // Return only one item
+      if (scenario === "partial") return emojiPacksFixture.slice(0, 1); // Return only first item, or empty array if none
       return emojiPacksFixture;
     },
     "POST:/api/v1/auth/login": () => ({ message: "Mock login successful" }),
