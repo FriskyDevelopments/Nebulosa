@@ -19,7 +19,7 @@ export type Alert = {
   id: string;
   severity: string;
   message: string;
-  createdAt: string
+    createdAt: string;
 };
 
 export interface EmojiPack {
