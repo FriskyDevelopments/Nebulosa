@@ -123,6 +123,15 @@ async function admitParticipant(name) {
   }
 }
 
+
+async function sendPrivateMessage(_name, _message) {
+  // TODO: Implement Zoom chat DOM automation to send a private message.
+  // This requires locating the chat input, selecting the recipient,
+  // typing the message, and submitting — all via DOM interaction.
+  console.warn('[Nebulosa:ZoomAdapter] sendPrivateMessage not yet implemented for extension mode');
+  return false;
+}
+
 let _activeSurface = 'unknown';
 
 function init(options = {}) {
@@ -163,6 +172,6 @@ function getDiagnosticsSnapshot() {
   return ZoomEvents.getDiagnosticsSnapshot();
 }
 
-const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, getDiagnosticsSnapshot };
+const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, sendPrivateMessage, getDiagnosticsSnapshot };
 if (typeof module !== 'undefined' && module.exports) module.exports = ZoomAdapter;
 else if (typeof window !== 'undefined') window.ZoomAdapter = ZoomAdapter;
