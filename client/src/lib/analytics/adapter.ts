@@ -29,16 +29,14 @@ export class ConsoleAnalyticsAdapter implements AnalyticsAdapter {
 
 /**
  * Server API Adapter wrapping the `POST /analytics/events` backend endpoint.
- * Note: Assumes `POST /api/v1/analytics/events` or similar if we use Nebulosa v1 APIs,
- * but based on existing codebase we've seen `/analytics/events` as a possible path.
- * We'll use a generic API call.
+ * Accepts configurable endpoints to avoid failed calls when routes aren't registered.
  */
 export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
-  private readonly eventsEndpoint: string;
-  private readonly identifyEndpoint: string;
+  private trackEndpoint: string;
+  private identifyEndpoint: string;
 
-  constructor(eventsEndpoint: string, identifyEndpoint: string) {
-    this.eventsEndpoint = eventsEndpoint;
+  constructor(trackEndpoint: string = '/api/analytics/events', identifyEndpoint: string = '/api/analytics/identify') {
+    this.trackEndpoint = trackEndpoint;
     this.identifyEndpoint = identifyEndpoint;
   }
 
@@ -54,7 +52,7 @@ export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
 
       // Call the existing analytics endpoint if it exists
       // We wrap it in a try-catch so it won't block the UI if the endpoint fails
-      await apiRequest('POST', this.eventsEndpoint, safePayload);
+      await apiRequest('POST', this.trackEndpoint, safePayload);
 
       if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
         console.log(`[Analytics - Server] Tracked Event: ${eventName}`, safePayload);
@@ -88,11 +86,20 @@ export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
 }
 
 // Select adapter based on environment or feature flag
-// Only use ServerApiAnalyticsAdapter if endpoints are explicitly configured
-const ANALYTICS_EVENTS_ENDPOINT = import.meta.env.VITE_ANALYTICS_EVENTS_ENDPOINT;
-const ANALYTICS_IDENTIFY_ENDPOINT = import.meta.env.VITE_ANALYTICS_IDENTIFY_ENDPOINT;
+// In production, only use ServerApiAnalyticsAdapter if analytics endpoints are explicitly configured
+// Otherwise fall back to ConsoleAnalyticsAdapter to avoid dropped/failed calls
+const getDefaultAdapter = (): AnalyticsAdapter => {
+  // Check if analytics endpoints are configured via environment variables
+  const trackEndpoint = import.meta.env.VITE_ANALYTICS_TRACK_ENDPOINT;
+  const identifyEndpoint = import.meta.env.VITE_ANALYTICS_IDENTIFY_ENDPOINT;
 
-export const defaultAdapter =
-  ANALYTICS_EVENTS_ENDPOINT && ANALYTICS_IDENTIFY_ENDPOINT
-    ? new ServerApiAnalyticsAdapter(ANALYTICS_EVENTS_ENDPOINT, ANALYTICS_IDENTIFY_ENDPOINT)
-    : new ConsoleAnalyticsAdapter(); // Default to console adapter unless endpoints are configured
+  // Only use ServerApiAnalyticsAdapter if endpoints are explicitly configured
+  if (import.meta.env.PROD && (trackEndpoint || identifyEndpoint)) {
+    return new ServerApiAnalyticsAdapter(trackEndpoint, identifyEndpoint);
+  }
+
+  // Default to ConsoleAnalyticsAdapter in dev or when endpoints aren't configured
+  return new ConsoleAnalyticsAdapter();
+};
+
+export const defaultAdapter = getDefaultAdapter();

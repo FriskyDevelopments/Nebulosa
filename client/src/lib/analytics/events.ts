@@ -17,60 +17,35 @@ export type EventCategory =
   | 'operator_control'
   | 'system';
 
-/**
- * Safe metadata type that restricts allowed keys to prevent PII leakage.
- * Only whitelisted keys with controlled value types are permitted.
- */
-export type SafeMetadata = {
-  projectId?: number;
-  projectSlug?: string;
-  category?: string;
-  term?: string;
-  source?: string;
-  flowName?: string;
-  actionName?: string;
-  featureName?: string;
-};
-
-/**
- * Sanitized context type for action events.
- * Only allows whitelisted keys to prevent arbitrary PII.
- */
-export type SanitizedContext = {
-  source?: 'header' | 'empty_state' | 'sidebar' | 'dashboard';
-  category?: string;
-  resultCount?: number;
-};
-
-/**
- * Sanitized interaction data for feature interactions.
- * Only allows whitelisted keys to prevent arbitrary PII.
- */
-export type SanitizedInteractionData = {
-  projectId?: number;
-  projectSlug?: string;
-  category?: string;
-  term?: string;
-  resultCount?: number;
-};
-
-/**
- * Sanitized error type for failure events.
- * Only allows whitelisted error types, no free-form error messages.
- */
-export type SanitizedErrorType =
-  | 'network_error'
-  | 'validation_error'
-  | 'auth_error'
-  | 'timeout_error'
-  | 'unknown_error';
-
 export type BaseEventPayload = {
   // Common properties
   timestamp?: string; // Automatically added by the adapter
   path?: string;
   userAgent?: string;
   category?: EventCategory;
+};
+
+/**
+ * Safe metadata type that restricts values to prevent arbitrary PII.
+ * Only allows specific vetted keys with constrained value types.
+ */
+export type SafeMetadata = {
+  // Project-related safe identifiers
+  projectId?: number;
+  projectSlug?: string;
+
+  // Search and filter parameters
+  term?: string; // Search terms (should be sanitized by caller)
+  category?: string;
+
+  // UI interaction context
+  source?: string; // e.g., 'header', 'empty_state', 'sidebar'
+  action?: string;
+
+  // Numeric metrics only
+  count?: number;
+  index?: number;
+  duration?: number;
 };
 
 // Landing Engagement
@@ -88,7 +63,7 @@ export type FlowStartPayload = BaseEventPayload & {
 // Action Submits
 export type ActionSubmitPayload = BaseEventPayload & {
   actionName: 'spark_navigation_click' | 'operator_login_attempt' | 'queue_command';
-  context?: SanitizedContext;
+  context?: SafeMetadata;
 };
 
 // Completions
@@ -98,15 +73,26 @@ export type CompletionPayload = BaseEventPayload & {
 };
 
 // Failures/Retries
+// Constrain error types to known categories to prevent logging arbitrary error messages with PII
+export type KnownErrorType =
+  | 'network_error'
+  | 'validation_error'
+  | 'auth_error'
+  | 'timeout_error'
+  | 'server_error'
+  | 'unknown_error';
+
 export type FailurePayload = BaseEventPayload & {
   flowName: 'operator_login' | 'queue_command';
-  errorType: SanitizedErrorType;
+  errorType: KnownErrorType;
+  // Remove errorMessage field to prevent arbitrary PII logging
+  // If error details are needed, use errorType categorization instead
 };
 
 // Feature Interactions
 export type FeatureInteractionPayload = BaseEventPayload & {
   featureName: 'project_search' | 'category_filter' | 'view_project';
-  interactionData?: SanitizedInteractionData;
+  interactionData?: SafeMetadata;
 };
 
 // Event Map binding event names to their payloads
