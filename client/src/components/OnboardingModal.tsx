@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Bot, Sparkles, Zap, ArrowRight, Settings, CheckCircle2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 
 export function OnboardingModal() {
   const [open, setOpen] = useState(false);
@@ -49,12 +48,11 @@ export function OnboardingModal() {
           <p className="text-sm text-muted-foreground">
             1. Open @BotFather on Telegram and create a new bot.<br/>
             2. Copy the HTTP API token.<br/>
-            3. Paste it below to link your bot securely.
+            3. Configure it in your backend environment variables.
           </p>
-          <div className="space-y-2">
-            <Input type="password" placeholder="e.g., 1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ" />
-            <p className="text-xs text-muted-foreground">This is saved securely to your environment.</p>
-          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Token configuration will be available once backend integration is complete.
+          </p>
         </div>
       )
     },
@@ -67,10 +65,9 @@ export function OnboardingModal() {
           <p className="text-sm text-muted-foreground">
             Connect your Zoom OAuth App to enable automatic pinning, muting, and operator controls from the Nebulosa dashboard.
           </p>
-          <div className="space-y-2">
-            <Input placeholder="Zoom Client ID" />
-            <Input type="password" placeholder="Zoom Client Secret" />
-          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Zoom OAuth configuration will be available once backend integration is complete.
+          </p>
         </div>
       )
     },
