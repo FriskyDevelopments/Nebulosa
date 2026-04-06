@@ -67,6 +67,8 @@ const ZoomSelectors = {
   PIN_OPTION_TEXT: 'Pin',
   MULTIPIN_OPTION_TEXT: 'Multi-pin',
   UNPIN_OPTION_TEXT: 'Unpin',
+  REMOVE_OPTION_TEXT: 'Remove',
+  MUTE_OPTION_TEXT: 'Mute',
 
   CHAT_PANEL: ['#chat-panel', '[aria-label*="Chat"]', '[class*="chat-container"]'],
   CHAT_MESSAGE: ['[class*="chat-message__text"]', '[class*="chat-item"]'],
@@ -78,6 +80,9 @@ const ZoomSelectors = {
   ROLE_HOST_BADGE: ['[aria-label*="Host"]', '[data-testid*="host-badge"]', '[class*="host-badge"]'],
   ROLE_COHOST_BADGE: ['[aria-label*="Co-host"]', '[aria-label*="Cohost"]', '[data-testid*="cohost-badge"]', '[class*="cohost"]'],
   HOST_ONLY_CONTROL: ['[aria-label*="End meeting for all"]', '[aria-label*="Manage Participants"]', '[data-testid*="security"]'],
+
+  PARTICIPANT_MORE_BTN: ['[aria-label*="More"]', '[class*="more-button"]', 'button[class*="more"]'],
+  MUTE_BTN: ['[aria-label*="Mute"]', 'button[class*="mute"]']
 };
 
 if (typeof module !== 'undefined' && module.exports) {
