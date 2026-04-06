@@ -1,42 +1,10 @@
 import { Link } from "wouter";
+import { AuthDialog } from "@/components/AuthDialog";
 import { OnboardingModal } from "@/components/OnboardingModal";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Bot, Zap, Layers } from "lucide-react";
-
-function SignInDialog({ triggerVariant = "outline" }: { triggerVariant?: "outline" | "ghost" }) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant={triggerVariant} className="gap-2">
-          <Bot className="h-4 w-4" />
-          Sign In
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Connect your account</DialogTitle>
-          <DialogDescription>
-            Authentication providers are not available yet. Please check back once sign-in has been configured.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col gap-4 py-4">
-          <Button className="w-full gap-2" size="lg" disabled>
-            Sign in with Zoom
-          </Button>
-          <Button className="w-full gap-2" variant="outline" size="lg" disabled>
-            <Bot className="h-4 w-4" />
-            Sign in with Telegram
-          </Button>
-          <p className="text-sm text-muted-foreground text-center">
-            Sign-in buttons are disabled until valid authentication routes are available.
-          </p>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 export default function Dashboard() {
   return (
@@ -50,7 +18,7 @@ export default function Dashboard() {
             <span className="text-xl font-bold">Nebulosa</span>
           </div>
           <nav className="flex items-center gap-4">
-            <SignInDialog />
+            <AuthDialog />
             <Link href="/spark">
               <Button variant="ghost" className="gap-2">
                 <Zap className="h-4 w-4" />
@@ -76,7 +44,7 @@ export default function Dashboard() {
           Telegram community — all from one place.
         </p>
         <div className="flex items-center justify-center gap-4">
-          <SignInDialog />
+            <AuthDialog />
           <Link href="/spark">
             <Button size="lg" className="gap-2">
               <Zap className="h-5 w-5" />
@@ -98,7 +66,7 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <SignInDialog />
+            <AuthDialog />
             <Link href="/spark">
               <Button variant="outline" className="w-full">
                 Open Spark

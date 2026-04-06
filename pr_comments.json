@@ -1,0 +1,2072 @@
+[
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566013",
+    "pull_request_review_id": 4060005499,
+    "id": 3037566013,
+    "node_id": "PRRC_kwDOPKOvgc61DZQ9",
+    "diff_hunk": "@@ -1,4 +1,10 @@\n import { Sparkles } from \"lucide-react\";\n+import { Bot, LogIn } from \"lucide-react\";\n+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\n+import { Button } from \"@/components/ui/button\";\n+import { Bot, LogIn } from \"lucide-react\";\n+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\n+import { Button } from \"@/components/ui/button\";",
+    "path": "client/src/components/AppShell.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🔴 Critical_\n\n**Duplicate imports will cause build errors.**\n\nLines 2 and 5 both import `{ Bot, LogIn }`, lines 3 and 6 both import Dialog components, and lines 4 and 7 both import Button. This appears to be an artifact of running the patch script multiple times or against an already-patched file.\n\n\n<details>\n<summary>🐛 Proposed fix</summary>\n\n```diff\n import { Sparkles } from \"lucide-react\";\n-import { Bot, LogIn } from \"lucide-react\";\n-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\n-import { Button } from \"@/components/ui/button\";\n-import { Bot, LogIn } from \"lucide-react\";\n-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\n-import { Button } from \"@/components/ui/button\";\n+import { Bot, LogIn, Sparkles } from \"lucide-react\";\n+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\n+import { Button } from \"@/components/ui/button\";\n```\n</details>\n\n<!-- suggestion_start -->\n\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n```suggestion\nimport { Bot, LogIn, Sparkles } from \"lucide-react\";\nimport { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\nimport { Button } from \"@/components/ui/button\";\n```\n\n</details>\n\n<!-- suggestion_end -->\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@client/src/components/AppShell.tsx` around lines 1 - 7, Remove the duplicated\nimports by consolidating them into single import statements: keep one import\nfrom \"lucide-react\" that includes Bot, LogIn, and Sparkles (referencing the\nexisting Sparkles symbol), one import from \"@/components/ui/dialog\" that\nincludes Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,\nDialogTrigger, and one import from \"@/components/ui/button\" that imports Button;\ndelete the repeated import lines so each symbol (Bot, LogIn, Sparkles, Dialog,\nDialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,\nButton) is only imported once.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:medusa:ocelot:a6343b70-a891-4595-9dae-f88074f717d6 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commits f1cf563 to 027ad27",
+    "created_at": "2026-04-06T00:45:43Z",
+    "updated_at": "2026-04-06T15:17:28Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566013",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566013"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566013"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566013/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 1,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 7,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 7,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566021",
+    "pull_request_review_id": 4060005499,
+    "id": 3037566021,
+    "node_id": "PRRC_kwDOPKOvgc61DZRF",
+    "diff_hunk": "@@ -76,8 +82,35 @@ export default function AppShell() {\n             ))}\n           </nav>\n \n+          <div className=\"ml-auto mr-4\">\n+            <Dialog>\n+              <DialogTrigger asChild>\n+                <Button variant=\"ghost\" size=\"sm\" className=\"gap-2\">\n+                  <LogIn className=\"h-4 w-4\" />\n+                  Sign In\n+                </Button>\n+              </DialogTrigger>\n+              <DialogContent className=\"sm:max-w-md\">\n+                <DialogHeader>\n+                  <DialogTitle>Connect your account</DialogTitle>\n+                  <DialogDescription>\n+                    Sign in with your preferred platform to access Stix Magic.\n+                  </DialogDescription>\n+                </DialogHeader>\n+                <div className=\"flex flex-col gap-4 py-4\">\n+                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\n+                    Sign in with Zoom\n+                  </Button>\n+                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\n+                    <Bot className=\"h-4 w-4\" />\n+                    Sign in with Telegram\n+                  </Button>\n+                </div>\n+              </DialogContent>\n+            </Dialog>\n+          </div>\n           {/* Aura indicator */}\n-          <div className=\"ml-auto\">\n+          <div className=\"\">",
+    "path": "client/src/components/AppShell.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_🧹 Nitpick_ | _🔵 Trivial_\n\n**Empty `className=\"\"` is unnecessary.**\n\nThe empty `className` attribute serves no purpose and can be removed for cleaner markup.\n\n\n<details>\n<summary>🧹 Proposed fix</summary>\n\n```diff\n-          <div className=\"\">\n+          <div>\n```\n</details>\n\n<!-- suggestion_start -->\n\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n```suggestion\n          <div>\n```\n\n</details>\n\n<!-- suggestion_end -->\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@client/src/components/AppShell.tsx` at line 113, Remove the unnecessary empty\nclassName attribute from the JSX div in the AppShell component (the <div\nclassName=\"\"> element) — simply delete className=\"\" so the element is rendered\nas <div> to clean up markup and avoid unused props.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:medusa:ocelot:a6343b70-a891-4595-9dae-f88074f717d6 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commits f1cf563 to 027ad27",
+    "created_at": "2026-04-06T00:45:43Z",
+    "updated_at": "2026-04-06T15:17:30Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566021",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566021"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566021"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566021/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": null,
+    "original_line": 113,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 44,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566022",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566022,
+    "node_id": "PRRC_kwDOPKOvgc61DZRG",
+    "diff_hunk": "@@ -1,4 +1,6 @@\n import { Link } from \"wouter\";\n+import { useState } from \"react\";",
+    "path": "client/src/pages/dashboard.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "`useState` is imported but never used in this component; this will fail linting/TS checks in many setups. Remove the unused import or use it for dialog state (if intended).\n```suggestion\n\n```",
+    "created_at": "2026-04-06T00:45:43Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566022",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566022"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566022"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566022/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": null,
+    "original_line": 2,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 2,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566023",
+    "pull_request_review_id": 4060005499,
+    "id": 3037566023,
+    "node_id": "PRRC_kwDOPKOvgc61DZRH",
+    "diff_hunk": "@@ -1,4 +1,6 @@\n import { Link } from \"wouter\";\n+import { useState } from \"react\";",
+    "path": "client/src/pages/dashboard.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🟡 Minor_\n\n**Unused import: `useState` is never used.**\n\nThe `useState` hook is imported but not used anywhere in this component. This appears to be a leftover from the patch script.\n\n\n<details>\n<summary>🧹 Proposed fix</summary>\n\n```diff\n-import { useState } from \"react\";\n```\n</details>\n\n<!-- suggestion_start -->\n\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n```suggestion\n\n```\n\n</details>\n\n<!-- suggestion_end -->\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@client/src/pages/dashboard.tsx` at line 2, Remove the unused useState import\nfrom the top-level import line in the Dashboard component file: update the\nimport statement that currently reads \"import { useState } from 'react';\" to\nremove useState so only needed React imports remain (or switch to a default\nReact import if required by other code); ensure there are no remaining\nreferences to useState in the Dashboard component.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:medusa:ocelot:a6343b70-a891-4595-9dae-f88074f717d6 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commits f1cf563 to 027ad27",
+    "created_at": "2026-04-06T00:45:43Z",
+    "updated_at": "2026-04-06T15:17:24Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566023",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566023"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566023"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566023/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": null,
+    "original_line": 2,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 2,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566025",
+    "pull_request_review_id": 4060005499,
+    "id": 3037566025,
+    "node_id": "PRRC_kwDOPKOvgc61DZRJ",
+    "diff_hunk": "@@ -14,6 +16,31 @@ export default function Dashboard() {\n             <span className=\"text-xl font-bold\">Nebulosa</span>\n           </div>\n           <nav className=\"flex items-center gap-4\">\n+            <Dialog>\n+              <DialogTrigger asChild>\n+                <Button variant=\"outline\" className=\"gap-2\">\n+                  <Bot className=\"h-4 w-4\" />\n+                  Sign In\n+                </Button>\n+              </DialogTrigger>\n+              <DialogContent className=\"sm:max-w-md\">\n+                <DialogHeader>\n+                  <DialogTitle>Connect your account</DialogTitle>\n+                  <DialogDescription>\n+                    Sign in with your preferred platform to access Stix Magic.\n+                  </DialogDescription>\n+                </DialogHeader>\n+                <div className=\"flex flex-col gap-4 py-4\">\n+                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\n+                    Sign in with Zoom\n+                  </Button>\n+                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\n+                    <Bot className=\"h-4 w-4\" />\n+                    Sign in with Telegram\n+                  </Button>\n+                </div>\n+              </DialogContent>\n+            </Dialog>",
+    "path": "client/src/pages/dashboard.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_🛠️ Refactor suggestion_ | _🟠 Major_\n\n**Significant code duplication: Sign In dialog repeated 3 times.**\n\nThe identical ~24-line Dialog block is duplicated in three locations (header nav, hero CTA, and Spark card). Extract this into a reusable component to improve maintainability and ensure consistent behavior.\n\n\n<details>\n<summary>♻️ Proposed refactor: Extract SignInDialog component</summary>\n\nAdd this component at the top of the file or in a separate file:\n\n```tsx\nfunction SignInDialog({ triggerVariant = \"outline\" }: { triggerVariant?: \"outline\" | \"ghost\" }) {\n  return (\n    <Dialog>\n      <DialogTrigger asChild>\n        <Button variant={triggerVariant} className=\"gap-2\">\n          <Bot className=\"h-4 w-4\" />\n          Sign In\n        </Button>\n      </DialogTrigger>\n      <DialogContent className=\"sm:max-w-md\">\n        <DialogHeader>\n          <DialogTitle>Connect your account</DialogTitle>\n          <DialogDescription>\n            Sign in with your preferred platform to access Stix Magic.\n          </DialogDescription>\n        </DialogHeader>\n        <div className=\"flex flex-col gap-4 py-4\">\n          <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\n            Sign in with Zoom\n          </Button>\n          <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\n            <Bot className=\"h-4 w-4\" />\n            Sign in with Telegram\n          </Button>\n        </div>\n      </DialogContent>\n    </Dialog>\n  );\n}\n```\n\nThen replace each duplicated block with:\n```tsx\n<SignInDialog />\n```\n</details>\n\n\nAlso applies to: 69-93, 115-139\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@client/src/pages/dashboard.tsx` around lines 19 - 43, The Dialog sign-in UI\nis duplicated; extract it into a reusable SignInDialog component (e.g., function\nSignInDialog({ triggerVariant = \"outline\" }) ) that renders the Dialog,\nDialogTrigger (asChild) with Button and Bot icon, DialogContent with\nDialogHeader/Title/Description and the two sign-in Buttons that navigate to\n\"/api/auth/zoom\" and \"/api/auth/telegram\"; then replace each repeated Dialog\nblock (the occurrences using Dialog, DialogTrigger, Button, Bot, DialogContent,\nDialogHeader, DialogTitle, DialogDescription) with <SignInDialog /> (or\n<SignInDialog triggerVariant=\"ghost\" /> where a different trigger style is\nneeded) to remove duplication and keep behavior identical.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:medusa:ocelot:a6343b70-a891-4595-9dae-f88074f717d6 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commits f1cf563 to 027ad27",
+    "created_at": "2026-04-06T00:45:44Z",
+    "updated_at": "2026-04-06T15:17:31Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566025",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566025"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566025"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566025/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 19,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 43,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 35,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566026",
+    "pull_request_review_id": 4060005499,
+    "id": 3037566026,
+    "node_id": "PRRC_kwDOPKOvgc61DZRK",
+    "diff_hunk": "@@ -14,6 +16,31 @@ export default function Dashboard() {\n             <span className=\"text-xl font-bold\">Nebulosa</span>\n           </div>\n           <nav className=\"flex items-center gap-4\">\n+            <Dialog>\n+              <DialogTrigger asChild>\n+                <Button variant=\"outline\" className=\"gap-2\">\n+                  <Bot className=\"h-4 w-4\" />\n+                  Sign In\n+                </Button>\n+              </DialogTrigger>\n+              <DialogContent className=\"sm:max-w-md\">\n+                <DialogHeader>\n+                  <DialogTitle>Connect your account</DialogTitle>\n+                  <DialogDescription>\n+                    Sign in with your preferred platform to access Stix Magic.\n+                  </DialogDescription>\n+                </DialogHeader>\n+                <div className=\"flex flex-col gap-4 py-4\">\n+                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>",
+    "path": "client/src/pages/dashboard.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🔴 Critical_\n\n<details>\n<summary>🧩 Analysis chain</summary>\n\n🏁 Script executed:\n\n```shell\n#!/bin/bash\n# Description: Search for OAuth initiation route handlers for /api/auth/zoom and /api/auth/telegram\n\necho \"=== Searching for /api/auth/zoom route ===\"\nrg -n \"auth/zoom\" --type=ts --type=js -C3\n\necho \"\"\necho \"=== Searching for /api/auth/telegram route ===\"\nrg -n \"auth/telegram\" --type=ts --type=js -C3\n\necho \"\"\necho \"=== Searching for any OAuth initiation routes ===\"\nrg -n \"generateOAuthUrl|oauth/authorize\" --type=ts --type=js -C3\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 50383\n\n---\n\n🏁 Script executed:\n\n```shell\n# Search specifically for route definitions in server/api files\necho \"=== Checking api/index.js for /api/auth routes ===\"\nrg -n \"app\\.(get|post|put|delete).*['\\\"].*auth\" api/index.js -B2 -A5\n\necho \"\"\necho \"=== Checking for any /api/auth/zoom handler (not callback) ===\"\nrg -n \"app\\.(get|post).*auth/zoom[^/]\" --type=js --type=ts -B2 -A10\n\necho \"\"\necho \"=== Searching for app.use() middleware that might route /api/auth ===\"\nrg -n \"app\\.use.*auth\" --type=js --type=ts -B1 -A3\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 805\n\n---\n\n🏁 Script executed:\n\n```shell\n# Check if there are other server entry points or routes files\necho \"=== Finding all potential route/server files ===\"\nfd -e js -e ts | grep -E \"(route|server|api)\" | head -20\n\necho \"\"\necho \"=== Checking server/routes.ts if it exists ===\"\nif [ -f \"server/routes.ts\" ]; then cat -n server/routes.ts | head -100; else echo \"File not found\"; fi\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 4591\n\n---\n\n🏁 Script executed:\n\n```shell\n# Search for auth route files\necho \"=== Finding auth route files ===\"\nfd -e js -e ts | xargs rg -l \"authRoutes\\|auth.*route\" | head -20\n\necho \"\"\necho \"=== Checking for actual auth route definitions ===\"\nfd auth.route -e js -e ts\n\necho \"\"\necho \"=== Looking for auth controller/route handler ===\"\nif [ -f \"src/api/routes/auth.routes.js\" ]; then cat -n src/api/routes/auth.routes.js; fi\nif [ -f \"src/api/controllers/auth.controller.js\" ]; then head -80 -n src/api/controllers/auth.controller.js; fi\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 915\n\n---\n\n🏁 Script executed:\n\n```shell\n# Read the complete server/routes.ts to find all /api routes\nwc -l server/routes.ts\ntail -n +1 server/routes.ts | head -200\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 7039\n\n---\n\n🏁 Script executed:\n\n```shell\n# Check api/oauth.js for any OAuth initiation routes\necho \"=== Checking api/oauth.js for OAuth initiation routes ===\"\nif [ -f \"api/oauth.js\" ]; then cat -n api/oauth.js; fi\n\necho \"\"\necho \"=== Searching for any POST/GET to /api/auth routes ===\"\nrg -n \"app\\.get|app\\.post\" --type=js | grep -i \"api.*auth\\|/auth\"\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 8672\n\n---\n\n🏁 Script executed:\n\n```shell\n# Check if there's a proxy or catch-all route\necho \"=== Checking for any proxy or catch-all routes ===\"\nrg -n \"proxy|catchAll|app\\.use.*function\" --type=js --type=ts api/ server/ src/ -B2 -A3 | head -80\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 121\n\n---\n\n\n\n</details>\n\n**The OAuth initiation routes `/api/auth/zoom` and `/api/auth/telegram` are not defined, causing 404 errors when users attempt to sign in.**\n\nClient code in `client/src/pages/dashboard.tsx` (lines 34, 84, 130) and `client/src/components/AppShell.tsx` (line 101) redirects to `/api/auth/zoom` and `/api/auth/telegram`, but these routes do not exist in the server. The auth routes defined in `src/api/routes/auth.routes.js` only handle register, login, refresh, and me endpoints. No OAuth initiation handlers are present in `server/routes.ts` or elsewhere.\n\nAdditionally, the existing OAuth callback at `/zoom/callback` returns an HTML success page but does not redirect back to the dashboard or establish a session token that the client can use. Users need routes that (1) initiate the Zoom/Telegram OAuth flow by redirecting to the OAuth provider, and (2) handle callbacks that properly establish authentication state before returning to the app.\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@client/src/pages/dashboard.tsx` at line 34, Add missing OAuth initiation and\nproper callback handlers: implement new routes /api/auth/zoom and\n/api/auth/telegram that redirect users to the provider authorization URL (create\nfunctions like initZoomOAuth and initTelegramOAuth and register them in\nserver/routes.ts alongside existing auth routes), and implement callback\nhandlers (e.g., handleZoomCallback and handleTelegramCallback, replacing the\ncurrent /zoom/callback behavior) that exchange the provider code for tokens,\ncreate or lookup the user, issue a server session/token (set cookie or return\nJWT consistent with your existing auth flow from src/api/routes/auth.routes.js),\nand finally redirect the browser back to the dashboard (e.g., \"/dashboard\" or\n\"/\") so the client can continue authenticated; ensure the callback handlers set\nthe same session cookie/token format your frontend expects.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:medusa:ocelot:a6343b70-a891-4595-9dae-f88074f717d6 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:45:44Z",
+    "updated_at": "2026-04-06T00:45:45Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566026",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566026"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566026"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566026/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": null,
+    "original_line": 34,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 26,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566029",
+    "pull_request_review_id": 4060005499,
+    "id": 3037566029,
+    "node_id": "PRRC_kwDOPKOvgc61DZRN",
+    "diff_hunk": "@@ -0,0 +1,6 @@\n+#!/bin/bash\n+sed -i '/import { Sparkles } from \"lucide-react\";/a import { Bot, LogIn } from \"lucide-react\";\\nimport { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\\nimport { Button } from \"@/components/ui/button\";' client/src/components/AppShell.tsx\n+\n+sed -i '/{\\/\\* Aura indicator \\*\\/}/i \\          <div className=\"ml-auto mr-4\">\\n            <Dialog>\\n              <DialogTrigger asChild>\\n                <Button variant=\"ghost\" size=\"sm\" className=\"gap-2\">\\n                  <LogIn className=\"h-4 w-4\" />\\n                  Sign In\\n                </Button>\\n              </DialogTrigger>\\n              <DialogContent className=\"sm:max-w-md\">\\n                <DialogHeader>\\n                  <DialogTitle>Connect your account</DialogTitle>\\n                  <DialogDescription>\\n                    Sign in with your preferred platform to access Stix Magic.\\n                  </DialogDescription>\\n                </DialogHeader>\\n                <div className=\"flex flex-col gap-4 py-4\">\\n                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\\n                    Sign in with Zoom\\n                  </Button>\\n                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\\n                    <Bot className=\"h-4 w-4\" />\\n                    Sign in with Telegram\\n                  </Button>\\n                </div>\\n              </DialogContent>\\n            </Dialog>\\n          </div>' client/src/components/AppShell.tsx\n+\n+sed -i 's/<div className=\"ml-auto\">/<div className=\"\">/' client/src/components/AppShell.tsx",
+    "path": "patch_auth_appshell.sh",
+    "commit_id": "027ad27c1f16b45c6d194f6c5a782f6f6fd4d4b9",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🟠 Major_\n\n**Remove this patch script - it caused the duplicate imports in AppShell.tsx.**\n\nThis script has the same issues as `patch_auth_ui.sh`, and evidence shows it was run multiple times, causing the duplicate imports visible in `AppShell.tsx` lines 1-7.\n\nAdditional issues:\n- **Not idempotent**: Running the script twice appends duplicate import lines.\n- **Overly broad replacement** (line 6): `s/<div className=\"ml-auto\">/<div className=\"\">/` will match any div with `ml-auto`, potentially breaking other elements.\n- **Creates invalid code**: The resulting duplicate imports will cause build failures.\n\nDelete this script and ensure `AppShell.tsx` has clean, non-duplicated source changes committed directly.\n\n\n<details>\n<summary>🗑️ Proposed fix</summary>\n\nDelete this file entirely. Fix the duplicate imports directly in `client/src/components/AppShell.tsx` as noted in that file's review comments.\n</details>\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@patch_auth_appshell.sh` around lines 1 - 6, The patch_auth_appshell.sh script\nis unsafe and non-idempotent: it injects duplicate import lines (e.g., the added\nimports for Bot, LogIn and Dialog/DialogContent/DialogTrigger/Button alongside\nthe existing import of Sparkles) and performs an overly broad sed replacement of\n<div className=\"ml-auto\">, causing invalid code and build failures; delete this\nscript (patch_auth_appshell.sh), remove any duplicate import lines and the\nduplicated injected JSX from AppShell.tsx (restore a single canonical set of\nimports including Sparkles, Bot, LogIn and the Dialog/Button component imports),\nand undo the broad substitution so only the intended element changes remain\n(manually edit AppShell.tsx to commit the UI changes idempotently rather than\nrelying on the sed commands).\n```\n\n</details>\n\n<!-- fingerprinting:phantom:medusa:ocelot:a6343b70-a891-4595-9dae-f88074f717d6 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:45:44Z",
+    "updated_at": "2026-04-06T00:45:45Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566029",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566029"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566029"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566029/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 1,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 6,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 6,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566030",
+    "pull_request_review_id": 4060005499,
+    "id": 3037566030,
+    "node_id": "PRRC_kwDOPKOvgc61DZRO",
+    "diff_hunk": "@@ -0,0 +1,4 @@\n+#!/bin/bash\n+sed -i '/import { Link } from \"wouter\";/a import { useState } from \"react\";\\nimport { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";' client/src/pages/dashboard.tsx\n+\n+sed -i '/<Link href=\"\\/spark\">/i \\            <Dialog>\\n              <DialogTrigger asChild>\\n                <Button variant=\"outline\" className=\"gap-2\">\\n                  <Bot className=\"h-4 w-4\" />\\n                  Sign In\\n                </Button>\\n              </DialogTrigger>\\n              <DialogContent className=\"sm:max-w-md\">\\n                <DialogHeader>\\n                  <DialogTitle>Connect your account</DialogTitle>\\n                  <DialogDescription>\\n                    Sign in with your preferred platform to access Stix Magic.\\n                  </DialogDescription>\\n                </DialogHeader>\\n                <div className=\"flex flex-col gap-4 py-4\">\\n                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\\n                    Sign in with Zoom\\n                  </Button>\\n                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\\n                    <Bot className=\"h-4 w-4\" />\\n                    Sign in with Telegram\\n                  </Button>\\n                </div>\\n              </DialogContent>\\n            </Dialog>' client/src/pages/dashboard.tsx",
+    "path": "patch_auth_ui.sh",
+    "commit_id": "027ad27c1f16b45c6d194f6c5a782f6f6fd4d4b9",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🟠 Major_\n\n**Remove this patch script - commit source changes directly.**\n\nUsing `sed` to patch TSX source files is fragile and error-prone:\n\n1. **Multiple matches**: Line 4's pattern `<Link href=\"/spark\">` appears multiple times in `dashboard.tsx` (lines 44, 94, 140), causing the Dialog block to be injected three times.\n2. **Formatting sensitivity**: Any whitespace or formatting change in the target file will break the patches.\n3. **No validation**: No checks for success/failure or idempotency.\n4. **Unused import**: The script injects `useState` which is never used.\n\nThe resulting changes are already present in `dashboard.tsx`. Delete this script and commit the source file changes directly.\n\n\n<details>\n<summary>🗑️ Proposed fix</summary>\n\nDelete this file entirely. The source changes should be committed directly to `client/src/pages/dashboard.tsx` rather than applied via runtime patching.\n\nIf build-time patching is truly needed, consider using a proper AST-based transformation tool like `jscodeshift` or `ts-morph`.\n</details>\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@patch_auth_ui.sh` around lines 1 - 4, Delete the fragile runtime patch script\npatch_auth_ui.sh and instead commit the intended changes directly into\nclient/src/pages/dashboard.tsx (remove the sed-based injection that targets\n'<Link href=\"/spark\">' and the unused import 'useState'), ensuring the Dialog\nblock is added once in the TSX source and the file is formatted; if any\nautomated patching is required in future, replace this script with an AST-aware\ntransformer (e.g., jscodeshift/ts-morph) and add checks for idempotency and\nsuccess.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:medusa:ocelot:a6343b70-a891-4595-9dae-f88074f717d6 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commits f1cf563 to 027ad27",
+    "created_at": "2026-04-06T00:45:44Z",
+    "updated_at": "2026-04-06T15:17:40Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566030",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566030"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566030"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566030/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 1,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 4,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 4,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566033",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566033,
+    "node_id": "PRRC_kwDOPKOvgc61DZRR",
+    "diff_hunk": "@@ -1,4 +1,6 @@\n import { Link } from \"wouter\";\n+import { useState } from \"react\";\n+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\n import { Button } from \"@/components/ui/button\";",
+    "path": "client/src/pages/dashboard.tsx",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "This file imports `@/components/ui/dialog`, but there is no `dialog` module under `client/src/components/ui/` in the repo, so the build will fail. Either add the missing dialog component (e.g., `client/src/components/ui/dialog.tsx`) or update the import to the correct existing module.",
+    "created_at": "2026-04-06T00:45:44Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566033",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566033"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566033"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566033/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": 1,
+    "original_start_line": 1,
+    "start_side": "RIGHT",
+    "line": 4,
+    "original_line": 4,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 4,
+    "position": 4,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566038",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566038,
+    "node_id": "PRRC_kwDOPKOvgc61DZRW",
+    "diff_hunk": "@@ -14,6 +16,31 @@ export default function Dashboard() {\n             <span className=\"text-xl font-bold\">Nebulosa</span>\n           </div>\n           <nav className=\"flex items-center gap-4\">\n+            <Dialog>\n+              <DialogTrigger asChild>\n+                <Button variant=\"outline\" className=\"gap-2\">\n+                  <Bot className=\"h-4 w-4\" />\n+                  Sign In\n+                </Button>\n+              </DialogTrigger>\n+              <DialogContent className=\"sm:max-w-md\">\n+                <DialogHeader>\n+                  <DialogTitle>Connect your account</DialogTitle>\n+                  <DialogDescription>\n+                    Sign in with your preferred platform to access Stix Magic.\n+                  </DialogDescription>\n+                </DialogHeader>\n+                <div className=\"flex flex-col gap-4 py-4\">\n+                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\n+                    Sign in with Zoom\n+                  </Button>\n+                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\n+                    <Bot className=\"h-4 w-4\" />",
+    "path": "client/src/pages/dashboard.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "The UI redirects to `/api/auth/zoom` and `/api/auth/telegram`, but the backend does not define these routes (no `/api/auth/*` handlers found). Update these URLs to the actual auth initiation endpoints, or implement matching server routes so the buttons don’t 404 in production.",
+    "created_at": "2026-04-06T00:45:44Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566038",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566038"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566038"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566038/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 33,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 38,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 30,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566044",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566044,
+    "node_id": "PRRC_kwDOPKOvgc61DZRc",
+    "diff_hunk": "@@ -39,6 +66,31 @@ export default function Dashboard() {\n           Telegram community — all from one place.\n         </p>\n         <div className=\"flex items-center justify-center gap-4\">\n+            <Dialog>\n+              <DialogTrigger asChild>\n+                <Button variant=\"outline\" className=\"gap-2\">\n+                  <Bot className=\"h-4 w-4\" />\n+                  Sign In\n+                </Button>\n+              </DialogTrigger>\n+              <DialogContent className=\"sm:max-w-md\">\n+                <DialogHeader>\n+                  <DialogTitle>Connect your account</DialogTitle>\n+                  <DialogDescription>\n+                    Sign in with your preferred platform to access Stix Magic.\n+                  </DialogDescription>\n+                </DialogHeader>\n+                <div className=\"flex flex-col gap-4 py-4\">\n+                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\n+                    Sign in with Zoom\n+                  </Button>\n+                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\n+                    <Bot className=\"h-4 w-4\" />\n+                    Sign in with Telegram\n+                  </Button>",
+    "path": "client/src/pages/dashboard.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "Same as above: `/api/auth/zoom` and `/api/auth/telegram` are not implemented on the backend. This dialog’s buttons will lead to 404s unless the routes are added or the URLs are corrected.\n```suggestion\n                    Authentication providers are not available yet. Please check back once sign-in has been configured.\n                  </DialogDescription>\n                </DialogHeader>\n                <div className=\"flex flex-col gap-4 py-4\">\n                  <Button className=\"w-full gap-2\" size=\"lg\" disabled>\n                    Sign in with Zoom\n                  </Button>\n                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" disabled>\n                    <Bot className=\"h-4 w-4\" />\n                    Sign in with Telegram\n                  </Button>\n                  <p className=\"text-sm text-muted-foreground text-center\">\n                    Sign-in buttons are disabled until valid authentication routes are available.\n                  </p>\n```",
+    "created_at": "2026-04-06T00:45:44Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566044",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566044"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566044"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566044/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 80,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 90,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 64,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566050",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566050,
+    "node_id": "PRRC_kwDOPKOvgc61DZRi",
+    "diff_hunk": "@@ -60,6 +112,31 @@ export default function Dashboard() {\n             </CardDescription>\n           </CardHeader>\n           <CardContent>\n+            <Dialog>\n+              <DialogTrigger asChild>\n+                <Button variant=\"outline\" className=\"gap-2\">\n+                  <Bot className=\"h-4 w-4\" />\n+                  Sign In\n+                </Button>\n+              </DialogTrigger>\n+              <DialogContent className=\"sm:max-w-md\">\n+                <DialogHeader>\n+                  <DialogTitle>Connect your account</DialogTitle>\n+                  <DialogDescription>\n+                    Sign in with your preferred platform to access Stix Magic.\n+                  </DialogDescription>\n+                </DialogHeader>\n+                <div className=\"flex flex-col gap-4 py-4\">\n+                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\n+                    Sign in with Zoom\n+                  </Button>\n+                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\n+                    <Bot className=\"h-4 w-4\" />\n+                    Sign in with Telegram\n+                  </Button>",
+    "path": "client/src/pages/dashboard.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "Same as above: `/api/auth/zoom` and `/api/auth/telegram` are not implemented on the backend. This dialog’s buttons will lead to 404s unless the routes are added or the URLs are corrected.\n```suggestion\n                  <Button className=\"w-full gap-2\" size=\"lg\" disabled>\n                    Sign in with Zoom\n                  </Button>\n                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" disabled>\n                    <Bot className=\"h-4 w-4\" />\n                    Sign in with Telegram\n                  </Button>\n                  <p className=\"text-sm text-muted-foreground text-center\">\n                    Zoom and Telegram sign-in are not available yet.\n                  </p>\n```",
+    "created_at": "2026-04-06T00:45:44Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566050",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566050"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566050"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566050/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 130,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 136,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 96,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566057",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566057,
+    "node_id": "PRRC_kwDOPKOvgc61DZRp",
+    "diff_hunk": "@@ -39,6 +66,31 @@ export default function Dashboard() {\n           Telegram community — all from one place.\n         </p>\n         <div className=\"flex items-center justify-center gap-4\">\n+            <Dialog>\n+              <DialogTrigger asChild>\n+                <Button variant=\"outline\" className=\"gap-2\">\n+                  <Bot className=\"h-4 w-4\" />\n+                  Sign In\n+                </Button>\n+              </DialogTrigger>",
+    "path": "client/src/pages/dashboard.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "The Sign In dialog markup is duplicated multiple times in this file (header, hero, and card). Consider extracting it into a reusable component to avoid copy/paste drift (e.g., fixing copy/URLs in one place but missing others).",
+    "created_at": "2026-04-06T00:45:45Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566057",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566057"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566057"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566057/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 69,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 75,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 49,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566066",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566066,
+    "node_id": "PRRC_kwDOPKOvgc61DZRy",
+    "diff_hunk": "@@ -1,4 +1,10 @@\n import { Sparkles } from \"lucide-react\";\n+import { Bot, LogIn } from \"lucide-react\";\n+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\n+import { Button } from \"@/components/ui/button\";\n+import { Bot, LogIn } from \"lucide-react\";\n+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\n+import { Button } from \"@/components/ui/button\";",
+    "path": "client/src/components/AppShell.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "There are duplicate import statements for `Bot`, `LogIn`, `Dialog*`, and `Button` (the same imports appear twice). This will cause TypeScript errors (duplicate identifiers) and should be deduplicated (combine into a single import per module).\n```suggestion\n\n```",
+    "created_at": "2026-04-06T00:45:45Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566066",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566066"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566066"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566066/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 5,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 7,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 7,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566067",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566067,
+    "node_id": "PRRC_kwDOPKOvgc61DZRz",
+    "diff_hunk": "@@ -1,4 +1,10 @@\n import { Sparkles } from \"lucide-react\";\n+import { Bot, LogIn } from \"lucide-react\";\n+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\n+import { Button } from \"@/components/ui/button\";",
+    "path": "client/src/components/AppShell.tsx",
+    "commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "`@/components/ui/dialog` is imported here, but there is no dialog module under `client/src/components/ui/` in the repo, so this file won’t compile. Add the missing dialog component or correct the import path to an existing implementation.",
+    "created_at": "2026-04-06T00:45:45Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566067",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566067"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566067"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566067/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 1,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 4,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 4,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566069",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566069,
+    "node_id": "PRRC_kwDOPKOvgc61DZR1",
+    "diff_hunk": "@@ -76,8 +82,35 @@ export default function AppShell() {\n             ))}\n           </nav>\n \n+          <div className=\"ml-auto mr-4\">\n+            <Dialog>\n+              <DialogTrigger asChild>\n+                <Button variant=\"ghost\" size=\"sm\" className=\"gap-2\">\n+                  <LogIn className=\"h-4 w-4\" />\n+                  Sign In\n+                </Button>\n+              </DialogTrigger>\n+              <DialogContent className=\"sm:max-w-md\">\n+                <DialogHeader>\n+                  <DialogTitle>Connect your account</DialogTitle>\n+                  <DialogDescription>\n+                    Sign in with your preferred platform to access Stix Magic.\n+                  </DialogDescription>\n+                </DialogHeader>\n+                <div className=\"flex flex-col gap-4 py-4\">\n+                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\n+                    Sign in with Zoom\n+                  </Button>\n+                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>",
+    "path": "client/src/components/AppShell.tsx",
+    "commit_id": "027ad27c1f16b45c6d194f6c5a782f6f6fd4d4b9",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "These buttons redirect to `/api/auth/zoom` and `/api/auth/telegram`, but the backend does not define `/api/auth/*` routes (only callback handlers like `/zoom/callback` were found). Update the URLs to the real auth initiation endpoints or add server routes to match.\n```suggestion\n                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/zoom\"}>\n                    Sign in with Zoom\n                  </Button>\n                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/telegram\"}>\n```",
+    "created_at": "2026-04-06T00:45:45Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566069",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566069"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566069"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566069/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 101,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 104,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 34,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566074",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566074,
+    "node_id": "PRRC_kwDOPKOvgc61DZR6",
+    "diff_hunk": "@@ -0,0 +1,4 @@\n+#!/bin/bash\n+sed -i '/import { Link } from \"wouter\";/a import { useState } from \"react\";\\nimport { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";' client/src/pages/dashboard.tsx\n+\n+sed -i '/<Link href=\"\\/spark\">/i \\            <Dialog>\\n              <DialogTrigger asChild>\\n                <Button variant=\"outline\" className=\"gap-2\">\\n                  <Bot className=\"h-4 w-4\" />\\n                  Sign In\\n                </Button>\\n              </DialogTrigger>\\n              <DialogContent className=\"sm:max-w-md\">\\n                <DialogHeader>\\n                  <DialogTitle>Connect your account</DialogTitle>\\n                  <DialogDescription>\\n                    Sign in with your preferred platform to access Stix Magic.\\n                  </DialogDescription>\\n                </DialogHeader>\\n                <div className=\"flex flex-col gap-4 py-4\">\\n                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\\n                    Sign in with Zoom\\n                  </Button>\\n                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\\n                    <Bot className=\"h-4 w-4\" />\\n                    Sign in with Telegram\\n                  </Button>\\n                </div>\\n              </DialogContent>\\n            </Dialog>' client/src/pages/dashboard.tsx",
+    "path": "patch_auth_ui.sh",
+    "commit_id": "027ad27c1f16b45c6d194f6c5a782f6f6fd4d4b9",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "This script appears to be a one-off patch helper (uses `sed -i` to mutate tracked source files) and is not referenced anywhere in the repo. Consider removing it from version control and applying changes directly in the TypeScript/React sources to keep the repo reproducible and platform-independent.\n```suggestion\n\necho \"patch_auth_ui.sh no longer modifies tracked source files.\" >&2\necho \"Apply the authentication UI changes directly in client/src/pages/dashboard.tsx and commit the resulting TypeScript/React source.\" >&2\nexit 1\n```",
+    "created_at": "2026-04-06T00:45:45Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566074",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566074"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566074"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566074/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 2,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 4,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 4,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566081",
+    "pull_request_review_id": 4060005505,
+    "id": 3037566081,
+    "node_id": "PRRC_kwDOPKOvgc61DZSB",
+    "diff_hunk": "@@ -0,0 +1,6 @@\n+#!/bin/bash\n+sed -i '/import { Sparkles } from \"lucide-react\";/a import { Bot, LogIn } from \"lucide-react\";\\nimport { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from \"@/components/ui/dialog\";\\nimport { Button } from \"@/components/ui/button\";' client/src/components/AppShell.tsx\n+\n+sed -i '/{\\/\\* Aura indicator \\*\\/}/i \\          <div className=\"ml-auto mr-4\">\\n            <Dialog>\\n              <DialogTrigger asChild>\\n                <Button variant=\"ghost\" size=\"sm\" className=\"gap-2\">\\n                  <LogIn className=\"h-4 w-4\" />\\n                  Sign In\\n                </Button>\\n              </DialogTrigger>\\n              <DialogContent className=\"sm:max-w-md\">\\n                <DialogHeader>\\n                  <DialogTitle>Connect your account</DialogTitle>\\n                  <DialogDescription>\\n                    Sign in with your preferred platform to access Stix Magic.\\n                  </DialogDescription>\\n                </DialogHeader>\\n                <div className=\"flex flex-col gap-4 py-4\">\\n                  <Button className=\"w-full gap-2\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/zoom\"}>\\n                    Sign in with Zoom\\n                  </Button>\\n                  <Button className=\"w-full gap-2\" variant=\"outline\" size=\"lg\" onClick={() => window.location.href = \"/api/auth/telegram\"}>\\n                    <Bot className=\"h-4 w-4\" />\\n                    Sign in with Telegram\\n                  </Button>\\n                </div>\\n              </DialogContent>\\n            </Dialog>\\n          </div>' client/src/components/AppShell.tsx\n+\n+sed -i 's/<div className=\"ml-auto\">/<div className=\"\">/' client/src/components/AppShell.tsx",
+    "path": "patch_auth_appshell.sh",
+    "commit_id": "027ad27c1f16b45c6d194f6c5a782f6f6fd4d4b9",
+    "original_commit_id": "5afe6609b05249f52d30d5de21c6f2aa0fb07ad9",
+    "user": {
+      "login": "Copilot",
+      "id": 175728472,
+      "node_id": "BOT_kgDOCnlnWA",
+      "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Copilot",
+      "html_url": "https://github.com/apps/copilot-pull-request-reviewer",
+      "followers_url": "https://api.github.com/users/Copilot/followers",
+      "following_url": "https://api.github.com/users/Copilot/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Copilot/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Copilot/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Copilot/subscriptions",
+      "organizations_url": "https://api.github.com/users/Copilot/orgs",
+      "repos_url": "https://api.github.com/users/Copilot/repos",
+      "events_url": "https://api.github.com/users/Copilot/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Copilot/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "This script appears to be an unreferenced patch helper that modifies tracked files via `sed -i` and is not used by build/dev workflows. Consider removing it from the repo (or wiring it into a documented process) to avoid confusion and non-portable behavior.\n```suggestion\n\necho \"patch_auth_appshell.sh has been retired.\"\necho \"This helper previously modified tracked files in-place with sed -i.\"\necho \"Apply AppShell changes directly in client/src/components/AppShell.tsx and commit them normally.\"\nexit 1\n```",
+    "created_at": "2026-04-06T00:45:46Z",
+    "updated_at": "2026-04-06T00:45:46Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566081",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566081"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037566081"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037566081/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 2,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 6,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 6,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571621",
+    "pull_request_review_id": 4060010751,
+    "id": 3037571621,
+    "node_id": "PRRC_kwDOPKOvgc61Daol",
+    "diff_hunk": "@@ -0,0 +1,99 @@\n+# STIX MΛGIC Unified System Architecture & Setup Guide\n+\n+This document outlines how the Telegram bot, the React web dashboards (Nebulosa Control Center, Spark), and the external integrations (Zoom) form a single, unified platform, and what you need to run it in production.\n+\n+## 1. Unified System Overview\n+\n+The STIX MΛGIC system is composed of several moving parts that communicate seamlessly:\n+\n+### A. The Telegram Bot (The User Entrypoint)",
+    "path": "SYSTEM_ARCHITECTURE_AND_SETUP.md",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "df576ebecc691b66a6c1019d87f8c830e6145c56",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_🧹 Nitpick_ | _🔵 Trivial_\n\n**Add blank lines around subsection headings for consistent formatting.**\n\nThe markdown linter flags these headings as missing surrounding blank lines. Add a blank line before each subsection heading (### A, ### B, ### C, ### D) to comply with MD022 formatting rules.\n\n\n\n<details>\n<summary>📝 Proposed formatting fixes</summary>\n\n```diff\n The STIX MΛGIC system is composed of several moving parts that communicate seamlessly:\n+\n ### A. The Telegram Bot (The User Entrypoint)\n```\n\n```diff\n - **Integration:** When users pay for a plan or request processing, the bot communicates with the internal Express API (`/api/subscription`, `/api/users`) to persist states in the database.\n+\n ### B. The React Web Application (The Interface)\n```\n\n```diff\n - **Integration:** The UI consumes the Express backend API using standard REST calls. It allows operators to trigger backend logic that controls meetings or bots.\n+\n ### C. The Node.js / Express Backend (The Brain)\n```\n\n```diff\n - **Integration:** The server coordinates between the frontend UI and the Telegram bot. For instance, when the Web UI triggers a Zoom command or a Telegram OAuth login, this backend processes the secure tokens and updates the user's database record.\n+\n ### D. The Zoom Integration (The Extension)\n```\n\n</details>\n\n\nAlso applies to: 14-14, 21-21, 25-25\n\n<details>\n<summary>🧰 Tools</summary>\n\n<details>\n<summary>🪛 markdownlint-cli2 (0.22.0)</summary>\n\n[warning] 9-9: Headings should be surrounded by blank lines\nExpected: 1; Actual: 0; Below\n\n(MD022, blanks-around-headings)\n\n</details>\n\n</details>\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@SYSTEM_ARCHITECTURE_AND_SETUP.md` at line 9, The subsection headings (for\nexample \"### A. The Telegram Bot (The User Entrypoint)\" and the corresponding\n\"### B\", \"### C\", \"### D\" subsection headings) are missing surrounding blank\nlines and trigger MD022; edit SYSTEM_ARCHITECTURE_AND_SETUP.md to ensure there\nis one blank line before and one blank line after each \"###\" subsection heading\nso each heading is separated from adjacent text and other headings, preserving\nexisting content and spacing elsewhere.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:triton:puma:1b2c24ba-a1d5-4f3d-8c1f-b57a8a401a1d -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:50:42Z",
+    "updated_at": "2026-04-06T00:50:43Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571621",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571621"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571621"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571621/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": 9,
+    "original_line": 9,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 9,
+    "position": 9,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571624",
+    "pull_request_review_id": 4060010751,
+    "id": 3037571624,
+    "node_id": "PRRC_kwDOPKOvgc61Daoo",
+    "diff_hunk": "@@ -0,0 +1,99 @@\n+# STIX MΛGIC Unified System Architecture & Setup Guide\n+\n+This document outlines how the Telegram bot, the React web dashboards (Nebulosa Control Center, Spark), and the external integrations (Zoom) form a single, unified platform, and what you need to run it in production.\n+\n+## 1. Unified System Overview\n+\n+The STIX MΛGIC system is composed of several moving parts that communicate seamlessly:\n+\n+### A. The Telegram Bot (The User Entrypoint)\n+- **Role:** Handles core user interactions such as account creation, plan upgrades via Telegram Stars or Stripe, and initiating sticker creation logic.\n+- **Tech:** Built using `grammy` and `node-telegram-bot-api`. It listens for commands like `/start` or `/plans`.\n+- **Integration:** When users pay for a plan or request processing, the bot communicates with the internal Express API (`/api/subscription`, `/api/users`) to persist states in the database.\n+\n+### B. The React Web Application (The Interface)\n+- **Role:** Provides the visual tools for users and operators.\n+  - **Magic UI & Spark (`/magic`, `/spark`):** Where users can upload images, transform them, and manage their sticker projects.\n+  - **Nebulosa Control Center (`/nebulosa`):** The operator dashboard used for monitoring live sessions, executors, sending alerts, and queueing actions (e.g., Zoom participant management).\n+- **Tech:** React + Vite, styled with Tailwind CSS & Shadcn UI.\n+- **Integration:** The UI consumes the Express backend API using standard REST calls. It allows operators to trigger backend logic that controls meetings or bots.\n+\n+### C. The Node.js / Express Backend (The Brain)\n+- **Role:** Serves as the central API gateway. It handles Telegram webhooks/polling, serves the REST API for the React frontend, processes OAuth callbacks (Zoom, Telegram), and connects to the database.\n+- **Integration:** The server coordinates between the frontend UI and the Telegram bot. For instance, when the Web UI triggers a Zoom command or a Telegram OAuth login, this backend processes the secure tokens and updates the user's database record.\n+\n+### D. The Zoom Integration (The Extension)\n+- **Role:** Enables real-time management of Zoom meetings (e.g., auto-pinning users, monitoring cameras) directly linked to Nebulosa commands.\n+\n+---\n+\n+## 2. What You Need to Have (Prerequisites)\n+\n+To launch this unified system, you need accounts and tokens from the following services:\n+\n+### 1. Telegram Platform",
+    "path": "SYSTEM_ARCHITECTURE_AND_SETUP.md",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "df576ebecc691b66a6c1019d87f8c830e6145c56",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_🧹 Nitpick_ | _🔵 Trivial_\n\n**Add blank lines around subsection headings.**\n\nThese numbered subsection headings are missing surrounding blank lines per MD022 formatting rules.\n\n\n\n<details>\n<summary>📝 Proposed formatting fixes</summary>\n\n```diff\n To launch this unified system, you need accounts and tokens from the following services:\n+\n ### 1. Telegram Platform\n```\n\n```diff\n - **Telegram Stars / Stripe Integration:** In BotFather, configure payments for your bot if you plan to accept real money or Telegram Stars.\n+\n ### 2. Zoom App Marketplace (If using Zoom features)\n```\n\n```diff\n - **Token Required:** `DATABASE_URL`.\n+\n ### 4. Hosting / Infrastructure\n```\n\n</details>\n\n\nAlso applies to: 38-38, 43-43, 47-47\n\n<details>\n<summary>🧰 Tools</summary>\n\n<details>\n<summary>🪛 markdownlint-cli2 (0.22.0)</summary>\n\n[warning] 34-34: Headings should be surrounded by blank lines\nExpected: 1; Actual: 0; Below\n\n(MD022, blanks-around-headings)\n\n</details>\n\n</details>\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@SYSTEM_ARCHITECTURE_AND_SETUP.md` at line 34, The subsection heading \"### 1.\nTelegram Platform\" (and the other numbered headings like the ones at the same\npattern mentioned) lacks surrounding blank lines; update the markdown so each\nsubsection heading has a blank line immediately before and after it (i.e.,\nensure a blank line above \"### 1. Telegram Platform\" and a blank line after its\ntitle/heading line) to satisfy MD022 formatting rules, and apply the same fix to\nthe other similar headings referenced.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:triton:puma:1b2c24ba-a1d5-4f3d-8c1f-b57a8a401a1d -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:50:42Z",
+    "updated_at": "2026-04-06T00:50:43Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571624",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571624"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571624"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571624/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": 40,
+    "original_line": 34,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 34,
+    "position": 40,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571629",
+    "pull_request_review_id": 4060010751,
+    "id": 3037571629,
+    "node_id": "PRRC_kwDOPKOvgc61Daot",
+    "diff_hunk": "@@ -0,0 +1,99 @@\n+# STIX MΛGIC Unified System Architecture & Setup Guide\n+\n+This document outlines how the Telegram bot, the React web dashboards (Nebulosa Control Center, Spark), and the external integrations (Zoom) form a single, unified platform, and what you need to run it in production.\n+\n+## 1. Unified System Overview\n+\n+The STIX MΛGIC system is composed of several moving parts that communicate seamlessly:\n+\n+### A. The Telegram Bot (The User Entrypoint)\n+- **Role:** Handles core user interactions such as account creation, plan upgrades via Telegram Stars or Stripe, and initiating sticker creation logic.\n+- **Tech:** Built using `grammy` and `node-telegram-bot-api`. It listens for commands like `/start` or `/plans`.\n+- **Integration:** When users pay for a plan or request processing, the bot communicates with the internal Express API (`/api/subscription`, `/api/users`) to persist states in the database.\n+\n+### B. The React Web Application (The Interface)\n+- **Role:** Provides the visual tools for users and operators.\n+  - **Magic UI & Spark (`/magic`, `/spark`):** Where users can upload images, transform them, and manage their sticker projects.\n+  - **Nebulosa Control Center (`/nebulosa`):** The operator dashboard used for monitoring live sessions, executors, sending alerts, and queueing actions (e.g., Zoom participant management).\n+- **Tech:** React + Vite, styled with Tailwind CSS & Shadcn UI.\n+- **Integration:** The UI consumes the Express backend API using standard REST calls. It allows operators to trigger backend logic that controls meetings or bots.\n+\n+### C. The Node.js / Express Backend (The Brain)\n+- **Role:** Serves as the central API gateway. It handles Telegram webhooks/polling, serves the REST API for the React frontend, processes OAuth callbacks (Zoom, Telegram), and connects to the database.\n+- **Integration:** The server coordinates between the frontend UI and the Telegram bot. For instance, when the Web UI triggers a Zoom command or a Telegram OAuth login, this backend processes the secure tokens and updates the user's database record.\n+\n+### D. The Zoom Integration (The Extension)\n+- **Role:** Enables real-time management of Zoom meetings (e.g., auto-pinning users, monitoring cameras) directly linked to Nebulosa commands.\n+\n+---\n+\n+## 2. What You Need to Have (Prerequisites)\n+\n+To launch this unified system, you need accounts and tokens from the following services:\n+\n+### 1. Telegram Platform\n+- **Bot Token:** Talk to [@BotFather](https://t.me/botfather) on Telegram to create a new bot and obtain your `TELEGRAM_BOT_TOKEN`.\n+- **Telegram Stars / Stripe Integration:** In BotFather, configure payments for your bot if you plan to accept real money or Telegram Stars.\n+\n+### 2. Zoom App Marketplace (If using Zoom features)\n+- **App Credentials:** Create an OAuth app in the Zoom App Marketplace.\n+- **Tokens Required:** `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`.\n+- **Redirect URI:** Configure the Zoom OAuth redirect URI to point to your domain's callback path (e.g., `https://yourdomain.com/api/auth/zoom/callback`).\n+\n+### 3. Database\n+- **PostgreSQL Database:** A running instance of PostgreSQL (e.g., Neon, Supabase, or AWS RDS).\n+- **Token Required:** `DATABASE_URL`.\n+\n+### 4. Hosting / Infrastructure\n+- **Server:** A Node.js environment (e.g., Render, Railway, DigitalOcean) to run the Express backend and the Telegram bot process.\n+- **Domain:** A public HTTPS domain required for Telegram Webhooks and OAuth callbacks.\n+\n+---\n+\n+## 3. Environment Variable Checklist\n+\n+Configure the following variables in your `.env` file or hosting provider's secret manager:\n+\n+```env\n+# Server & Environment\n+PORT=3000\n+APP_BASE_URL=https://your-production-domain.com\n+\n+# Telegram Bot\n+TELEGRAM_BOT_TOKEN=your-bot-token-from-botfather\n+BOT_TOKEN=your-bot-token-from-botfather\n+\n+# Database\n+DATABASE_URL=postgresql://user:password@host:port/db_name\n+\n+# Nebulosa Control Center (Operator Auth)\n+NEBULOSA_ENV=prod\n+NEBULOSA_SESSION_SECRET=super-secure-random-string\n+NEBULOSA_EXECUTOR_SECRET=another-secure-random-string\n+NEBULOSA_OPERATOR_ALLOWLIST=admin,operator\n+\n+# Zoom OAuth\n+ZOOM_CLIENT_ID=your-zoom-client-id\n+ZOOM_CLIENT_SECRET=your-zoom-client-secret\n+ZOOM_REDIRECT_URI=https://your-production-domain.com/api/auth/zoom/callback",
+    "path": "SYSTEM_ARCHITECTURE_AND_SETUP.md",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "df576ebecc691b66a6c1019d87f8c830e6145c56",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🔴 Critical_\n\n**Critical: ZOOM_REDIRECT_URI example is incorrect.**\n\nThe example redirect URI uses `/api/auth/zoom/callback`, but this does not match the actual route implementation at `/zoom/callback`. This will cause OAuth configuration failures.\n\nUpdate the example to:\n```\nZOOM_REDIRECT_URI=https://your-production-domain.com/zoom/callback\n```\n\n\n\nAs per relevant code snippet from server/routes.ts:93-150, the callback route is at `/zoom/callback`.\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@SYSTEM_ARCHITECTURE_AND_SETUP.md` at line 78, The ZOOM_REDIRECT_URI example\nis using the wrong path; update the environment example value for\nZOOM_REDIRECT_URI to match the actual callback route used by the app (the\n/zoom/callback route referenced in server routing, e.g. change the example value\nto use https://your-production-domain.com/zoom/callback) so OAuth redirects\nalign with the implemented handler for the Zoom callback.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:triton:puma:1b2c24ba-a1d5-4f3d-8c1f-b57a8a401a1d -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:50:42Z",
+    "updated_at": "2026-04-06T00:50:43Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571629",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571629"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571629"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571629/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": 84,
+    "original_line": 78,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 78,
+    "position": 84,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571630",
+    "pull_request_review_id": 4060010751,
+    "id": 3037571630,
+    "node_id": "PRRC_kwDOPKOvgc61Daou",
+    "diff_hunk": "@@ -0,0 +1,99 @@\n+# STIX MΛGIC Unified System Architecture & Setup Guide\n+\n+This document outlines how the Telegram bot, the React web dashboards (Nebulosa Control Center, Spark), and the external integrations (Zoom) form a single, unified platform, and what you need to run it in production.\n+\n+## 1. Unified System Overview\n+\n+The STIX MΛGIC system is composed of several moving parts that communicate seamlessly:\n+\n+### A. The Telegram Bot (The User Entrypoint)\n+- **Role:** Handles core user interactions such as account creation, plan upgrades via Telegram Stars or Stripe, and initiating sticker creation logic.\n+- **Tech:** Built using `grammy` and `node-telegram-bot-api`. It listens for commands like `/start` or `/plans`.\n+- **Integration:** When users pay for a plan or request processing, the bot communicates with the internal Express API (`/api/subscription`, `/api/users`) to persist states in the database.\n+\n+### B. The React Web Application (The Interface)\n+- **Role:** Provides the visual tools for users and operators.\n+  - **Magic UI & Spark (`/magic`, `/spark`):** Where users can upload images, transform them, and manage their sticker projects.\n+  - **Nebulosa Control Center (`/nebulosa`):** The operator dashboard used for monitoring live sessions, executors, sending alerts, and queueing actions (e.g., Zoom participant management).\n+- **Tech:** React + Vite, styled with Tailwind CSS & Shadcn UI.\n+- **Integration:** The UI consumes the Express backend API using standard REST calls. It allows operators to trigger backend logic that controls meetings or bots.\n+\n+### C. The Node.js / Express Backend (The Brain)\n+- **Role:** Serves as the central API gateway. It handles Telegram webhooks/polling, serves the REST API for the React frontend, processes OAuth callbacks (Zoom, Telegram), and connects to the database.\n+- **Integration:** The server coordinates between the frontend UI and the Telegram bot. For instance, when the Web UI triggers a Zoom command or a Telegram OAuth login, this backend processes the secure tokens and updates the user's database record.\n+\n+### D. The Zoom Integration (The Extension)\n+- **Role:** Enables real-time management of Zoom meetings (e.g., auto-pinning users, monitoring cameras) directly linked to Nebulosa commands.\n+\n+---\n+\n+## 2. What You Need to Have (Prerequisites)\n+\n+To launch this unified system, you need accounts and tokens from the following services:\n+\n+### 1. Telegram Platform\n+- **Bot Token:** Talk to [@BotFather](https://t.me/botfather) on Telegram to create a new bot and obtain your `TELEGRAM_BOT_TOKEN`.\n+- **Telegram Stars / Stripe Integration:** In BotFather, configure payments for your bot if you plan to accept real money or Telegram Stars.\n+\n+### 2. Zoom App Marketplace (If using Zoom features)\n+- **App Credentials:** Create an OAuth app in the Zoom App Marketplace.\n+- **Tokens Required:** `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`.\n+- **Redirect URI:** Configure the Zoom OAuth redirect URI to point to your domain's callback path (e.g., `https://yourdomain.com/api/auth/zoom/callback`).\n+\n+### 3. Database\n+- **PostgreSQL Database:** A running instance of PostgreSQL (e.g., Neon, Supabase, or AWS RDS).\n+- **Token Required:** `DATABASE_URL`.\n+\n+### 4. Hosting / Infrastructure\n+- **Server:** A Node.js environment (e.g., Render, Railway, DigitalOcean) to run the Express backend and the Telegram bot process.\n+- **Domain:** A public HTTPS domain required for Telegram Webhooks and OAuth callbacks.\n+\n+---\n+\n+## 3. Environment Variable Checklist\n+\n+Configure the following variables in your `.env` file or hosting provider's secret manager:\n+\n+```env\n+# Server & Environment\n+PORT=3000\n+APP_BASE_URL=https://your-production-domain.com\n+\n+# Telegram Bot\n+TELEGRAM_BOT_TOKEN=your-bot-token-from-botfather\n+BOT_TOKEN=your-bot-token-from-botfather\n+\n+# Database\n+DATABASE_URL=postgresql://user:password@host:port/db_name\n+\n+# Nebulosa Control Center (Operator Auth)\n+NEBULOSA_ENV=prod\n+NEBULOSA_SESSION_SECRET=super-secure-random-string\n+NEBULOSA_EXECUTOR_SECRET=another-secure-random-string\n+NEBULOSA_OPERATOR_ALLOWLIST=admin,operator\n+\n+# Zoom OAuth\n+ZOOM_CLIENT_ID=your-zoom-client-id\n+ZOOM_CLIENT_SECRET=your-zoom-client-secret\n+ZOOM_REDIRECT_URI=https://your-production-domain.com/api/auth/zoom/callback\n+```\n+\n+---\n+\n+## 4. How the Flow Actually Works in Practice\n+\n+### Scenario: A user signs up and upgrades",
+    "path": "SYSTEM_ARCHITECTURE_AND_SETUP.md",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "df576ebecc691b66a6c1019d87f8c830e6145c56",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_🧹 Nitpick_ | _🔵 Trivial_\n\n**Add blank lines around scenario headings.**\n\nThese scenario headings are missing surrounding blank lines per MD022 formatting rules.\n\n\n\n<details>\n<summary>📝 Proposed formatting fixes</summary>\n\n```diff\n ## 4. How the Flow Actually Works in Practice\n+\n ### Scenario: A user signs up and upgrades\n```\n\n```diff\n 5. In the Web App (`/magic`), the user uploads an image, and the magic flow generates a sticker pack using the unified database record.\n+\n ### Scenario: Operator monitors a Zoom room\n```\n\n</details>\n\n\nAlso applies to: 92-92\n\n<details>\n<summary>🧰 Tools</summary>\n\n<details>\n<summary>🪛 markdownlint-cli2 (0.22.0)</summary>\n\n[warning] 85-85: Headings should be surrounded by blank lines\nExpected: 1; Actual: 0; Below\n\n(MD022, blanks-around-headings)\n\n</details>\n\n</details>\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@SYSTEM_ARCHITECTURE_AND_SETUP.md` at line 85, The markdown heading \"###\nScenario: A user signs up and upgrades\" (and the other scenario heading\nreferenced) currently lacks blank lines before and after it; update\nSYSTEM_ARCHITECTURE_AND_SETUP.md by inserting a blank line above and below each\n\"### Scenario: ...\" heading so they comply with MD022 rule formatting, ensuring\nconsistent spacing around those headings throughout the file.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:triton:puma:1b2c24ba-a1d5-4f3d-8c1f-b57a8a401a1d -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:50:42Z",
+    "updated_at": "2026-04-06T00:50:43Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571630",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571630"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571630"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571630/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": 91,
+    "original_line": 85,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 85,
+    "position": 91,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571631",
+    "pull_request_review_id": 4060010751,
+    "id": 3037571631,
+    "node_id": "PRRC_kwDOPKOvgc61Daov",
+    "diff_hunk": "@@ -0,0 +1,99 @@\n+# STIX MΛGIC Unified System Architecture & Setup Guide\n+\n+This document outlines how the Telegram bot, the React web dashboards (Nebulosa Control Center, Spark), and the external integrations (Zoom) form a single, unified platform, and what you need to run it in production.\n+\n+## 1. Unified System Overview\n+\n+The STIX MΛGIC system is composed of several moving parts that communicate seamlessly:\n+\n+### A. The Telegram Bot (The User Entrypoint)\n+- **Role:** Handles core user interactions such as account creation, plan upgrades via Telegram Stars or Stripe, and initiating sticker creation logic.\n+- **Tech:** Built using `grammy` and `node-telegram-bot-api`. It listens for commands like `/start` or `/plans`.\n+- **Integration:** When users pay for a plan or request processing, the bot communicates with the internal Express API (`/api/subscription`, `/api/users`) to persist states in the database.\n+\n+### B. The React Web Application (The Interface)\n+- **Role:** Provides the visual tools for users and operators.\n+  - **Magic UI & Spark (`/magic`, `/spark`):** Where users can upload images, transform them, and manage their sticker projects.\n+  - **Nebulosa Control Center (`/nebulosa`):** The operator dashboard used for monitoring live sessions, executors, sending alerts, and queueing actions (e.g., Zoom participant management).\n+- **Tech:** React + Vite, styled with Tailwind CSS & Shadcn UI.\n+- **Integration:** The UI consumes the Express backend API using standard REST calls. It allows operators to trigger backend logic that controls meetings or bots.\n+\n+### C. The Node.js / Express Backend (The Brain)\n+- **Role:** Serves as the central API gateway. It handles Telegram webhooks/polling, serves the REST API for the React frontend, processes OAuth callbacks (Zoom, Telegram), and connects to the database.\n+- **Integration:** The server coordinates between the frontend UI and the Telegram bot. For instance, when the Web UI triggers a Zoom command or a Telegram OAuth login, this backend processes the secure tokens and updates the user's database record.\n+\n+### D. The Zoom Integration (The Extension)\n+- **Role:** Enables real-time management of Zoom meetings (e.g., auto-pinning users, monitoring cameras) directly linked to Nebulosa commands.\n+\n+---\n+\n+## 2. What You Need to Have (Prerequisites)\n+\n+To launch this unified system, you need accounts and tokens from the following services:\n+\n+### 1. Telegram Platform\n+- **Bot Token:** Talk to [@BotFather](https://t.me/botfather) on Telegram to create a new bot and obtain your `TELEGRAM_BOT_TOKEN`.\n+- **Telegram Stars / Stripe Integration:** In BotFather, configure payments for your bot if you plan to accept real money or Telegram Stars.\n+\n+### 2. Zoom App Marketplace (If using Zoom features)\n+- **App Credentials:** Create an OAuth app in the Zoom App Marketplace.\n+- **Tokens Required:** `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`.\n+- **Redirect URI:** Configure the Zoom OAuth redirect URI to point to your domain's callback path (e.g., `https://yourdomain.com/api/auth/zoom/callback`).\n+\n+### 3. Database\n+- **PostgreSQL Database:** A running instance of PostgreSQL (e.g., Neon, Supabase, or AWS RDS).\n+- **Token Required:** `DATABASE_URL`.\n+\n+### 4. Hosting / Infrastructure\n+- **Server:** A Node.js environment (e.g., Render, Railway, DigitalOcean) to run the Express backend and the Telegram bot process.\n+- **Domain:** A public HTTPS domain required for Telegram Webhooks and OAuth callbacks.\n+\n+---\n+\n+## 3. Environment Variable Checklist\n+\n+Configure the following variables in your `.env` file or hosting provider's secret manager:\n+\n+```env\n+# Server & Environment\n+PORT=3000\n+APP_BASE_URL=https://your-production-domain.com\n+\n+# Telegram Bot\n+TELEGRAM_BOT_TOKEN=your-bot-token-from-botfather\n+BOT_TOKEN=your-bot-token-from-botfather\n+\n+# Database\n+DATABASE_URL=postgresql://user:password@host:port/db_name\n+\n+# Nebulosa Control Center (Operator Auth)\n+NEBULOSA_ENV=prod\n+NEBULOSA_SESSION_SECRET=super-secure-random-string\n+NEBULOSA_EXECUTOR_SECRET=another-secure-random-string\n+NEBULOSA_OPERATOR_ALLOWLIST=admin,operator\n+\n+# Zoom OAuth\n+ZOOM_CLIENT_ID=your-zoom-client-id\n+ZOOM_CLIENT_SECRET=your-zoom-client-secret\n+ZOOM_REDIRECT_URI=https://your-production-domain.com/api/auth/zoom/callback\n+```\n+\n+---\n+\n+## 4. How the Flow Actually Works in Practice\n+\n+### Scenario: A user signs up and upgrades\n+1. User finds your bot on Telegram and sends `/start`.\n+2. The **Telegram Bot** catches the message, sends an API request to the **Express Backend** to register the user in the **Database**.\n+3. The bot replies with a welcome message featuring the STIX MΛGIC branding.\n+4. User clicks \"Sign In\" on your **React Web App** (via Telegram OAuth). The **Express Backend** verifies the Telegram hash and logs them into the web dashboard.",
+    "path": "SYSTEM_ARCHITECTURE_AND_SETUP.md",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "df576ebecc691b66a6c1019d87f8c830e6145c56",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🔴 Critical_\n\n<details>\n<summary>🧩 Analysis chain</summary>\n\n🏁 Script executed:\n\n```shell\n#!/bin/bash\n# Description: Find Telegram OAuth/auth routes in the backend\n\nrg -nP --type=ts --type=js -C5 '(app\\.(get|post)\\s*\\(\\s*[\"\\'].*auth.*telegram|router\\.(get|post)\\s*\\(\\s*[\"\\'].*auth.*telegram|\\/api\\/auth\\/telegram)'\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 309\n\n---\n\n🏁 Script executed:\n\n```shell\n#!/bin/bash\n# Search for Telegram OAuth endpoints in the backend\n\n# Search for telegram in route files\necho \"=== Searching for 'telegram' in route/auth files ===\"\nrg -i \"telegram\" --type ts --type js -n | head -30\n\n# Search for auth routes\necho -e \"\\n=== Searching for auth routes ===\"\nrg \"auth\" --type ts --type js -l | grep -i route | head -10\n\n# Search for specific endpoint path\necho -e \"\\n=== Searching for /api/auth pattern ===\"\nrg \"/api/auth\" --type ts --type js -n -C2 | head -40\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 6495\n\n---\n\n🏁 Script executed:\n\n```shell\n#!/bin/bash\n# Check auth route files for telegram implementation\n\necho \"=== Checking src/api/routes/auth.routes.js ===\"\nwc -l src/api/routes/auth.routes.js\necho \"\"\n\necho \"=== Content of auth.routes.js ===\"\ncat -n src/api/routes/auth.routes.js | head -100\n\necho -e \"\\n=== Checking server/routes.ts ===\"\nwc -l server/routes.ts\necho \"\"\n\necho \"=== Checking server/nebulosa/routes.ts for telegram ===\"\nrg -n \"telegram\" server/nebulosa/routes.ts\nrg -n \"/auth\" server/nebulosa/routes.ts | head -20\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 955\n\n---\n\n🏁 Script executed:\n\n```shell\n#!/bin/bash\n# Comprehensive search for telegram auth endpoint\n\necho \"=== Searching entire server directory for telegram auth ===\"\nrg -r \"telegram\" server/ --type ts --type js -n\n\necho -e \"\\n=== Searching for /api/auth/telegram in all TypeScript/JavaScript ===\"\nrg \"/api/auth/telegram\" -n\n\necho -e \"\\n=== Searching for auth handlers in server/routes.ts ===\"\nrg -n \"app\\.(get|post)\" server/routes.ts | grep auth\n\necho -e \"\\n=== Checking server/nebulosa/routes.ts for full auth section ===\"\nsed -n '30,100p' server/nebulosa/routes.ts | cat -n\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 6694\n\n---\n\n\n\n</details>\n\n**Implement the missing Telegram OAuth endpoint in the backend.**\n\nThe React Web App redirects to `/api/auth/telegram` to sign in users via Telegram OAuth (see `client/src/pages/dashboard.tsx` and `client/src/components/AppShell.tsx`), but this endpoint is not implemented in the backend. The auth routes only include register, login, refresh, and me endpoints; there is no Telegram OAuth handler. This will cause runtime errors when users attempt to sign in with Telegram.\n\nImplement the `/api/auth/telegram` endpoint to handle the Telegram OAuth flow, verify the Telegram hash, and log users into the web dashboard.\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@SYSTEM_ARCHITECTURE_AND_SETUP.md` at line 89, Add a new route handler for the\nTelegram OAuth callback at /api/auth/telegram in the auth router (same place\nwhere register/login/refresh/me are defined) that verifies the Telegram auth\nhash, upserts the Telegram user into your user store, and issues the same\nsession/JWT used by existing login flows; specifically, implement a handler\nfunction (e.g., handleTelegramAuth) which: 1) parses Telegram's query/body\npayload, 2) uses the existing hash verification logic (extract or implement\nverifyTelegramHash) to validate the payload, 3) calls your user creation/lookup\nlogic (e.g., createOrGetUserFromTelegram or UserService.findOrCreate) to get a\nUser, and 4) returns the login response by reusing the existing token/session\ncreation method (e.g., createAccessToken/loginResponse generation) so the web\ndashboard receives the same auth tokens/cookies as register/login. Ensure the\nroute is wired into the auth router (e.g., router.post('/telegram',\nhandleTelegramAuth)) and returns appropriate 4xx on verification failure.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:triton:puma:1b2c24ba-a1d5-4f3d-8c1f-b57a8a401a1d -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:50:42Z",
+    "updated_at": "2026-04-06T00:50:43Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571631",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571631"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037571631"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037571631/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": 95,
+    "original_line": 89,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 89,
+    "position": 95,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579489",
+    "pull_request_review_id": 4060017788,
+    "id": 3037579489,
+    "node_id": "PRRC_kwDOPKOvgc61Dcjh",
+    "diff_hunk": "@@ -0,0 +1,4 @@\n+#!/bin/bash\n+sed -i 's/### D. The Zoom Integration (The Extension)/### D. The Chrome Extension (Zoom Integration)/g' SYSTEM_ARCHITECTURE_AND_SETUP.md\n+sed -i '/### D. The Chrome Extension (Zoom Integration)/a - **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\\n- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\\n- **Features:** Auto-pinning users, monitoring cameras, and reading chat.' SYSTEM_ARCHITECTURE_AND_SETUP.md\n+sed -i 's/- \\*\\*Role:\\*\\* Enables real-time management of Zoom meetings (e.g., auto-pinning users, monitoring cameras) directly linked to Nebulosa commands.//g' SYSTEM_ARCHITECTURE_AND_SETUP.md",
+    "path": "patch_sys.sh",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "11c479ff5ab35c908005e088b31d75eb86c6106e",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🟠 Major_\n\n**Script logic produces duplicate content in the documentation.**\n\nLines 26-31 of SYSTEM_ARCHITECTURE_AND_SETUP.md contain duplicate bullet points (What it is, Role, Features appear twice). The line 4 deletion pattern doesn't match the content inserted by line 3, so the old content is never removed. This patch script should either:\n\n1. Delete the old section entirely before inserting new content, or\n2. Use a single sed command that replaces the entire section atomically\n\n\n\n<details>\n<summary>♻️ Recommended fix: Replace instead of insert-then-delete</summary>\n\n```diff\n #!/bin/bash\n sed -i 's/### D. The Zoom Integration (The Extension)/### D. The Chrome Extension (Zoom Integration)/g' SYSTEM_ARCHITECTURE_AND_SETUP.md\n-sed -i '/### D. The Chrome Extension (Zoom Integration)/a - **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\\n- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\\n- **Features:** Auto-pinning users, monitoring cameras, and reading chat.' SYSTEM_ARCHITECTURE_AND_SETUP.md\n-sed -i 's/- \\*\\*Role:\\*\\* Enables real-time management of Zoom meetings (e.g., auto-pinning users, monitoring cameras) directly linked to Nebulosa commands.//g' SYSTEM_ARCHITECTURE_AND_SETUP.md\n+# Remove the old bullets and insert new ones in a single operation\n+sed -i '/### D. The Chrome Extension (Zoom Integration)/,/^$/c\\\n+### D. The Chrome Extension (Zoom Integration)\\\n+- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\\\n+- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\\\n+- **Features:** Auto-pinning users, monitoring cameras, and reading chat.\\\n+' SYSTEM_ARCHITECTURE_AND_SETUP.md\n```\n\n</details>\n\n<!-- suggestion_start -->\n\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n```suggestion\n#!/bin/bash\nsed -i 's/### D. The Zoom Integration (The Extension)/### D. The Chrome Extension (Zoom Integration)/g' SYSTEM_ARCHITECTURE_AND_SETUP.md\n# Remove the old bullets and insert new ones in a single operation\nsed -i '/### D. The Chrome Extension (Zoom Integration)/,/^$/c\\\n### D. The Chrome Extension (Zoom Integration)\\\n- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\\\n- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\\\n- **Features:** Auto-pinning users, monitoring cameras, and reading chat.\\\n' SYSTEM_ARCHITECTURE_AND_SETUP.md\n```\n\n</details>\n\n<!-- suggestion_end -->\n\n<details>\n<summary>🧰 Tools</summary>\n\n<details>\n<summary>🪛 Shellcheck (0.11.0)</summary>\n\n[info] 3-3: Expressions don't expand in single quotes, use double quotes for that.\n\n(SC2016)\n\n</details>\n\n</details>\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@patch_sys.sh` around lines 1 - 4, The script patch_sys.sh currently inserts a\nnew \"### D. The Chrome Extension (Zoom Integration)\" block then attempts to\nremove an old Role line, causing duplicate bullets because the deletion pattern\ndoesn't match the newly inserted text; update the sed usage to perform an atomic\nreplacement of the entire section in SYSTEM_ARCHITECTURE_AND_SETUP.md by\nmatching the header marker '### D. The Chrome Extension (Zoom Integration)' (or\nthe previous header '### D. The Zoom Integration (The Extension)') through the\nnext section header and replace that whole range with the intended three bullet\nlines so you don't insert-then-fail-to-delete—i.e., change the multiple sed\ninvocations in patch_sys.sh to a single range-replace operation that replaces\nthe old block with the new content.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:triton:puma:bc6699fd-c11c-49e1-8084-23027fb83721 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:56:58Z",
+    "updated_at": "2026-04-06T00:57:00Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037579489",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579489"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037579489"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579489/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": 1,
+    "original_start_line": 1,
+    "start_side": "RIGHT",
+    "line": 4,
+    "original_line": 4,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 4,
+    "position": 4,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579503",
+    "pull_request_review_id": 4060017788,
+    "id": 3037579503,
+    "node_id": "PRRC_kwDOPKOvgc61Dcjv",
+    "diff_hunk": "@@ -0,0 +1,4 @@\n+#!/bin/bash\n+sed -i 's/### D. The Zoom Integration (The Extension)/### D. The Chrome Extension (Zoom Integration)/g' SYSTEM_ARCHITECTURE_AND_SETUP.md\n+sed -i '/### D. The Chrome Extension (Zoom Integration)/a - **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\\n- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\\n- **Features:** Auto-pinning users, monitoring cameras, and reading chat.' SYSTEM_ARCHITECTURE_AND_SETUP.md",
+    "path": "patch_sys.sh",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "11c479ff5ab35c908005e088b31d75eb86c6106e",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🔴 Critical_\n\n**Critical: Newlines will not be interpreted in single-quoted sed command.**\n\nThe `\\n` sequences in the single-quoted string will be inserted literally rather than as actual newlines, resulting in malformed markdown. Looking at lines 26-31 of SYSTEM_ARCHITECTURE_AND_SETUP.md, the duplicate bullet points suggest this script has already caused issues.\n\n\n\n<details>\n<summary>🔧 Proposed fix using $'...' syntax</summary>\n\n```diff\n-sed -i '/### D. The Chrome Extension (Zoom Integration)/a - **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\\n- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\\n- **Features:** Auto-pinning users, monitoring cameras, and reading chat.' SYSTEM_ARCHITECTURE_AND_SETUP.md\n+sed -i '/### D. The Chrome Extension (Zoom Integration)/a \\- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\\n- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\\n- **Features:** Auto-pinning users, monitoring cameras, and reading chat.' SYSTEM_ARCHITECTURE_AND_SETUP.md\n```\n\nOr use a here-doc approach for better readability:\n\n```diff\n-sed -i '/### D. The Chrome Extension (Zoom Integration)/a - **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\\n- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\\n- **Features:** Auto-pinning users, monitoring cameras, and reading chat.' SYSTEM_ARCHITECTURE_AND_SETUP.md\n+sed -i '/### D. The Chrome Extension (Zoom Integration)/r /dev/stdin' SYSTEM_ARCHITECTURE_AND_SETUP.md << 'EOF'\n+- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\n+- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\n+- **Features:** Auto-pinning users, monitoring cameras, and reading chat.\n+EOF\n```\n\n</details>\n\n<details>\n<summary>🧰 Tools</summary>\n\n<details>\n<summary>🪛 Shellcheck (0.11.0)</summary>\n\n[info] 3-3: Expressions don't expand in single quotes, use double quotes for that.\n\n(SC2016)\n\n</details>\n\n</details>\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@patch_sys.sh` at line 3, The sed command uses a single-quoted replacement\nstring with literal '\\n' sequences so newlines are not interpreted and Markdown\nwas mangled; update the sed invocation (the sed -i '/### D. The Chrome Extension\n(Zoom Integration)/a ...' command) to insert actual newlines by either switching\nthe replacement to $'...\\\\n...' so shell-escaped newlines are expanded, or\nreplace the sed append with a here-doc (cat >> SYSTEM_ARCHITECTURE_AND_SETUP.md\n<<'EOF' ... EOF) to append the multi-line Markdown cleanly and avoid literal\nbackslash-n sequences.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:triton:puma:bc6699fd-c11c-49e1-8084-23027fb83721 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:56:59Z",
+    "updated_at": "2026-04-06T00:57:00Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037579503",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579503"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037579503"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579503/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": 3,
+    "original_line": 3,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 3,
+    "position": 3,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579506",
+    "pull_request_review_id": 4060017788,
+    "id": 3037579506,
+    "node_id": "PRRC_kwDOPKOvgc61Dcjy",
+    "diff_hunk": "@@ -0,0 +1,105 @@\n+# STIX MΛGIC Unified System Architecture & Setup Guide\n+\n+This document outlines how the Telegram bot, the React web dashboards (Nebulosa Control Center, Spark), and the external integrations (Zoom) form a single, unified platform, and what you need to run it in production.\n+\n+## 1. Unified System Overview\n+\n+The STIX MΛGIC system is composed of several moving parts that communicate seamlessly:\n+\n+### A. The Telegram Bot (The User Entrypoint)\n+- **Role:** Handles core user interactions such as account creation, plan upgrades via Telegram Stars or Stripe, and initiating sticker creation logic.\n+- **Tech:** Built using `grammy` and `node-telegram-bot-api`. It listens for commands like `/start` or `/plans`.\n+- **Integration:** When users pay for a plan or request processing, the bot communicates with the internal Express API (`/api/subscription`, `/api/users`) to persist states in the database.\n+\n+### B. The React Web Application (The Interface)\n+- **Role:** Provides the visual tools for users and operators.\n+  - **Magic UI & Spark (`/magic`, `/spark`):** Where users can upload images, transform them, and manage their sticker projects.\n+  - **Nebulosa Control Center (`/nebulosa`):** The operator dashboard used for monitoring live sessions, executors, sending alerts, and queueing actions (e.g., Zoom participant management).\n+- **Tech:** React + Vite, styled with Tailwind CSS & Shadcn UI.\n+- **Integration:** The UI consumes the Express backend API using standard REST calls. It allows operators to trigger backend logic that controls meetings or bots.\n+\n+### C. The Node.js / Express Backend (The Brain)\n+- **Role:** Serves as the central API gateway. It handles Telegram webhooks/polling, serves the REST API for the React frontend, processes OAuth callbacks (Zoom, Telegram), and connects to the database.\n+- **Integration:** The server coordinates between the frontend UI and the Telegram bot. For instance, when the Web UI triggers a Zoom command or a Telegram OAuth login, this backend processes the secure tokens and updates the user's database record.\n+\n+### D. The Chrome Extension (Zoom Integration)\n+- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\n+- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\n+- **Features:** Auto-pinning users, monitoring cameras, and reading chat.\n+- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\n+- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\n+- **Features:** Auto-pinning users, monitoring cameras, and reading chat.",
+    "path": "SYSTEM_ARCHITECTURE_AND_SETUP.md",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "11c479ff5ab35c908005e088b31d75eb86c6106e",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🟠 Major_\n\n**Remove duplicate bullet points.**\n\nLines 29-31 are exact duplicates of lines 26-28. This duplication was caused by the patch script in `patch_sys.sh` that inserts content without properly removing the old version.\n\n\n\n<details>\n<summary>🧹 Proposed fix</summary>\n\n```diff\n ### D. The Chrome Extension (Zoom Integration)\n - **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\n - **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\n - **Features:** Auto-pinning users, monitoring cameras, and reading chat.\n-- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\n-- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\n-- **Features:** Auto-pinning users, monitoring cameras, and reading chat.\n```\n\n</details>\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@SYSTEM_ARCHITECTURE_AND_SETUP.md` around lines 26 - 31, Remove the duplicated\nbullet block that repeats the three lines beginning with \"**What it is:** A\nManifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\"\nKeep a single copy of the three bullets (\"What it is\", \"Role\", \"Features\") in\nSYSTEM_ARCHITECTURE_AND_SETUP.md and delete the subsequent duplicate; also\nupdate the patch insertion logic in patch_sys.sh so it performs a replace/dedupe\n(or checks for an existing identical block) before inserting to prevent\nre-adding the same bullets.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:triton:puma:bc6699fd-c11c-49e1-8084-23027fb83721 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:56:59Z",
+    "updated_at": "2026-04-06T00:57:00Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037579506",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579506"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037579506"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579506/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": 26,
+    "original_start_line": 26,
+    "start_side": "RIGHT",
+    "line": 31,
+    "original_line": 31,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 31,
+    "position": 31,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579517",
+    "pull_request_review_id": 4060017788,
+    "id": 3037579517,
+    "node_id": "PRRC_kwDOPKOvgc61Dcj9",
+    "diff_hunk": "@@ -0,0 +1,105 @@\n+# STIX MΛGIC Unified System Architecture & Setup Guide\n+\n+This document outlines how the Telegram bot, the React web dashboards (Nebulosa Control Center, Spark), and the external integrations (Zoom) form a single, unified platform, and what you need to run it in production.\n+\n+## 1. Unified System Overview\n+\n+The STIX MΛGIC system is composed of several moving parts that communicate seamlessly:\n+\n+### A. The Telegram Bot (The User Entrypoint)\n+- **Role:** Handles core user interactions such as account creation, plan upgrades via Telegram Stars or Stripe, and initiating sticker creation logic.\n+- **Tech:** Built using `grammy` and `node-telegram-bot-api`. It listens for commands like `/start` or `/plans`.\n+- **Integration:** When users pay for a plan or request processing, the bot communicates with the internal Express API (`/api/subscription`, `/api/users`) to persist states in the database.\n+\n+### B. The React Web Application (The Interface)\n+- **Role:** Provides the visual tools for users and operators.\n+  - **Magic UI & Spark (`/magic`, `/spark`):** Where users can upload images, transform them, and manage their sticker projects.\n+  - **Nebulosa Control Center (`/nebulosa`):** The operator dashboard used for monitoring live sessions, executors, sending alerts, and queueing actions (e.g., Zoom participant management).\n+- **Tech:** React + Vite, styled with Tailwind CSS & Shadcn UI.\n+- **Integration:** The UI consumes the Express backend API using standard REST calls. It allows operators to trigger backend logic that controls meetings or bots.\n+\n+### C. The Node.js / Express Backend (The Brain)\n+- **Role:** Serves as the central API gateway. It handles Telegram webhooks/polling, serves the REST API for the React frontend, processes OAuth callbacks (Zoom, Telegram), and connects to the database.\n+- **Integration:** The server coordinates between the frontend UI and the Telegram bot. For instance, when the Web UI triggers a Zoom command or a Telegram OAuth login, this backend processes the secure tokens and updates the user's database record.\n+\n+### D. The Chrome Extension (Zoom Integration)\n+- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\n+- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\n+- **Features:** Auto-pinning users, monitoring cameras, and reading chat.\n+- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.\n+- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.\n+- **Features:** Auto-pinning users, monitoring cameras, and reading chat.\n+\n+\n+---\n+\n+## 2. What You Need to Have (Prerequisites)\n+\n+To launch this unified system, you need accounts and tokens from the following services:\n+\n+### 1. Telegram Platform\n+- **Bot Token:** Talk to [@BotFather](https://t.me/botfather) on Telegram to create a new bot and obtain your `TELEGRAM_BOT_TOKEN`.\n+- **Telegram Stars / Stripe Integration:** In BotFather, configure payments for your bot if you plan to accept real money or Telegram Stars.\n+\n+### 2. Zoom App Marketplace (If using Zoom features)\n+- **App Credentials:** Create an OAuth app in the Zoom App Marketplace.\n+- **Tokens Required:** `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`.\n+- **Redirect URI:** Configure the Zoom OAuth redirect URI to point to your domain's callback path (e.g., `https://yourdomain.com/api/auth/zoom/callback`).",
+    "path": "SYSTEM_ARCHITECTURE_AND_SETUP.md",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "11c479ff5ab35c908005e088b31d75eb86c6106e",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🟡 Minor_\n\n<details>\n<summary>🧩 Analysis chain</summary>\n\n🏁 Script executed:\n\n```shell\n#!/bin/bash\n# Find all Zoom OAuth callback route registrations\necho \"=== Searching for Zoom callback route definitions ===\"\nrg -n \"zoom.*callback\" --type ts --type js -i -C3\n\necho -e \"\\n=== Searching for route handlers with 'zoom' in path ===\"\nrg -nP \"(app\\.(get|post|use)|router\\.(get|post|use)|\\.get\\(|\\.post\\()\" --type ts --type js -A2 | grep -i -B2 \"zoom\"\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 50384\n\n---\n\n\n\n</details>\n\n**Clarify the Zoom OAuth redirect URI path in documentation.**\n\nThe documented redirect URI path (`/api/auth/zoom/callback`) does not match the actual route implementations found in the codebase:\n\n- `server/routes.ts` registers `/zoom/callback`\n- `production-bot.js` and `railway-bot-simple.js` register `/auth/zoom/callback`\n- Multiple test files reference GitHub Pages (`https://pupfr.github.io/Nebulosa/zoom-callback.html`) and Railway deployment URLs\n\nVerify which callback path is active in your current deployment and update the documentation to match exactly. The Zoom OAuth app configuration must point to the same path the server actually uses, or authentication will fail with an invalid redirect URI error.\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@SYSTEM_ARCHITECTURE_AND_SETUP.md` at line 47, Docs list the Zoom OAuth\nredirect as /api/auth/zoom/callback but the code registers different routes (see\nserver/routes.ts -> /zoom/callback, production-bot.js and railway-bot-simple.js\n-> /auth/zoom/callback) and tests point to GitHub Pages/railway URLs; verify\nwhich callback route is actually mounted in your deployment (or standardize the\nserver to a single path), then update SYSTEM_ARCHITECTURE_AND_SETUP.md to\nexactly match that active path and update any test or deployment scripts (or\nZoom app settings) to use the same URI; search for references to /zoom/callback,\n/auth/zoom/callback, and /api/auth/zoom/callback and either change the code to\nthe documented path (or change the docs to the one used) so they are consistent.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:triton:puma:bc6699fd-c11c-49e1-8084-23027fb83721 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T00:56:59Z",
+    "updated_at": "2026-04-06T00:57:00Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037579517",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579517"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037579517"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037579517/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": 47,
+    "original_line": 47,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 47,
+    "position": 47,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037603618",
+    "pull_request_review_id": 4060040218,
+    "id": 3037603618,
+    "node_id": "PRRC_kwDOPKOvgc61Dici",
+    "diff_hunk": "@@ -0,0 +1,126 @@\n+import { useState, useEffect } from \"react\";\n+import {\n+  Dialog,\n+  DialogContent,\n+  DialogDescription,\n+  DialogHeader,\n+  DialogTitle,\n+} from \"@/components/ui/dialog\";\n+import { Button } from \"@/components/ui/button\";\n+import { Bot, Sparkles, Zap, ArrowRight, Settings, CheckCircle2 } from \"lucide-react\";\n+import { Input } from \"@/components/ui/input\";\n+\n+export function OnboardingModal() {\n+  const [open, setOpen] = useState(false);\n+  const [step, setStep] = useState(0);\n+\n+  useEffect(() => {\n+    // Show setup wizard if it hasn't been completed yet\n+    const hasSeen = localStorage.getItem(\"stixmagic_setup_complete\");\n+    if (!hasSeen) {\n+      setOpen(true);\n+    }\n+  }, []);\n+\n+  const handleComplete = () => {\n+    localStorage.setItem(\"stixmagic_setup_complete\", \"true\");\n+    setOpen(false);",
+    "path": "client/src/components/OnboardingModal.tsx",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "a987a4d0835d8b7865823c68424975d42d7b3a71",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🟠 Major_\n\n**Credentials are collected but never used, while setup is marked complete.**\n\nLine 26 sets `stixmagic_setup_complete`, but the Telegram/Zoom secrets entered in Lines 55-57 and 71-73 are never persisted or submitted. The “saved securely” messaging is currently inaccurate and can mislead operators.\n\n\n\n<details>\n<summary>🔧 Minimal safe fix (remove misleading secret-entry UI until backend wiring exists)</summary>\n\n```diff\n-          <div className=\"space-y-2\">\n-            <Input type=\"password\" placeholder=\"e.g., 1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ\" />\n-            <p className=\"text-xs text-muted-foreground\">This is saved securely to your environment.</p>\n-          </div>\n+          <div className=\"space-y-2\">\n+            <p className=\"text-xs text-muted-foreground\">\n+              Connect Telegram from the Sign In flow to store credentials securely.\n+            </p>\n+          </div>\n...\n-          <div className=\"space-y-2\">\n-            <Input placeholder=\"Zoom Client ID\" />\n-            <Input type=\"password\" placeholder=\"Zoom Client Secret\" />\n-          </div>\n+          <div className=\"space-y-2\">\n+            <p className=\"text-xs text-muted-foreground\">\n+              Connect Zoom from the Sign In flow to complete OAuth setup.\n+            </p>\n+          </div>\n```\n</details>\n\n\nAlso applies to: 55-57, 71-73\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@client/src/components/OnboardingModal.tsx` around lines 25 - 27, The\nonboarding currently marks setup complete in handleComplete (localStorage key\n\"stixmagic_setup_complete\") while Telegram/Zoom secret inputs are neither\npersisted nor sent to a backend; to avoid misleading operators remove the\nsecret-entry UI and any \"saved securely\" messaging until backend wiring\nexists—delete or hide the Telegram/Zoom secret input fields and their\nlabels/helper text and ensure handleComplete remains the simple close/flag\nbehavior (setOpen(false) and setting the setup_complete key) without referencing\nsecrets, or alternatively make handleComplete persist secrets via a proper save\nfunction (e.g., call saveSecrets(...) before setting the key) if you wire the\nbackend now.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:poseidon:hawk:c6f0bfe3-3eef-42d8-9018-19ba8e0c12fc -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commit f1cf563",
+    "created_at": "2026-04-06T01:17:10Z",
+    "updated_at": "2026-04-06T02:04:35Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037603618",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037603618"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037603618"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037603618/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": 24,
+    "original_start_line": 25,
+    "start_side": "RIGHT",
+    "line": 26,
+    "original_line": 27,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 27,
+    "position": 26,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037603624",
+    "pull_request_review_id": 4060040218,
+    "id": 3037603624,
+    "node_id": "PRRC_kwDOPKOvgc61Dico",
+    "diff_hunk": "@@ -0,0 +1,3 @@\n+#!/bin/bash\n+sed -i '/import { Link } from \"wouter\";/a import { OnboardingModal } from \"@/components/OnboardingModal\";' client/src/pages/dashboard.tsx\n+sed -i '/<div className=\"min-h-screen bg-background text-foreground\">/a \\      <OnboardingModal />' client/src/pages/dashboard.tsx",
+    "path": "patch_dashboard_onboarding.sh",
+    "commit_id": "a987a4d0835d8b7865823c68424975d42d7b3a71",
+    "original_commit_id": "a987a4d0835d8b7865823c68424975d42d7b3a71",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_⚠️ Potential issue_ | _🟠 Major_\n\n<details>\n<summary>🧩 Analysis chain</summary>\n\n🏁 Script executed:\n\n```shell\n#!/bin/bash\n# Verify script lacks idempotency guards and uses unconditional append operations.\nnl -ba patch_dashboard_onboarding.sh\nrg -n \"OnboardingModal|sed -i|if |rg -q|grep -q\" patch_dashboard_onboarding.sh -C2\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 415\n\n---\n\n🏁 Script executed:\n\n```shell\n# Check if the target file exists and contains the patterns being searched for\nfd -t f dashboard.tsx\n\n# Check the relevant lines in the file\nrg -n 'import.*Link.*wouter|min-h-screen bg-background text-foreground' client/src/pages/dashboard.tsx -A1 -B1\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 354\n\n---\n\n🏁 Script executed:\n\n```shell\n# Check git status and if these files are being modified in this commit/PR\ngit status client/src/pages/dashboard.tsx patch_dashboard_onboarding.sh 2>/dev/null || echo \"Files not tracked or git unavailable\"\n\n# Check if the OnboardingModal component file exists\nfd -t f OnboardingModal\n\n# Verify if the patch script file itself exists\nls -la patch_dashboard_onboarding.sh 2>/dev/null || echo \"Patch script location not found at root\"\n```\n\nRepository: FriskyDevelopments/Nebulosa\n\nLength of output: 256\n\n---\n\n\n\n</details>\n\n**Patch script is non-idempotent and will duplicate imports/JSX on re-run.**\n\nThe script unconditionally appends to `client/src/pages/dashboard.tsx` without checking if content already exists. Running it against the current codebase (which already contains both the `OnboardingModal` import and JSX element) will create duplicates, breaking the file.\n\nAdd guard conditions using `rg -qF` to check for existing content before each insertion:\n\n<details>\n<summary>♻️ Idempotent patch script proposal</summary>\n\n```diff\n #!/bin/bash\n-sed -i '/import { Link } from \"wouter\";/a import { OnboardingModal } from \"@/components/OnboardingModal\";' client/src/pages/dashboard.tsx\n-sed -i '/<div className=\"min-h-screen bg-background text-foreground\">/a \\      <OnboardingModal />' client/src/pages/dashboard.tsx\n+set -euo pipefail\n+\n+TARGET=\"client/src/pages/dashboard.tsx\"\n+IMPORT='import { OnboardingModal } from \"@/components/OnboardingModal\";'\n+MOUNT='      <OnboardingModal />'\n+\n+if ! rg -qF \"$IMPORT\" \"$TARGET\"; then\n+  sed -i '/import { Link } from \"wouter\";/a '\"$IMPORT\"'' \"$TARGET\"\n+fi\n+\n+if ! rg -qF \"$MOUNT\" \"$TARGET\"; then\n+  sed -i '/<div className=\"min-h-screen bg-background text-foreground\">/a \\      <OnboardingModal />' \"$TARGET\"\n+fi\n```\n</details>\n\n<!-- suggestion_start -->\n\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n```suggestion\n#!/bin/bash\nset -euo pipefail\n\nTARGET=\"client/src/pages/dashboard.tsx\"\nIMPORT='import { OnboardingModal } from \"@/components/OnboardingModal\";'\nMOUNT='      <OnboardingModal />'\n\nif ! rg -qF \"$IMPORT\" \"$TARGET\"; then\n  sed -i '/import { Link } from \"wouter\";/a '\"$IMPORT\"'' \"$TARGET\"\nfi\n\nif ! rg -qF \"$MOUNT\" \"$TARGET\"; then\n  sed -i '/<div className=\"min-h-screen bg-background text-foreground\">/a \\      <OnboardingModal />' \"$TARGET\"\nfi\n```\n\n</details>\n\n<!-- suggestion_end -->\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@patch_dashboard_onboarding.sh` around lines 2 - 3, The patch script\nunconditionally appends the OnboardingModal import and JSX causing duplicates;\nupdate the script to first check for existing occurrences (use rg -qF \"import {\nOnboardingModal }\" and rg -qF \"<OnboardingModal />\") and only run the\ncorresponding sed insertion if the check fails, so that the import line 'import\n{ OnboardingModal } from \"@/components/OnboardingModal\";' and the JSX fragment\n'<OnboardingModal />' are added only when not already present.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:poseidon:hawk:c6f0bfe3-3eef-42d8-9018-19ba8e0c12fc -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commit f1cf563",
+    "created_at": "2026-04-06T01:17:10Z",
+    "updated_at": "2026-04-06T02:04:32Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037603624",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037603624"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037603624"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037603624/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": 2,
+    "start_side": "RIGHT",
+    "line": null,
+    "original_line": 3,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 3,
+    "position": 1,
+    "subject_type": "line"
+  },
+  {
+    "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037672809",
+    "pull_request_review_id": 4060103635,
+    "id": 3037672809,
+    "node_id": "PRRC_kwDOPKOvgc61DzVp",
+    "diff_hunk": "@@ -0,0 +1,123 @@\n+import { useState, useEffect } from \"react\";\n+import {\n+  Dialog,\n+  DialogContent,\n+  DialogDescription,\n+  DialogHeader,\n+  DialogTitle,\n+} from \"@/components/ui/dialog\";\n+import { Button } from \"@/components/ui/button\";\n+import { Bot, Sparkles, Zap, ArrowRight, Settings, CheckCircle2 } from \"lucide-react\";",
+    "path": "client/src/components/OnboardingModal.tsx",
+    "commit_id": "0e765bf6240d910a0b0e0173a42ccfe8b5d3a20b",
+    "original_commit_id": "f1cf563ed31fbf299890af4952939e3f43e20fde",
+    "user": {
+      "login": "coderabbitai[bot]",
+      "id": 136622811,
+      "node_id": "BOT_kgDOCCSy2w",
+      "avatar_url": "https://avatars.githubusercontent.com/in/347564?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/coderabbitai%5Bbot%5D",
+      "html_url": "https://github.com/apps/coderabbitai",
+      "followers_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/coderabbitai%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "body": "_🧹 Nitpick_ | _🔵 Trivial_\n\n**Remove unused import `Zap`.**\n\n`Zap` is imported from `lucide-react` but never used in the component.\n\n\n\n<details>\n<summary>🧹 Proposed fix</summary>\n\n```diff\n-import { Bot, Sparkles, Zap, ArrowRight, Settings, CheckCircle2 } from \"lucide-react\";\n+import { Bot, Sparkles, ArrowRight, Settings, CheckCircle2 } from \"lucide-react\";\n```\n</details>\n\n<!-- suggestion_start -->\n\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n```suggestion\nimport { Bot, Sparkles, ArrowRight, Settings, CheckCircle2 } from \"lucide-react\";\n```\n\n</details>\n\n<!-- suggestion_end -->\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nVerify each finding against the current code and only fix it if needed.\n\nIn `@client/src/components/OnboardingModal.tsx` at line 10, The import list in\nOnboardingModal.tsx includes an unused symbol \"Zap\" from lucide-react; remove\n\"Zap\" from the named import (the import statement that currently reads Bot,\nSparkles, Zap, ArrowRight, Settings, CheckCircle2) so only the actually used\nicons remain (Bot, Sparkles, ArrowRight, Settings, CheckCircle2), ensuring no\nother references to Zap exist in the file.\n```\n\n</details>\n\n<!-- fingerprinting:phantom:poseidon:ocelot:a3e5a371-2661-4fd4-93d6-7a577c267e75 -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+    "created_at": "2026-04-06T02:07:18Z",
+    "updated_at": "2026-04-06T02:07:19Z",
+    "html_url": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037672809",
+    "pull_request_url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037672809"
+      },
+      "html": {
+        "href": "https://github.com/FriskyDevelopments/Nebulosa/pull/44#discussion_r3037672809"
+      },
+      "pull_request": {
+        "href": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/44"
+      }
+    },
+    "reactions": {
+      "url": "https://api.github.com/repos/FriskyDevelopments/Nebulosa/pulls/comments/3037672809/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": null,
+    "original_start_line": null,
+    "start_side": null,
+    "line": 10,
+    "original_line": 10,
+    "side": "RIGHT",
+    "author_association": "CONTRIBUTOR",
+    "original_position": 10,
+    "position": 10,
+    "subject_type": "line"
+  }
+]

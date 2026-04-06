@@ -44,7 +44,7 @@ To launch this unified system, you need accounts and tokens from the following s
 ### 2. Zoom App Marketplace (If using Zoom features)
 - **App Credentials:** Create an OAuth app in the Zoom App Marketplace.
 - **Tokens Required:** `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`.
-- **Redirect URI:** Configure the Zoom OAuth redirect URI to point to your domain's callback path (e.g., `https://yourdomain.com/api/auth/zoom/callback`).
+- **Redirect URI:** Configure the Zoom OAuth redirect URI to point to your domain's callback path (e.g., `https://yourdomain.com/zoom/callback`).
 
 ### 3. Database
 - **PostgreSQL Database:** A running instance of PostgreSQL (e.g., Neon, Supabase, or AWS RDS).
@@ -81,7 +81,7 @@ NEBULOSA_OPERATOR_ALLOWLIST=admin,operator
 # Zoom OAuth
 ZOOM_CLIENT_ID=your-zoom-client-id
 ZOOM_CLIENT_SECRET=your-zoom-client-secret
-ZOOM_REDIRECT_URI=https://your-production-domain.com/api/auth/zoom/callback
+ZOOM_REDIRECT_URI=https://your-production-domain.com/zoom/callback
 ```
 
 ---

@@ -1,6 +1,7 @@
-import { Sparkles, Bot, LogIn } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Sparkles } from "lucide-react";
+import { AuthDialog } from "@/components/AuthDialog";
 import { Button } from "@/components/ui/button";
+import { LogIn } from "lucide-react";
 import { usePortal, type Aura, type Step } from "@/context/PortalContext";
 import IntakeStage from "@/stages/IntakeStage";
 import TransformStage from "@/stages/TransformStage";
@@ -79,37 +80,15 @@ export default function AppShell() {
           </nav>
 
           <div className="ml-auto mr-4">
-            <Dialog>
-              <DialogTrigger asChild>
+            <AuthDialog>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <LogIn className="h-4 w-4" />
                   Sign In
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Connect your account</DialogTitle>
-                  <DialogDescription>
-                    Authentication providers are not available yet. Please check back once sign-in has been configured.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex flex-col gap-4 py-4">
-                  <Button className="w-full gap-2" size="lg" disabled>
-                    Sign in with Zoom
-                  </Button>
-                  <Button className="w-full gap-2" variant="outline" size="lg" disabled>
-                    <Bot className="h-4 w-4" />
-                    Sign in with Telegram
-                  </Button>
-                  <p className="text-sm text-muted-foreground text-center">
-                    Sign-in buttons are disabled until valid authentication routes are available.
-                  </p>
-                </div>
-              </DialogContent>
-            </Dialog>
+              </AuthDialog>
           </div>
           {/* Aura indicator */}
-          <div>
+          <div className="">
             <span
               className={[
                 "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold tracking-widest",
