@@ -2,11 +2,11 @@
 
 echo "🚂 NEBULOSA RAILWAY DEPLOYMENT"
 echo "=============================="
-echo "Token: f116a0ab-8170-432d-a69a-f94f23d4a726"
+echo "Token: <YOUR_RAILWAY_TOKEN>"
 echo ""
 
 # Set Railway token
-export RAILWAY_TOKEN="f116a0ab-8170-432d-a69a-f94f23d4a726"
+export RAILWAY_TOKEN="${RAILWAY_TOKEN:-<YOUR_RAILWAY_TOKEN>}"
 
 echo "🔐 Configuring Railway CLI with your token..."
 

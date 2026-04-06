@@ -75,22 +75,30 @@ function generateApiKey() {
 }
 
 /**
- * Hashes an API key for storage.
+ * Hashes an API key for storage using SHA-256 (deterministic).
  * @param {string} rawKey
  * @returns {Promise<string>}
  */
 async function hashApiKey(rawKey) {
-  return bcrypt.hash(rawKey, config.apiKey.salt);
+  return crypto.createHash('sha256').update(rawKey).digest('hex');
 }
 
 /**
  * Compares a plain-text API key against its stored hash.
+ * Supports both legacy bcrypt hashes and modern SHA-256 hashes.
  * @param {string} rawKey
  * @param {string} storedHash
  * @returns {Promise<boolean>}
  */
 async function verifyApiKey(rawKey, storedHash) {
-  return bcrypt.compare(rawKey, storedHash);
+  // Legacy bcrypt hashes start with $2
+  if (storedHash.startsWith('$2')) {
+    return bcrypt.compare(rawKey, storedHash);
+  }
+
+  // Modern SHA-256 hashes
+  const hash = crypto.createHash('sha256').update(rawKey).digest('hex');
+  return hash === storedHash;
 }
 
 /**

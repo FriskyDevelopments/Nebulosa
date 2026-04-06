@@ -5,14 +5,14 @@
 Your Nebulosa bot now has the **perfect deployment strategy**:
 
 ### **🚂 Railway - Production Environment**
-- **Token**: `f116a0ab-8170-432d-a69a-f94f23d4a726`
+- **Token**: `<YOUR_RAILWAY_TOKEN>`
 - **URL**: `https://nebulosa-production.railway.app`
 - **Features**: Always-on, V2 runtime, multi-region
 - **Cost**: $5-8/month
 - **Purpose**: Serve real users reliably
 
 ### **⚡ Vercel - Preview Environment**  
-- **Token**: `nIQ94iBPU8jZBmvlMqg4xmz8`
+- **Token**: `<YOUR_VERCEL_TOKEN>`
 - **URL**: `https://nebulosa-telegram-bot.vercel.app`
 - **Features**: Serverless, branch previews, free tier
 - **Cost**: Free for preview deploys
@@ -206,6 +206,6 @@ Your Nebulosa Telegram bot is now equipped with:
 ---
 
 *Hybrid Deployment Complete*  
-*Railway Token: f116a0ab-8170-432d-a69a-f94f23d4a726*  
-*Vercel Token: nIQ94iBPU8jZBmvlMqg4xmz8*  
+*Railway Token: <YOUR_RAILWAY_TOKEN>*
+*Vercel Token: <YOUR_VERCEL_TOKEN>*
 *Production + Preview Ready! 🚂⚡*

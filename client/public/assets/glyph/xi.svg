@@ -1,0 +1,16 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Neb U glyph variants">
+  <title>Neb U glyph (Ξ) variants</title>
+  <desc>Three equal horizontal strokes with rounded and sharp caps.</desc>
+
+  <g id="xi-rounded" transform="translate(0 0)" stroke="currentColor" stroke-width="12">
+    <line x1="20" y1="26" x2="100" y2="26" stroke-linecap="round"/>
+    <line x1="20" y1="60" x2="100" y2="60" stroke-linecap="round"/>
+    <line x1="20" y1="94" x2="100" y2="94" stroke-linecap="round"/>
+  </g>
+
+  <g id="xi-sharp" transform="translate(0 0)" stroke="currentColor" stroke-width="12" visibility="hidden">
+    <line x1="20" y1="26" x2="100" y2="26" stroke-linecap="square"/>
+    <line x1="20" y1="60" x2="100" y2="60" stroke-linecap="square"/>
+    <line x1="20" y1="94" x2="100" y2="94" stroke-linecap="square"/>
+  </g>
+</svg>

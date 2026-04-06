@@ -19,21 +19,25 @@ class LocalStorageProvider {
 
   async upload(key, buffer, mimeType) {
     const filePath = path.join(this.basePath, key);
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, buffer);
+    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.promises.writeFile(filePath, buffer);
     log.debug('File stored locally', { key });
     return { key, url: `/storage/${key}` };
   }
 
   async download(key) {
     const filePath = path.join(this.basePath, key);
-    return fs.readFileSync(filePath);
+    return await fs.promises.readFile(filePath);
   }
 
   async delete(key) {
     const filePath = path.join(this.basePath, key);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    try {
+      await fs.promises.unlink(filePath);
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
     }
   }
 

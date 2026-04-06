@@ -51,26 +51,56 @@ async function authenticateWithApiKey(req, res, next, rawKey) {
   const repo = new UserRepository();
   const db = repo.db;
 
-  // Look up all active API keys and find a matching one
-  // In production, index / use a prefix for lookup efficiency
-  const apiKeys = await db.apiKey.findMany({ where: { isActive: true }, include: { user: true } });
+  // 1. Try fast deterministic lookup (O(1)) for modern SHA-256 hashes
+  const { hashApiKey } = require('../../auth/authentication');
+  const hash = await hashApiKey(rawKey);
 
-  for (const apiKeyRecord of apiKeys) {
-    const match = await verifyApiKey(rawKey, apiKeyRecord.keyHash);
-    if (match) {
-      // Update last-used timestamp asynchronously
-      db.apiKey.update({
-        where: { id: apiKeyRecord.id },
-        data: { lastUsedAt: new Date() },
-      }).catch(() => {});
+  let apiKeyRecord = await db.apiKey.findUnique({
+    where: { keyHash: hash },
+    include: { user: true }
+  });
 
-      req.user = {
-        id: apiKeyRecord.user.id,
-        email: apiKeyRecord.user.email,
-        role: apiKeyRecord.user.role,
-      };
-      return next();
+  // 2. Fallback to legacy sequential search (O(N)) for bcrypt hashes
+  if (!apiKeyRecord) {
+    // Only fetch keys that might be bcrypt hashes (starting with $2)
+    const apiKeys = await db.apiKey.findMany({
+      where: {
+        isActive: true,
+        keyHash: { startsWith: '$2' }
+      },
+      include: { user: true }
+    });
+
+    for (const record of apiKeys) {
+      const match = await verifyApiKey(rawKey, record.keyHash);
+      if (match) {
+        apiKeyRecord = record;
+
+        // Upgrade the hash to SHA-256 for future O(1) lookups
+        db.apiKey.update({
+          where: { id: record.id },
+          data: { keyHash: hash }
+        }).catch((err) => log.error('Failed to upgrade API key hash', { error: err.message }));
+
+        break;
+      }
     }
+  }
+
+  // 3. Process the found record
+  if (apiKeyRecord && apiKeyRecord.isActive) {
+    // Update last-used timestamp asynchronously
+    db.apiKey.update({
+      where: { id: apiKeyRecord.id },
+      data: { lastUsedAt: new Date() },
+    }).catch(() => {});
+
+    req.user = {
+      id: apiKeyRecord.user.id,
+      email: apiKeyRecord.user.email,
+      role: apiKeyRecord.user.role,
+    };
+    return next();
   }
 
   return res.status(401).json({ error: 'Invalid API key' });
