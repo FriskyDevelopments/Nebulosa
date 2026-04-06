@@ -159,7 +159,7 @@ export default function SparkPage() {
                 setSearch(e.target.value);
                 // Debounce in a real app, but for now just send on typing if length > 3
                 if (e.target.value.length > 2) {
-                  analytics.track('feature_interaction', { featureName: 'project_search', interactionData: { term: e.target.value } });
+                  analytics.track('feature_interaction', { featureName: 'project_search', interactionData: { queryLength: e.target.value.length } });
                 }
               }}
             />
