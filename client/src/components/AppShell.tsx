@@ -90,17 +90,20 @@ export default function AppShell() {
                 <DialogHeader>
                   <DialogTitle>Connect your account</DialogTitle>
                   <DialogDescription>
-                    Sign in with your preferred platform to access Stix Magic.
+                    Authentication providers are not available yet. Please check back once sign-in has been configured.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4 py-4">
-                  <Button className="w-full gap-2" size="lg" onClick={() => window.location.href = "/api/auth/zoom"}>
+                  <Button className="w-full gap-2" size="lg" disabled>
                     Sign in with Zoom
                   </Button>
-                  <Button className="w-full gap-2" variant="outline" size="lg" onClick={() => window.location.href = "/api/auth/telegram"}>
+                  <Button className="w-full gap-2" variant="outline" size="lg" disabled>
                     <Bot className="h-4 w-4" />
                     Sign in with Telegram
                   </Button>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Sign-in buttons are disabled until valid authentication routes are available.
+                  </p>
                 </div>
               </DialogContent>
             </Dialog>
