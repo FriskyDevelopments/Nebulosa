@@ -68,6 +68,9 @@ const ZoomSelectors = {
   MULTIPIN_OPTION_TEXT: 'Multi-pin',
   UNPIN_OPTION_TEXT: 'Unpin',
 
+  CHAT_INPUT: ['[aria-label*="Type message here"]', '#chat-input', '.chat-box__chat-textarea', '[contenteditable="true"]', '[data-testid*="chat-input"]'],
+  CHAT_OPTION_TEXT: 'Chat',
+
   CHAT_PANEL: ['#chat-panel', '[aria-label*="Chat"]', '[class*="chat-container"]'],
   CHAT_MESSAGE: ['[class*="chat-message__text"]', '[class*="chat-item"]'],
   CHAT_SENDER: ['[class*="chat-message__sender"]', '[class*="message-sender"]'],

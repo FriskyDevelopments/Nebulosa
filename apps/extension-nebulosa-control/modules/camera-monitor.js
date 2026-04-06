@@ -17,6 +17,12 @@
 
 /* global window */
 
+
+const ZoomAdapter =
+  typeof require !== 'undefined'
+    ? require('../../integrations/zoom/adapter')
+    : window.ZoomAdapter;
+
 const bus =
   typeof require !== 'undefined'
     ? require('../../../packages/event-bus')
@@ -136,10 +142,21 @@ function _checkReminders() {
  *
  * @param {string} name - Participant display name.
  */
-function _sendCameraReminder(name) {
-  // TODO: implement chat-send action via ZoomAdapter once validated
-  dbg(`[TODO] Would send camera reminder to "${name}" via Zoom chat`);
+async function _sendCameraReminder(name) {
+  dbg(`Sending camera reminder to "${name}" via Zoom chat`);
   bus.emit('camera_reminder_due', { name });
+
+  if (ZoomAdapter && ZoomAdapter.sendPrivateMessage) {
+    const success = await ZoomAdapter.sendPrivateMessage(
+      name,
+      "Hi, this is a reminder to please turn your camera on."
+    );
+    if (!success) {
+      console.warn(`[Nebulosa:CameraMonitor] Failed to send chat message to ${name}`);
+    }
+  } else {
+    console.warn('[Nebulosa:CameraMonitor] ZoomAdapter.sendPrivateMessage not available');
+  }
 }
 
 // CommonJS + browser-global dual export
