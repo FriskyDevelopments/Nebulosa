@@ -22,6 +22,12 @@ const bus =
     ? require('../../../packages/event-bus')
     : window.NebulosaBus;
 
+
+const ZoomAdapter =
+  typeof require !== 'undefined'
+    ? require('../../../integrations/zoom/adapter')
+    : window.ZoomAdapter;
+
 const DEBUG =
   typeof window !== 'undefined' && window.__NEBULOSA_DEBUG === true;
 
@@ -128,18 +134,13 @@ function _checkReminders() {
 /**
  * Send a camera-on reminder to the specified participant.
  *
- * TODO: Implement Zoom chat DOM automation to send a private message.
- *       This requires locating the chat input, selecting the recipient,
- *       typing the message, and submitting — all via DOM interaction.
- *       This action is NOT yet validated in extension mode.
- *       See docs/tampermonkey-migration.md for details.
- *
  * @param {string} name - Participant display name.
  */
-function _sendCameraReminder(name) {
-  // TODO: implement chat-send action via ZoomAdapter once validated
-  dbg(`[TODO] Would send camera reminder to "${name}" via Zoom chat`);
+async function _sendCameraReminder(name) {
+  dbg(`Sending camera reminder to "${name}" via Zoom chat`);
   bus.emit('camera_reminder_due', { name });
+
+  await ZoomAdapter.sendPrivateMessage(name, "Please turn on your camera");
 }
 
 // CommonJS + browser-global dual export
