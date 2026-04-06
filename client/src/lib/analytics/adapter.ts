@@ -41,8 +41,8 @@ export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
         event: eventName,
         properties: {
           ...payload,
-          timestamp: new Date().toISOString(),
-          path: window.location.pathname,
+          timestamp: payload.timestamp ?? new Date().toISOString(),
+          path: payload.path ?? window.location.pathname,
         }
       };
 
