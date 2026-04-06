@@ -126,6 +126,12 @@ async function admitParticipant(name) {
 let _activeSurface = 'unknown';
 
 function init(options = {}) {
+  if (window.__NEBULOSA_ADAPTER_LOADED__) {
+    if (window.__NEBULOSA_DEBUG === true) console.warn('[Nebulosa] ZoomAdapter already initialised — skipping');
+    return;
+  }
+  window.__NEBULOSA_ADAPTER_LOADED__ = true;
+
   _activeSurface = options.surface || 'unknown';
   ZoomEvents.register({
     onParticipantJoined: (payload) => bus.emit('participant_joined', payload),
@@ -147,6 +153,7 @@ function init(options = {}) {
 }
 
 function destroy() {
+  window.__NEBULOSA_ADAPTER_LOADED__ = false;
   ZoomEvents.stop();
   bus.clear();
   dbg('destroyed');
