@@ -123,6 +123,69 @@ async function admitParticipant(name) {
   }
 }
 
+
+async function sendPrivateMessage(name, message) {
+  try {
+    const tiles = _queryAll(ZoomSelectors.VIDEO_TILE);
+    let targetTile = null;
+    for (const tile of tiles) {
+      const nameEl = _queryFirst(ZoomSelectors.VIDEO_TILE_NAME, tile) || _queryFirst(ZoomSelectors.PARTICIPANT_ROW_NAME, tile);
+      const tileName = nameEl ? nameEl.textContent.trim() : tile.getAttribute('aria-label') || tile.getAttribute('title') || '';
+      if (tileName.toLowerCase().includes(name.toLowerCase())) { targetTile = tile; break; }
+    }
+
+    // Fallback to participant row if video tile not found
+    if (!targetTile) {
+      const rows = _queryAll(ZoomSelectors.PARTICIPANT_ROW);
+      for (const row of rows) {
+        const nameEl = _queryFirst(ZoomSelectors.PARTICIPANT_ROW_NAME, row);
+        const rowName = nameEl ? nameEl.textContent.trim() : row.getAttribute('aria-label') || '';
+        if (rowName.toLowerCase().includes(name.toLowerCase())) { targetTile = row; break; }
+      }
+    }
+
+    if (!targetTile) return false;
+
+    _rightClick(targetTile);
+
+    let menu;
+    try { menu = await _waitFor(ZoomSelectors.CONTEXT_MENU, 2500); } catch (_) { return false; }
+
+    const chatItem = _findMenuItem(menu, ZoomSelectors.CHAT_OPTION_TEXT);
+    if (!chatItem) { document.body.click(); return false; }
+
+    chatItem.click();
+
+    let chatInput;
+    try { chatInput = await _waitFor(ZoomSelectors.CHAT_INPUT, 2500); } catch (_) { return false; }
+
+    // Try to set text and dispatch input
+    if (chatInput.isContentEditable) {
+      chatInput.textContent = message;
+    } else {
+      chatInput.value = message;
+    }
+
+    chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+    // Simulate Enter key press
+    const enterEvent = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      bubbles: true,
+      cancelable: true
+    });
+    chatInput.dispatchEvent(enterEvent);
+
+    return true;
+  } catch (err) {
+    console.error('[Nebulosa:ZoomAdapter] sendPrivateMessage error:', err);
+    return false;
+  }
+}
+
 let _activeSurface = 'unknown';
 
 function init(options = {}) {
@@ -163,6 +226,6 @@ function getDiagnosticsSnapshot() {
   return ZoomEvents.getDiagnosticsSnapshot();
 }
 
-const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, getDiagnosticsSnapshot };
+const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, sendPrivateMessage, getDiagnosticsSnapshot };
 if (typeof module !== 'undefined' && module.exports) module.exports = ZoomAdapter;
 else if (typeof window !== 'undefined') window.ZoomAdapter = ZoomAdapter;
