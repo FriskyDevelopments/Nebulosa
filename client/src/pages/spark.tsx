@@ -1,13 +1,9 @@
-import { useState } from "react";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-import { CardSkeleton } from "@/components/ui/skeleton";
-import { Feedback } from "@/components/ui/feedback";
   ArrowLeft,
   Zap,
   Search,
@@ -20,22 +16,9 @@ import { Feedback } from "@/components/ui/feedback";
   Layers,
   RefreshCw,
 } from "lucide-react";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface EmojiPack {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  coverImageUrl: string | null;
-  category: string;
-  visibility: string;
-  status: string;
-  createdBy: string | null;
-  createdAt: string | null;
-  updatedAt: string | null;
-}
+import { CardSkeleton } from "@/components/ui/skeleton";
+import { Feedback } from "@/components/ui/feedback";
+import { usePackBrowserState, type EmojiPack } from "@/hooks/usePackBrowserState";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -82,30 +65,16 @@ const ALL_CATEGORIES = ["all", "basic", "reactions", "magic", "symbols", "premiu
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function SparkPage() {
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
-
-  const { data: packs = [], isLoading, isError, refetch } = useQuery<EmojiPack[]>({
-    queryKey: ["/api/emoji/packs"],
-    queryFn: async () => {
-      const res = await fetch("/api/emoji/packs");
-      if (!res.ok) throw new Error("Failed to load projects");
-      return res.json();
-    },
-  });
-
-  const filtered = packs.filter((pack) => {
-    const matchesSearch =
-      search === "" ||
-      pack.name.toLowerCase().includes(search.toLowerCase()) ||
-      (pack.description ?? "").toLowerCase().includes(search.toLowerCase()) ||
-      pack.slug.toLowerCase().includes(search.toLowerCase());
-
-    const matchesCategory =
-      activeCategory === "all" || pack.category === activeCategory;
-
-    return matchesSearch && matchesCategory;
-  });
+  const {
+    search,
+    setSearch,
+    activeCategory,
+    setActiveCategory,
+    filtered,
+    isLoading,
+    isError,
+    refetch,
+  } = usePackBrowserState();
 
   return (
     <div className="min-h-screen bg-background text-foreground">

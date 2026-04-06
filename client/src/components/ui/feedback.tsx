@@ -12,7 +12,7 @@ interface FeedbackProps {
 export function Feedback({ type, title, description, action }: FeedbackProps) {
   if (type === "error") {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center" role="alert">
         <AlertCircle className="w-12 h-12 text-destructive mb-2" />
         <h3 className="text-xl font-medium">{title}</h3>
         {description && <p className="text-muted-foreground max-w-md">{description}</p>}
@@ -23,7 +23,7 @@ export function Feedback({ type, title, description, action }: FeedbackProps) {
 
   if (type === "empty") {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center" role="status" aria-live="polite">
         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
@@ -36,7 +36,7 @@ export function Feedback({ type, title, description, action }: FeedbackProps) {
 
   // success
   return (
-    <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+    <div className="flex flex-col items-center justify-center py-20 gap-4 text-center" role="status" aria-live="polite">
       <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-2">
         <CheckCircle2 className="w-8 h-8 text-green-500" />
       </div>

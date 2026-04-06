@@ -2,10 +2,16 @@ import re
 
 
 def insert_after_import_block(content, imports_to_add):
-    import_block_match = re.match(r'((?:import\b[\s\S]*?;\s*\n)+)', content)
-    if import_block_match:
-        insert_pos = import_block_match.end(1)
-        return content[:insert_pos] + imports_to_add + content[insert_pos:]
+    # Find all complete import statements (from start of line to semicolon/newline)
+    import_pattern = r'^import\s+.*?;?\s*$'
+    matches = list(re.finditer(import_pattern, content, re.MULTILINE))
+
+    if matches:
+        # Insert after the last complete import statement
+        last_import = matches[-1]
+        insert_pos = last_import.end()
+        return content[:insert_pos] + '\n' + imports_to_add + content[insert_pos:]
+
     return imports_to_add + content
 
 

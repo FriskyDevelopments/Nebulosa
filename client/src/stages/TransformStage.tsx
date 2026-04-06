@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,22 +18,7 @@ import {
 import { CardSkeleton } from "@/components/ui/skeleton";
 import { Feedback } from "@/components/ui/feedback";
 import { usePortal } from "@/context/PortalContext";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface EmojiPack {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  coverImageUrl: string | null;
-  category: string;
-  visibility: string;
-  status: string;
-  createdBy: string | null;
-  createdAt: string | null;
-  updatedAt: string | null;
-}
+import { usePackBrowserState, type EmojiPack } from "@/hooks/usePackBrowserState";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -83,30 +66,16 @@ const ALL_CATEGORIES = ["all", "basic", "reactions", "magic", "symbols", "premiu
 
 export default function TransformStage() {
   const { setStep, setAura, activeImage } = usePortal();
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
-
-  const { data: packs = [], isLoading, isError, refetch } = useQuery<EmojiPack[]>({
-    queryKey: ["/api/emoji/packs"],
-    queryFn: async () => {
-      const res = await fetch("/api/emoji/packs");
-      if (!res.ok) throw new Error("Failed to load projects");
-      return res.json();
-    },
-  });
-
-  const filtered = packs.filter((pack) => {
-    const matchesSearch =
-      search === "" ||
-      pack.name.toLowerCase().includes(search.toLowerCase()) ||
-      (pack.description ?? "").toLowerCase().includes(search.toLowerCase()) ||
-      pack.slug.toLowerCase().includes(search.toLowerCase());
-
-    const matchesCategory =
-      activeCategory === "all" || pack.category === activeCategory;
-
-    return matchesSearch && matchesCategory;
-  });
+  const {
+    search,
+    setSearch,
+    activeCategory,
+    setActiveCategory,
+    filtered,
+    isLoading,
+    isError,
+    refetch,
+  } = usePackBrowserState();
 
   function advance() {
     setAura("result");

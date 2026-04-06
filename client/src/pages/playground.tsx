@@ -41,32 +41,57 @@ export default function Playground() {
             <section className="space-y-4">
               <div className="flex justify-between items-center border-b pb-2">
                 <h2 className="text-xl font-semibold">Interactive States Demo</h2>
-                <div className="flex gap-2 text-sm">
-                  <Badge
-                    variant={demoState === "idle" ? "default" : "outline"}
-                    className="cursor-pointer"
+                <div className="flex gap-2 text-sm" role="tablist">
+                  <button
+                    role="tab"
+                    aria-selected={demoState === "idle"}
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                      demoState === "idle"
+                        ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
+                        : "border-border bg-background hover:bg-accent hover:text-accent-foreground"
+                    }`}
                     onClick={() => setDemoState("idle")}
-                  >Idle</Badge>
-                  <Badge
-                    variant={demoState === "loading" ? "default" : "outline"}
-                    className="cursor-pointer"
+                  >Idle</button>
+                  <button
+                    role="tab"
+                    aria-selected={demoState === "loading"}
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                      demoState === "loading"
+                        ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
+                        : "border-border bg-background hover:bg-accent hover:text-accent-foreground"
+                    }`}
                     onClick={() => setDemoState("loading")}
-                  >Loading</Badge>
-                  <Badge
-                    variant={demoState === "success" ? "default" : "outline"}
-                    className="cursor-pointer"
+                  >Loading</button>
+                  <button
+                    role="tab"
+                    aria-selected={demoState === "success"}
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                      demoState === "success"
+                        ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
+                        : "border-border bg-background hover:bg-accent hover:text-accent-foreground"
+                    }`}
                     onClick={() => setDemoState("success")}
-                  >Success</Badge>
-                  <Badge
-                    variant={demoState === "error" ? "default" : "outline"}
-                    className="cursor-pointer"
+                  >Success</button>
+                  <button
+                    role="tab"
+                    aria-selected={demoState === "error"}
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                      demoState === "error"
+                        ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
+                        : "border-border bg-background hover:bg-accent hover:text-accent-foreground"
+                    }`}
                     onClick={() => setDemoState("error")}
-                  >Error</Badge>
-                  <Badge
-                    variant={demoState === "empty" ? "default" : "outline"}
-                    className="cursor-pointer"
+                  >Error</button>
+                  <button
+                    role="tab"
+                    aria-selected={demoState === "empty"}
+                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                      demoState === "empty"
+                        ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
+                        : "border-border bg-background hover:bg-accent hover:text-accent-foreground"
+                    }`}
                     onClick={() => setDemoState("empty")}
-                  >Empty</Badge>
+                  >Empty</button>
                 </div>
               </div>
 
