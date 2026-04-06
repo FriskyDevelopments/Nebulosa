@@ -123,6 +123,104 @@ async function admitParticipant(name) {
   }
 }
 
+
+async function sendPrivateMessage(name, text) {
+  try {
+    // 1. Ensure chat panel is open
+    let chatPanel = _queryFirst(ZoomSelectors.CHAT_PANEL);
+    if (!chatPanel) {
+      const openChatBtn = _queryFirst(ZoomSelectors.CHAT_OPEN_BTN);
+      if (!openChatBtn) {
+        dbg('sendPrivateMessage: CHAT_OPEN_BTN not found');
+        return 'CHAT_OPEN_BTN_NOT_FOUND';
+      }
+      openChatBtn.click();
+      try {
+        chatPanel = await _waitFor(ZoomSelectors.CHAT_PANEL, 2500);
+      } catch (_) {
+        return 'CHAT_PANEL_NOT_FOUND';
+      }
+    }
+
+    // 2. Select recipient
+    const recipientMenu = _queryFirst(ZoomSelectors.CHAT_RECIPIENT_MENU, chatPanel);
+    if (!recipientMenu) {
+      dbg('sendPrivateMessage: CHAT_RECIPIENT_MENU not found');
+      return 'CHAT_RECIPIENT_MENU_NOT_FOUND';
+    }
+
+    // Open the dropdown
+    recipientMenu.click();
+
+    // Wait for the dropdown items
+    await new Promise(r => window.setTimeout(r, 300));
+    const recipientItems = _queryAll(ZoomSelectors.CHAT_RECIPIENT_ITEM);
+    let targetItem = null;
+    for (const item of recipientItems) {
+      if ((item.textContent || '').toLowerCase().includes(name.toLowerCase())) {
+        targetItem = item;
+        break;
+      }
+    }
+
+    if (!targetItem) {
+      // Close dropdown if user not found
+      document.body.click();
+      return 'USER_NOT_FOUND_IN_CHAT';
+    }
+
+    targetItem.click();
+
+    // 3. Find input and send message
+    const chatInput = _queryFirst(ZoomSelectors.CHAT_INPUT, chatPanel);
+    if (!chatInput) return 'CHAT_INPUT_NOT_FOUND';
+
+    // Focus and type
+    chatInput.focus();
+
+    // Handle both input/textarea and contenteditable elements
+    if (chatInput.isContentEditable) {
+      chatInput.textContent = text;
+      // Trigger input event for React/frameworks
+      chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+    } else {
+      // Create a native setter for React 16+ controlled inputs
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')
+                                    ? Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
+                                    : null;
+      const nativeTextAreaValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')
+                                    ? Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set
+                                    : null;
+
+      if (nativeInputValueSetter && chatInput instanceof HTMLInputElement) {
+        nativeInputValueSetter.call(chatInput, text);
+      } else if (nativeTextAreaValueSetter && chatInput instanceof HTMLTextAreaElement) {
+        nativeTextAreaValueSetter.call(chatInput, text);
+      } else {
+        chatInput.value = text;
+      }
+      chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+      chatInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 4. Send the message (simulate Enter key press)
+    const enterEvent = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      bubbles: true,
+      cancelable: true
+    });
+    chatInput.dispatchEvent(enterEvent);
+
+    return 'MESSAGE_SENT';
+  } catch (err) {
+    console.error('[Nebulosa:ZoomAdapter] sendPrivateMessage error:', err);
+    return 'ERROR';
+  }
+}
+
 let _activeSurface = 'unknown';
 
 function init(options = {}) {
@@ -163,6 +261,6 @@ function getDiagnosticsSnapshot() {
   return ZoomEvents.getDiagnosticsSnapshot();
 }
 
-const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, getDiagnosticsSnapshot };
+const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, sendPrivateMessage, getDiagnosticsSnapshot };
 if (typeof module !== 'undefined' && module.exports) module.exports = ZoomAdapter;
 else if (typeof window !== 'undefined') window.ZoomAdapter = ZoomAdapter;

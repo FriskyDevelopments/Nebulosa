@@ -19,8 +19,13 @@
 
 const bus =
   typeof require !== 'undefined'
-    ? require('../../../packages/event-bus')
+    ? require('../packages/event-bus')
     : window.NebulosaBus;
+
+const ZoomAdapter =
+  typeof require !== 'undefined'
+    ? require('../integrations/zoom/adapter')
+    : window.ZoomAdapter;
 
 const DEBUG =
   typeof window !== 'undefined' && window.__NEBULOSA_DEBUG === true;
@@ -137,8 +142,23 @@ function _checkReminders() {
  * @param {string} name - Participant display name.
  */
 function _sendCameraReminder(name) {
-  // TODO: implement chat-send action via ZoomAdapter once validated
-  dbg(`[TODO] Would send camera reminder to "${name}" via Zoom chat`);
+  dbg(`Sending camera reminder to "${name}" via Zoom chat`);
+  const message = "Hi! We noticed your camera has been off for a while. Could you please turn it back on when you get a chance? Thanks!";
+
+  // Try to send the message
+  ZoomAdapter.sendPrivateMessage(name, message).then((result) => {
+    if (result === 'MESSAGE_SENT') {
+      dbg(`Successfully sent camera reminder to "${name}"`);
+      bus.emit('camera_reminder_sent', { name });
+    } else {
+      dbg(`Failed to send camera reminder to "${name}": ${result}`);
+      bus.emit('camera_reminder_failed', { name, reason: result });
+    }
+  }).catch((err) => {
+    console.error(`[Nebulosa:CameraMonitor] error sending camera reminder to "${name}":`, err);
+  });
+
+  // Still emit the original event for compatibility/metrics
   bus.emit('camera_reminder_due', { name });
 }
 
