@@ -64,12 +64,11 @@ async function admit(name) {
 
 /**
  * Admit all participants currently in the waiting room.
- * TODO: Implement DOM-based "Admit All" button click via ZoomAdapter.
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>}
  */
 async function admitAll() {
-  dbg('admitAll — TODO: implement via ZoomAdapter');
-  // TODO: click WAITING_ROOM_ADMIT_ALL_BTN via ZoomAdapter
+  dbg('admitAll via ZoomAdapter');
+  return ZoomAdapter.admitAllParticipants();
 }
 
 // CommonJS + browser-global dual export
