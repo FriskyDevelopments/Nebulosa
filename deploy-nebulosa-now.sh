@@ -3,7 +3,7 @@
 echo "🚂 NEBULOSA RAILWAY DEPLOYMENT"
 echo "=============================="
 echo "Project: Nebulosa Telegram Bot"
-echo "Token: f116a0ab-8170-432d-a69a-f94f23d4a726"
+
 echo ""
 
 # Ensure we have package.json ready
@@ -13,8 +13,11 @@ if [ ! -f "package.json" ] && [ -f "package-bot.json" ]; then
     echo "✅ package.json ready"
 fi
 
-# Set Railway token environment
-export RAILWAY_TOKEN="f116a0ab-8170-432d-a69a-f94f23d4a726"
+# Check if RAILWAY_TOKEN is set
+if [ -z "$RAILWAY_TOKEN" ]; then
+    echo "❌ Error: RAILWAY_TOKEN environment variable is not set."
+    exit 1
+fi
 
 echo "🔑 Authenticating with Railway..."
 
@@ -29,7 +32,7 @@ if [ $? -eq 0 ]; then
     echo "👤 User: $(railway whoami)"
 else
     echo "❌ Railway authentication failed"
-    echo "Please check your token: f116a0ab-8170-432d-a69a-f94f23d4a726"
+    echo "Please check your token"
     exit 1
 fi
 
