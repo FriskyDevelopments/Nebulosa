@@ -76,7 +76,7 @@ export default function NebulosaDashboard() {
       queryClient.invalidateQueries();
     },
     onError: (error: Error) => {
-      analytics.track('flow_failure', { flowName: 'operator_login', errorType: error.name, errorMessage: error.message });
+      analytics.track('flow_failure', { flowName: 'operator_login', errorType: error.name });
     }
   });
 
