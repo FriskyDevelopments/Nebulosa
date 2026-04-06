@@ -3,23 +3,24 @@
  *
  * Automated waiting room management scaffold.
  *
- * Status: SCAFFOLD — No waiting room logic existed in the original
- * Tampermonkey/Puppeteer implementation. This module provides the
- * architecture boundary and a clean API for future implementation.
+ * Status: ACTIVE
  *
  * What is implemented:
  *  - Module lifecycle (enable/disable)
  *  - admit() and admitAll() wired to ZoomAdapter
+ *  - Detecting waiting room entries via DOM events
  *
  * What still needs implementation / validation:
- *  - Detecting waiting room entries via DOM events
  *  - Auto-admit rules (e.g. allow-list by display name pattern)
  *  - Notification to host when someone enters the waiting room
- *
- * See docs/tampermonkey-migration.md for full status.
  */
 
 /* global window */
+
+const bus =
+  typeof require !== 'undefined'
+    ? require('../../../packages/event-bus')
+    : window.NebulosaBus;
 
 const ZoomAdapter =
   typeof require !== 'undefined'
@@ -34,22 +35,38 @@ function dbg(...args) {
 }
 
 let _enabled = false;
+const _unsubs = [];
 
 function enable() {
   if (_enabled) return;
   _enabled = true;
-  dbg('enabled (scaffold)');
-  // TODO: subscribe to waiting-room DOM mutation events
+  _unsubs.push(
+    bus.on('waiting_room_joined', _onWaitingRoomJoined),
+    bus.on('waiting_room_left', _onWaitingRoomLeft)
+  );
+  dbg('enabled');
 }
 
 function disable() {
   if (!_enabled) return;
   _enabled = false;
+  _unsubs.forEach((unsub) => unsub());
+  _unsubs.length = 0;
   dbg('disabled');
 }
 
 function isEnabled() {
   return _enabled;
+}
+
+function _onWaitingRoomJoined({ name }) {
+  dbg('waiting room joined by', name);
+  // TODO: Auto-admit rules (e.g. allow-list by display name pattern)
+  // TODO: Notification to host when someone enters the waiting room
+}
+
+function _onWaitingRoomLeft({ name }) {
+  dbg('waiting room left by', name);
 }
 
 /**
@@ -64,12 +81,11 @@ async function admit(name) {
 
 /**
  * Admit all participants currently in the waiting room.
- * TODO: Implement DOM-based "Admit All" button click via ZoomAdapter.
  * @returns {Promise<void>}
  */
 async function admitAll() {
-  dbg('admitAll — TODO: implement via ZoomAdapter');
-  // TODO: click WAITING_ROOM_ADMIT_ALL_BTN via ZoomAdapter
+  dbg('admitAll');
+  return ZoomAdapter.admitAll();
 }
 
 // CommonJS + browser-global dual export

@@ -28,6 +28,7 @@
   const _handsRaised = new Set();
   const _cameraOff = new Set();
   const _cameraSeen = new Set();
+  const _waitingRoomParticipants = new Set();
 
   let _observer = null;
   let _pollInterval = null;
@@ -43,6 +44,8 @@
     onCameraOn: null,
     onCameraOff: null,
     onChatMessage: null,
+    onWaitingRoomJoined: null,
+    onWaitingRoomLeft: null,
   };
 
   const _selectorFailures = new Map();
@@ -116,6 +119,7 @@
     _scanHandRaises();
     _scanCameras();
     _scanChat();
+    _scanWaitingRoom();
   }
 
   function stop() {
@@ -129,6 +133,7 @@
     _handsRaised.clear();
     _cameraOff.clear();
     _cameraSeen.clear();
+    _waitingRoomParticipants.clear();
     _selectorFailures.clear();
     _surface = 'unknown';
     window.__NEBULOSA_OBSERVER_ACTIVE__ = false;
@@ -226,6 +231,33 @@
 
   let _lastChatContainer = null;
   let _lastMessageCount = 0;
+
+  function _scanWaitingRoom() {
+    const panel = _queryFirst(ZoomSelectors.WAITING_ROOM_PANEL);
+    if (!panel) return;
+
+    const rowSelector = _surface === 'zoom_web_client' ? ZoomSelectors.WC_PARTICIPANT_ROW : ZoomSelectors.PARTICIPANT_ROW;
+    const rows = _queryAll(rowSelector, panel);
+
+    const current = new Set();
+    rows.forEach((row) => {
+      const name = _extractName(row);
+      if (!name) return;
+      current.add(name);
+      if (!_waitingRoomParticipants.has(name)) {
+        _waitingRoomParticipants.add(name);
+        _callbacks.onWaitingRoomJoined && _callbacks.onWaitingRoomJoined({ name });
+      }
+    });
+
+    Array.from(_waitingRoomParticipants).forEach((name) => {
+      if (!current.has(name)) {
+        _waitingRoomParticipants.delete(name);
+        _callbacks.onWaitingRoomLeft && _callbacks.onWaitingRoomLeft({ name });
+      }
+    });
+  }
+
   function _scanChat() {
     const panel = _queryFirst(ZoomSelectors.CHAT_PANEL);
     if (!panel) return;
@@ -249,6 +281,7 @@
       participantCount: _participants.size,
       handsRaisedCount: _handsRaised.size,
       cameraOffCount: _cameraOff.size,
+      waitingRoomCount: _waitingRoomParticipants.size,
       selectorFailures: Object.fromEntries(_selectorFailures.entries()),
     };
   }
