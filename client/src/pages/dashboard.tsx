@@ -1,4 +1,7 @@
 import { Link } from "wouter";
+import { AuthDialog } from "@/components/AuthDialog";
+import { OnboardingModal } from "@/components/OnboardingModal";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Bot, Zap, Layers } from "lucide-react";
@@ -6,6 +9,7 @@ import { Sparkles, Bot, Zap, Layers } from "lucide-react";
 export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <OnboardingModal />
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -14,6 +18,7 @@ export default function Dashboard() {
             <span className="text-xl font-bold">Nebulosa</span>
           </div>
           <nav className="flex items-center gap-4">
+            <AuthDialog />
             <Link href="/spark">
               <Button variant="ghost" className="gap-2">
                 <Zap className="h-4 w-4" />
@@ -39,6 +44,7 @@ export default function Dashboard() {
           Telegram community — all from one place.
         </p>
         <div className="flex items-center justify-center gap-4">
+            <AuthDialog />
           <Link href="/spark">
             <Button size="lg" className="gap-2">
               <Zap className="h-5 w-5" />
@@ -60,6 +66,7 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <AuthDialog />
             <Link href="/spark">
               <Button variant="outline" className="w-full">
                 Open Spark

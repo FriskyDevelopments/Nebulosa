@@ -1,4 +1,7 @@
 import { Sparkles } from "lucide-react";
+import { AuthDialog } from "@/components/AuthDialog";
+import { Button } from "@/components/ui/button";
+import { LogIn } from "lucide-react";
 import { usePortal, type Aura, type Step } from "@/context/PortalContext";
 import IntakeStage from "@/stages/IntakeStage";
 import TransformStage from "@/stages/TransformStage";
@@ -76,8 +79,16 @@ export default function AppShell() {
             ))}
           </nav>
 
+          <div className="ml-auto mr-4">
+            <AuthDialog>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <LogIn className="h-4 w-4" />
+                  Sign In
+                </Button>
+              </AuthDialog>
+          </div>
           {/* Aura indicator */}
-          <div className="ml-auto">
+          <div className="">
             <span
               className={[
                 "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold tracking-widest",
