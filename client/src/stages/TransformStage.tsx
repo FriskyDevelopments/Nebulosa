@@ -17,6 +17,8 @@ import {
   RefreshCw,
   ArrowRight,
 } from "lucide-react";
+import { CardSkeleton } from "@/components/ui/skeleton";
+import { Feedback } from "@/components/ui/feedback";
 import { usePortal } from "@/context/PortalContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -177,43 +179,22 @@ export default function TransformStage() {
       {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader>
-                <div className="h-4 bg-muted rounded w-2/3" />
-                <div className="h-3 bg-muted rounded w-full mt-2" />
-              </CardHeader>
-              <CardContent>
-                <div className="h-3 bg-muted rounded w-1/2" />
-              </CardContent>
-            </Card>
+            <CardSkeleton key={i} />
           ))}
         </div>
       ) : isError ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-          <p className="text-muted-foreground">Failed to load projects.</p>
-          <Button variant="outline" onClick={() => refetch()} className="gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Retry
-          </Button>
-        </div>
+        <Feedback
+          type="error"
+          title="Failed to load projects"
+          action={<Button variant="outline" onClick={() => refetch()} className="gap-2"><RefreshCw className="h-4 w-4" />Retry</Button>}
+        />
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-          <Zap className="h-12 w-12 text-muted-foreground/40" />
-          <div className="space-y-1">
-            <p className="font-medium">No projects found</p>
-            <p className="text-sm text-muted-foreground">
-              {search || activeCategory !== "all"
-                ? "Try adjusting your search or filters."
-                : "Create your first project to get started."}
-            </p>
-          </div>
-          {!search && activeCategory === "all" && (
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              New project
-            </Button>
-          )}
-        </div>
+        <Feedback
+          type="empty"
+          title="No projects found"
+          description={search || activeCategory !== "all" ? "Try adjusting your search or filters." : "Create your first project to get started."}
+          action={!search && activeCategory === "all" ? <Button className="gap-2"><Plus className="h-4 w-4" />New project</Button> : null}
+        />
       ) : (
         <>
           <p className="text-sm text-muted-foreground">
