@@ -34,6 +34,14 @@ export class ConsoleAnalyticsAdapter implements AnalyticsAdapter {
  * We'll use a generic API call.
  */
 export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
+  private readonly eventsEndpoint: string;
+  private readonly identifyEndpoint: string;
+
+  constructor(eventsEndpoint: string, identifyEndpoint: string) {
+    this.eventsEndpoint = eventsEndpoint;
+    this.identifyEndpoint = identifyEndpoint;
+  }
+
   async track<K extends EventName>(eventName: K, payload: EventMap[K]): Promise<void> {
     try {
       // Avoid sending sensitive payload data, ensure it's privacy safe
@@ -46,7 +54,7 @@ export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
 
       // Call the existing analytics endpoint if it exists
       // We wrap it in a try-catch so it won't block the UI if the endpoint fails
-      await apiRequest('POST', '/api/analytics/events', safePayload);
+      await apiRequest('POST', this.eventsEndpoint, safePayload);
 
       if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
         console.log(`[Analytics - Server] Tracked Event: ${eventName}`, safePayload);
@@ -65,7 +73,7 @@ export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
         traits: traits || {},
       };
 
-      await apiRequest('POST', '/api/analytics/identify', payload);
+      await apiRequest('POST', this.identifyEndpoint, payload);
 
       if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
         console.log(`[Analytics - Server] Identified User: ${userId}`, traits);
@@ -80,6 +88,11 @@ export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
 }
 
 // Select adapter based on environment or feature flag
-export const defaultAdapter = import.meta.env.PROD
-  ? new ServerApiAnalyticsAdapter() // Use server adapter in prod (fallback safe due to try/catch)
-  : new ConsoleAnalyticsAdapter();  // Use console adapter in dev
+// Only use ServerApiAnalyticsAdapter if endpoints are explicitly configured
+const ANALYTICS_EVENTS_ENDPOINT = import.meta.env.VITE_ANALYTICS_EVENTS_ENDPOINT;
+const ANALYTICS_IDENTIFY_ENDPOINT = import.meta.env.VITE_ANALYTICS_IDENTIFY_ENDPOINT;
+
+export const defaultAdapter =
+  ANALYTICS_EVENTS_ENDPOINT && ANALYTICS_IDENTIFY_ENDPOINT
+    ? new ServerApiAnalyticsAdapter(ANALYTICS_EVENTS_ENDPOINT, ANALYTICS_IDENTIFY_ENDPOINT)
+    : new ConsoleAnalyticsAdapter(); // Default to console adapter unless endpoints are configured

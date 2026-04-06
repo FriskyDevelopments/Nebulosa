@@ -68,21 +68,21 @@ export default function NebulosaDashboard() {
 
   const loginMutation = useMutation({
     mutationFn: () => {
-      analytics.track('action_submit', { actionName: 'operator_login_attempt', context: { username } });
+      analytics.track('action_submit', { actionName: 'operator_login_attempt' });
       return apiRequest("POST", "/api/v1/auth/login", { username, password });
     },
     onSuccess: () => {
       analytics.track('flow_completion', { flowName: 'operator_login' });
       queryClient.invalidateQueries();
     },
-    onError: (error: Error) => {
-      analytics.track('flow_failure', { flowName: 'operator_login', errorType: error.name, errorMessage: error.message });
+    onError: () => {
+      analytics.track('flow_failure', { flowName: 'operator_login', errorType: 'auth_error' });
     }
   });
 
   const createCommandMutation = useMutation({
     mutationFn: () => {
-      analytics.track('action_submit', { actionName: 'queue_command', context: { type: commandType } });
+      analytics.track('action_submit', { actionName: 'queue_command' });
       return apiRequest("POST", "/api/v1/commands", {
         type: commandType,
         payload: {
@@ -97,8 +97,8 @@ export default function NebulosaDashboard() {
       analytics.track('flow_completion', { flowName: 'queue_command' });
       queryClient.invalidateQueries({ queryKey: ["commands"] });
     },
-    onError: (error: Error) => {
-      analytics.track('flow_failure', { flowName: 'queue_command', errorType: error.name, errorMessage: error.message });
+    onError: () => {
+      analytics.track('flow_failure', { flowName: 'queue_command', errorType: 'network_error' });
     }
   });
 

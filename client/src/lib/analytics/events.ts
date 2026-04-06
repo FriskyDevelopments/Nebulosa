@@ -17,6 +17,54 @@ export type EventCategory =
   | 'operator_control'
   | 'system';
 
+/**
+ * Safe metadata type that restricts allowed keys to prevent PII leakage.
+ * Only whitelisted keys with controlled value types are permitted.
+ */
+export type SafeMetadata = {
+  projectId?: number;
+  projectSlug?: string;
+  category?: string;
+  term?: string;
+  source?: string;
+  flowName?: string;
+  actionName?: string;
+  featureName?: string;
+};
+
+/**
+ * Sanitized context type for action events.
+ * Only allows whitelisted keys to prevent arbitrary PII.
+ */
+export type SanitizedContext = {
+  source?: 'header' | 'empty_state' | 'sidebar' | 'dashboard';
+  category?: string;
+  resultCount?: number;
+};
+
+/**
+ * Sanitized interaction data for feature interactions.
+ * Only allows whitelisted keys to prevent arbitrary PII.
+ */
+export type SanitizedInteractionData = {
+  projectId?: number;
+  projectSlug?: string;
+  category?: string;
+  term?: string;
+  resultCount?: number;
+};
+
+/**
+ * Sanitized error type for failure events.
+ * Only allows whitelisted error types, no free-form error messages.
+ */
+export type SanitizedErrorType =
+  | 'network_error'
+  | 'validation_error'
+  | 'auth_error'
+  | 'timeout_error'
+  | 'unknown_error';
+
 export type BaseEventPayload = {
   // Common properties
   timestamp?: string; // Automatically added by the adapter
@@ -40,7 +88,7 @@ export type FlowStartPayload = BaseEventPayload & {
 // Action Submits
 export type ActionSubmitPayload = BaseEventPayload & {
   actionName: 'spark_navigation_click' | 'operator_login_attempt' | 'queue_command';
-  context?: Record<string, string | number | boolean>;
+  context?: SanitizedContext;
 };
 
 // Completions
@@ -52,14 +100,13 @@ export type CompletionPayload = BaseEventPayload & {
 // Failures/Retries
 export type FailurePayload = BaseEventPayload & {
   flowName: 'operator_login' | 'queue_command';
-  errorType: string;
-  errorMessage?: string;
+  errorType: SanitizedErrorType;
 };
 
 // Feature Interactions
 export type FeatureInteractionPayload = BaseEventPayload & {
   featureName: 'project_search' | 'category_filter' | 'view_project';
-  interactionData?: Record<string, string | number | boolean>;
+  interactionData?: SanitizedInteractionData;
 };
 
 // Event Map binding event names to their payloads

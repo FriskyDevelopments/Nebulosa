@@ -140,10 +140,16 @@ export default function SparkPage() {
             — where you find your projects
           </span>
           <div className="ml-auto">
-            <Button className="gap-2" size="sm" onClick={() => analytics.track('flow_start', { flowName: 'create_project', source: 'header' })}>
-              <Plus className="h-4 w-4" />
-              New project
-            </Button>
+            <Link href="/emoji/packs/new">
+              <Button
+                className="gap-2"
+                size="sm"
+                onClick={() => analytics.track('flow_start', { flowName: 'create_project', source: 'header' })}
+              >
+                <Plus className="h-4 w-4" />
+                New project
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -239,10 +245,15 @@ export default function SparkPage() {
               </p>
             </div>
             {!search && activeCategory === "all" && (
-              <Button className="gap-2" onClick={() => analytics.track('flow_start', { flowName: 'create_project', source: 'empty_state' })}>
-                <Plus className="h-4 w-4" />
-                New project
-              </Button>
+              <Link href="/emoji/packs/new">
+                <Button
+                  className="gap-2"
+                  onClick={() => analytics.track('flow_start', { flowName: 'create_project', source: 'empty_state' })}
+                >
+                  <Plus className="h-4 w-4" />
+                  New project
+                </Button>
+              </Link>
             )}
           </div>
         ) : (
@@ -276,7 +287,8 @@ function ProjectCard({ pack }: { pack: EmojiPack }) {
   }, [pack.id, pack.slug]);
 
   return (
-    <Card className="hover:shadow-md transition-shadow flex flex-col cursor-pointer" onClick={handleViewProject}>
+    <Link href={`/emoji/packs/${pack.slug}`}>
+      <Card className="hover:shadow-md transition-shadow flex flex-col cursor-pointer" onClick={handleViewProject}>
       {pack.coverImageUrl ? (
         <div className="h-32 w-full overflow-hidden rounded-t-lg bg-muted">
           <img
@@ -332,5 +344,6 @@ function ProjectCard({ pack }: { pack: EmojiPack }) {
         )}
       </CardFooter>
     </Card>
+    </Link>
   );
 }
