@@ -1,4 +1,6 @@
 import { Link } from "wouter";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Bot, Zap, Layers } from "lucide-react";
@@ -14,6 +16,31 @@ export default function Dashboard() {
             <span className="text-xl font-bold">Nebulosa</span>
           </div>
           <nav className="flex items-center gap-4">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Bot className="h-4 w-4" />
+                  Sign In
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Connect your account</DialogTitle>
+                  <DialogDescription>
+                    Sign in with your preferred platform to access Stix Magic.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-4 py-4">
+                  <Button className="w-full gap-2" size="lg" onClick={() => window.location.href = "/api/auth/zoom"}>
+                    Sign in with Zoom
+                  </Button>
+                  <Button className="w-full gap-2" variant="outline" size="lg" onClick={() => window.location.href = "/api/auth/telegram"}>
+                    <Bot className="h-4 w-4" />
+                    Sign in with Telegram
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Link href="/spark">
               <Button variant="ghost" className="gap-2">
                 <Zap className="h-4 w-4" />
@@ -39,6 +66,31 @@ export default function Dashboard() {
           Telegram community — all from one place.
         </p>
         <div className="flex items-center justify-center gap-4">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Bot className="h-4 w-4" />
+                  Sign In
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Connect your account</DialogTitle>
+                  <DialogDescription>
+                    Sign in with your preferred platform to access Stix Magic.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-4 py-4">
+                  <Button className="w-full gap-2" size="lg" onClick={() => window.location.href = "/api/auth/zoom"}>
+                    Sign in with Zoom
+                  </Button>
+                  <Button className="w-full gap-2" variant="outline" size="lg" onClick={() => window.location.href = "/api/auth/telegram"}>
+                    <Bot className="h-4 w-4" />
+                    Sign in with Telegram
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           <Link href="/spark">
             <Button size="lg" className="gap-2">
               <Zap className="h-5 w-5" />
@@ -60,6 +112,31 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Bot className="h-4 w-4" />
+                  Sign In
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Connect your account</DialogTitle>
+                  <DialogDescription>
+                    Sign in with your preferred platform to access Stix Magic.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-4 py-4">
+                  <Button className="w-full gap-2" size="lg" onClick={() => window.location.href = "/api/auth/zoom"}>
+                    Sign in with Zoom
+                  </Button>
+                  <Button className="w-full gap-2" variant="outline" size="lg" onClick={() => window.location.href = "/api/auth/telegram"}>
+                    <Bot className="h-4 w-4" />
+                    Sign in with Telegram
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Link href="/spark">
               <Button variant="outline" className="w-full">
                 Open Spark
