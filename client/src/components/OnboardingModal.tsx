@@ -48,10 +48,10 @@ export function OnboardingModal() {
           <p className="text-sm text-muted-foreground">
             1. Open @BotFather on Telegram and create a new bot.<br/>
             2. Copy the HTTP API token.<br/>
-            3. Configure it in your backend environment variables.
+            3. Configure it in your server environment variables.
           </p>
-          <p className="text-xs text-muted-foreground mt-2">
-            Token configuration will be available once backend integration is complete.
+          <p className="text-xs text-muted-foreground mt-4">
+            Set your TELEGRAM_BOT_TOKEN in the server configuration to enable bot features.
           </p>
         </div>
       )
@@ -65,8 +65,8 @@ export function OnboardingModal() {
           <p className="text-sm text-muted-foreground">
             Connect your Zoom OAuth App to enable automatic pinning, muting, and operator controls from the Nebulosa dashboard.
           </p>
-          <p className="text-xs text-muted-foreground mt-2">
-            Zoom OAuth configuration will be available once backend integration is complete.
+          <p className="text-xs text-muted-foreground mt-4">
+            Configure ZOOM_CLIENT_ID and ZOOM_CLIENT_SECRET in your server environment to enable Zoom features.
           </p>
         </div>
       )
