@@ -1,8 +1,4 @@
-import { Sparkles } from "lucide-react";
-import { Bot, LogIn } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Bot, LogIn } from "lucide-react";
+import { Sparkles, Bot, LogIn } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { usePortal, type Aura, type Step } from "@/context/PortalContext";
@@ -110,7 +106,7 @@ export default function AppShell() {
             </Dialog>
           </div>
           {/* Aura indicator */}
-          <div className="">
+          <div>
             <span
               className={[
                 "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold tracking-widest",
