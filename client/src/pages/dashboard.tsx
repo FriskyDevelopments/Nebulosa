@@ -21,7 +21,7 @@ export default function Dashboard() {
             <span className="text-xl font-bold">Nebulosa</span>
           </div>
           <nav className="flex items-center gap-4">
-            <Link href="/spark" onClick={() => analytics.track('action_submit', { actionName: 'spark_navigation_click', context: { location: 'header' } })}>
+            <Link href="/spark" onClick={() => analytics.track('action_submit', { actionName: 'spark_navigation_click', context: { source: 'header' } })}>
               <Button variant="ghost" className="gap-2">
                 <Zap className="h-4 w-4" />
                 Spark
@@ -46,7 +46,7 @@ export default function Dashboard() {
           Telegram community — all from one place.
         </p>
         <div className="flex items-center justify-center gap-4">
-          <Link href="/spark" onClick={() => analytics.track('action_submit', { actionName: 'spark_navigation_click', context: { location: 'hero' } })}>
+          <Link href="/spark" onClick={() => analytics.track('action_submit', { actionName: 'spark_navigation_click', context: { source: 'hero' } })}>
             <Button size="lg" className="gap-2">
               <Zap className="h-5 w-5" />
               Go to Spark
@@ -67,7 +67,7 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/spark" onClick={() => analytics.track('action_submit', { actionName: 'spark_navigation_click', context: { location: 'card' } })}>
+            <Link href="/spark" onClick={() => analytics.track('action_submit', { actionName: 'spark_navigation_click', context: { source: 'card' } })}>
               <Button variant="outline" className="w-full">
                 Open Spark
               </Button>

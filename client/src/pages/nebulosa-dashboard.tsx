@@ -75,8 +75,13 @@ export default function NebulosaDashboard() {
       analytics.track('flow_completion', { flowName: 'operator_login' });
       queryClient.invalidateQueries();
     },
-    onError: () => {
-      analytics.track('flow_failure', { flowName: 'operator_login', errorType: 'auth_error' });
+    onError: (error: Error) => {
+      // Map error to known error type
+      const errorType = error.name === 'TypeError' ? 'network_error' :
+                       error.message.includes('401') || error.message.includes('403') ? 'auth_error' :
+                       error.message.includes('timeout') ? 'timeout_error' :
+                       error.message.includes('500') ? 'server_error' : 'unknown_error';
+      analytics.track('flow_failure', { flowName: 'operator_login', errorType });
     }
   });
 
@@ -97,8 +102,14 @@ export default function NebulosaDashboard() {
       analytics.track('flow_completion', { flowName: 'queue_command' });
       queryClient.invalidateQueries({ queryKey: ["commands"] });
     },
-    onError: () => {
-      analytics.track('flow_failure', { flowName: 'queue_command', errorType: 'network_error' });
+    onError: (error: Error) => {
+      // Map error to known error type
+      const errorType = error.name === 'TypeError' ? 'network_error' :
+                       error.message.includes('400') ? 'validation_error' :
+                       error.message.includes('401') || error.message.includes('403') ? 'auth_error' :
+                       error.message.includes('timeout') ? 'timeout_error' :
+                       error.message.includes('500') ? 'server_error' : 'unknown_error';
+      analytics.track('flow_failure', { flowName: 'queue_command', errorType });
     }
   });
 
