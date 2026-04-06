@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 
@@ -5,9 +6,9 @@ const app = express();
 const PORT = 3000;
 
 // Environment variables
-const ZOOM_CLIENT_ID = 'K3t8Sd3rSZOSKfkyMftDXg';
-const ZOOM_CLIENT_SECRET = 'Gb9JmLsI1brv4bPdAPB9CSknQV4GiFB';
-const BOT_TOKEN = '8113796108:AAHvZqXdqTRzor5ep7tV0OCDWzQO_8TjBUg';
+const ZOOM_CLIENT_ID = process.env.ZOOM_CLIENT_ID;
+const ZOOM_CLIENT_SECRET = process.env.ZOOM_CLIENT_SECRET;
+const BOT_TOKEN = process.env.BOT_TOKEN;
 
 app.get('/auth/zoom/callback', async (req, res) => {
     const { code, state } = req.query;
