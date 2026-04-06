@@ -28,108 +28,125 @@ async function handleDraftCallback(bot, query) {
 
     await bot.answerCallbackQuery(query.id);
 
+
+
     switch (action) {
-        case 'approve': {
-            const draft = approveDraft(userId, draftId);
-            if (!draft) {
-                await bot.sendMessage(chatId, `⚠️ Draft #${draftId} not found.`);
-                return;
-            }
-
-            await _updateReviewCard(
-                bot, chatId, query.message.message_id,
-                draft,
-                `✅ *Draft #${draftId} approved!*\n_Your sticker is ready to be added to a collection._`
-            );
+        case 'approve':
+            await handleApproveDraft(bot, query, chatId, userId, draftId);
             break;
-        }
-
-        case 'retry': {
-            // Check limits before creating a new draft
-            const check = canCreate(userId);
-            if (!check.allowed) {
-                await bot.sendMessage(chatId, check.message, { parse_mode: 'Markdown' });
-                return;
-            }
-
-            const original = retryDraft(userId, draftId);
-            if (!original) {
-                await bot.sendMessage(chatId, `⚠️ Draft #${draftId} not found.`);
-                return;
-            }
-
-            // Update the old card to show it's been retried
-            await _updateReviewCard(
-                bot, chatId, query.message.message_id,
-                null,
-                `🔄 *Draft #${draftId} replaced.* Creating new draft…`
-            );
-
-            // Re-process the original source image if available (Phase 1: reuse fileId)
-            try {
-                recordCreation(userId);
-                const newDraft = createDraft(userId, {
-                    fileId: original.fileId,
-                    fileUniqueId: original.fileUniqueId,
-                    sourceMessageId: original.sourceMessageId,
-                    chatId,
-                });
-
-                const reviewMsg = await bot.sendPhoto(
-                    chatId,
-                    newDraft.fileId,
-                    {
-                        caption:
-                            `✨ *Retry – Draft #${newDraft.id} ready!*\n` +
-                            `Review your sticker and choose an action:`,
-                        parse_mode: 'Markdown',
-                        reply_markup: draftReviewKeyboard(newDraft.id),
-                    }
-                );
-                setReviewMessageId(userId, newDraft.id, reviewMsg.message_id);
-            } catch (err) {
-                console.error('[DraftHandler] Retry error:', err.message);
-                await bot.sendMessage(chatId, `❌ Retry failed: _${err.message}_`, {
-                    parse_mode: 'Markdown',
-                });
-            }
+        case 'retry':
+            await handleRetryDraft(bot, query, chatId, userId, draftId);
             break;
-        }
-
-        case 'trash': {
-            const draft = trashDraft(userId, draftId);
-            if (!draft) {
-                await bot.sendMessage(chatId, `⚠️ Draft #${draftId} not found.`);
-                return;
-            }
-
-            await _updateReviewCard(
-                bot, chatId, query.message.message_id,
-                draft,
-                `🗑 *Draft #${draftId} trashed.*\n_It will be automatically removed after the retention period._`
-            );
+        case 'trash':
+            await handleTrashDraft(bot, query, chatId, userId, draftId);
             break;
-        }
-
-        case 'save': {
-            const draft = saveDraftForLater(userId, draftId);
-            if (!draft) {
-                await bot.sendMessage(chatId, `⚠️ Draft #${draftId} not found.`);
-                return;
-            }
-
-            await _updateReviewCard(
-                bot, chatId, query.message.message_id,
-                draft,
-                `💾 *Draft #${draftId} saved to your Draft Vault.*\n_Find it later with /drafts._`
-            );
+        case 'save':
+            await handleSaveDraft(bot, query, chatId, userId, draftId);
             break;
-        }
-
         default:
             break;
     }
 }
+
+
+async function handleApproveDraft(bot, query, chatId, userId, draftId) {
+    const draft = approveDraft(userId, draftId);
+    if (!draft) {
+        await bot.sendMessage(chatId, `⚠️ Draft #${draftId} not found.`);
+        return;
+    }
+
+    await _updateReviewCard(
+        bot, chatId, query.message.message_id,
+        draft,
+        `✅ *Draft #${draftId} approved!*
+_Your sticker is ready to be added to a collection._`
+    );
+}
+
+async function handleRetryDraft(bot, query, chatId, userId, draftId) {
+    // Check limits before creating a new draft
+    const check = canCreate(userId);
+    if (!check.allowed) {
+        await bot.sendMessage(chatId, check.message, { parse_mode: 'Markdown' });
+        return;
+    }
+
+    const original = retryDraft(userId, draftId);
+    if (!original) {
+        await bot.sendMessage(chatId, `⚠️ Draft #${draftId} not found.`);
+        return;
+    }
+
+    // Update the old card to show it's been retried
+    await _updateReviewCard(
+        bot, chatId, query.message.message_id,
+        null,
+        `🔄 *Draft #${draftId} replaced.* Creating new draft…`
+    );
+
+    // Re-process the original source image if available (Phase 1: reuse fileId)
+    try {
+        recordCreation(userId);
+        const newDraft = createDraft(userId, {
+            fileId: original.fileId,
+            fileUniqueId: original.fileUniqueId,
+            sourceMessageId: original.sourceMessageId,
+            chatId,
+        });
+
+        const reviewMsg = await bot.sendPhoto(
+            chatId,
+            newDraft.fileId,
+            {
+                caption:
+                    `✨ *Retry – Draft #${newDraft.id} ready!*
+` +
+                    `Review your sticker and choose an action:`,
+                parse_mode: 'Markdown',
+                reply_markup: draftReviewKeyboard(newDraft.id),
+            }
+        );
+        setReviewMessageId(userId, newDraft.id, reviewMsg.message_id);
+    } catch (err) {
+        console.error('[DraftHandler] Retry error:', err.message);
+        await bot.sendMessage(chatId, `❌ Retry failed: _${err.message}_`, {
+            parse_mode: 'Markdown',
+        });
+    }
+}
+
+async function handleTrashDraft(bot, query, chatId, userId, draftId) {
+    const draft = trashDraft(userId, draftId);
+    if (!draft) {
+        await bot.sendMessage(chatId, `⚠️ Draft #${draftId} not found.`);
+        return;
+    }
+
+    await _updateReviewCard(
+        bot, chatId, query.message.message_id,
+        draft,
+        `🗑 *Draft #${draftId} trashed.*
+_It will be automatically removed after the retention period._`
+    );
+}
+
+async function handleSaveDraft(bot, query, chatId, userId, draftId) {
+    const draft = saveDraftForLater(userId, draftId);
+    if (!draft) {
+        await bot.sendMessage(chatId, `⚠️ Draft #${draftId} not found.`);
+        return;
+    }
+
+    await _updateReviewCard(
+        bot, chatId, query.message.message_id,
+        draft,
+        `💾 *Draft #${draftId} saved to your Draft Vault.*
+_Find it later with /drafts._`
+    );
+}
+
+
 
 /**
  * Edit the review card message to reflect the new status (remove action buttons).
