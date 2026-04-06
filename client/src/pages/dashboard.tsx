@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Sparkles, Bot, Zap, Layers } from "lucide-react";
 export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <OnboardingModal />
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
