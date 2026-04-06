@@ -1,5 +1,12 @@
 import { cn } from "@/lib/utils"
 
+/**
+ * Renders a div used as a skeleton placeholder with pulse animation, rounded corners, and muted background.
+ *
+ * @param className - Optional additional CSS class names to merge with the component's default skeleton classes
+ * @param props - Additional HTML attributes applied to the underlying div
+ * @returns A JSX `div` element styled as a skeleton placeholder
+ */
 function Skeleton({
   className,
   ...props
@@ -12,6 +19,15 @@ function Skeleton({
   )
 }
 
+/**
+ * Renders a card-shaped loading skeleton composed of animated placeholder blocks.
+ *
+ * The skeleton mimics a card layout with title and content lines and accepts additional
+ * container CSS classes to customize sizing or spacing.
+ *
+ * @param className - Additional CSS classes to merge into the card container
+ * @returns A JSX element representing the card loading skeleton
+ */
 function CardSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn("border rounded-xl p-6 bg-card text-card-foreground shadow-sm animate-pulse", className)}>

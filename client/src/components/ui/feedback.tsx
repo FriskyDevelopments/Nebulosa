@@ -9,6 +9,15 @@ interface FeedbackProps {
   action?: ReactNode;
 }
 
+/**
+ * Renders a centered feedback UI for the "success", "error", or "empty" variant.
+ *
+ * @param props.type - One of `"success"`, `"error"`, or `"empty"` that selects the visual variant.
+ * @param props.title - Title text displayed as an `<h3>`.
+ * @param props.description - Optional descriptive text displayed beneath the title.
+ * @param props.action - Optional React node rendered beneath the description (commonly actions like buttons).
+ * @returns The feedback UI as a JSX element.
+ */
 export function Feedback({ type, title, description, action }: FeedbackProps) {
   if (type === "error") {
     return (

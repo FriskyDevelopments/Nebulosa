@@ -8,6 +8,14 @@ import NebulosaDashboard from "@/pages/nebulosa-dashboard";
 
 const Playground = lazy(() => import("@/pages/playground"));
 
+/**
+ * Root application component that provides global clients, UI providers, and page routing.
+ *
+ * Wraps the app with a React Query client and tooltip provider, renders global toasts, and
+ * configures client-side routes for the dashboard and playground with the dashboard as a fallback.
+ *
+ * @returns The root JSX element for the application containing providers and route configuration.
+ */
 function App() {
   return (
     <QueryClientProvider client={queryClient}>

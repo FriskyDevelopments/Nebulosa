@@ -62,7 +62,17 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 const ALL_CATEGORIES = ["all", "basic", "reactions", "magic", "symbols", "premium", "experimental"];
 
-// ─── TransformStage ───────────────────────────────────────────────────────────
+/**
+ * Renders the Transform stage UI for browsing, searching, and selecting emoji project packs.
+ *
+ * Shows an active image preview when available, a search input and category filters,
+ * and a responsive grid of project cards. Handles loading, error, and empty states
+ * with shared placeholder and feedback components. Triggering an advance (via the
+ * EXPRESS or Use actions) updates the portal aura to `"result"` and moves the step
+ * to `"express"`.
+ *
+ * @returns The JSX element for the Transform stage UI.
+ */
 
 export default function TransformStage() {
   const { setStep, setAura, activeImage } = usePortal();

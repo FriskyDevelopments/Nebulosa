@@ -6,6 +6,13 @@ import { Loader2, AlertCircle, CheckCircle2, Sparkles, LayoutGrid } from "lucide
 import { Skeleton, CardSkeleton } from "@/components/ui/skeleton";
 import { Feedback } from "@/components/ui/feedback";
 
+/**
+ * Page component that demonstrates UI states and component variants.
+ *
+ * Maintains local state to simulate a full-page loading overlay and to switch an interactive demo panel between "idle", "loading", "success", "error", and "empty" states. When global loading is active it shows a centered loading view; otherwise it renders controls and previews for loading components, feedback UI, status badges, and action elements.
+ *
+ * @returns The rendered JSX element for the Playground page.
+ */
 export default function Playground() {
   const [globalLoading, setGlobalLoading] = useState(false);
   const [demoState, setDemoState] = useState<"idle" | "loading" | "success" | "error" | "empty">("idle");
