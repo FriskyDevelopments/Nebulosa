@@ -104,6 +104,57 @@ async function unpinParticipant(name) {
   }
 }
 
+async function removeParticipant(name) {
+  try {
+    const tiles = _queryAll(ZoomSelectors.VIDEO_TILE);
+    let targetTile = null;
+    for (const tile of tiles) {
+      const nameEl = _queryFirst(ZoomSelectors.VIDEO_TILE_NAME, tile) || _queryFirst(ZoomSelectors.PARTICIPANT_ROW_NAME, tile);
+      const tileName = nameEl ? nameEl.textContent.trim() : tile.getAttribute('aria-label') || tile.getAttribute('title') || '';
+      if (tileName.toLowerCase().includes(name.toLowerCase())) { targetTile = tile; break; }
+    }
+    if (!targetTile) return 'USER_NOT_FOUND';
+    _rightClick(targetTile);
+
+    let menu;
+    try { menu = await _waitFor(ZoomSelectors.CONTEXT_MENU, 2500); } catch (_) { return 'CONTEXT_MENU_NOT_FOUND'; }
+
+    const removeItem = _findMenuItem(menu, ZoomSelectors.REMOVE_OPTION_TEXT);
+    if (!removeItem) { document.body.click(); return 'REMOVE_OPTION_NOT_FOUND'; }
+    removeItem.click();
+    return 'REMOVED';
+  } catch (err) {
+    console.error('[Nebulosa:ZoomAdapter] removeParticipant error:', err);
+    return 'ERROR';
+  }
+}
+
+async function muteParticipant(name) {
+  try {
+    const tiles = _queryAll(ZoomSelectors.VIDEO_TILE);
+    let targetTile = null;
+    for (const tile of tiles) {
+      const nameEl = _queryFirst(ZoomSelectors.VIDEO_TILE_NAME, tile) || _queryFirst(ZoomSelectors.PARTICIPANT_ROW_NAME, tile);
+      const tileName = nameEl ? nameEl.textContent.trim() : tile.getAttribute('aria-label') || tile.getAttribute('title') || '';
+      if (tileName.toLowerCase().includes(name.toLowerCase())) { targetTile = tile; break; }
+    }
+    if (!targetTile) return 'USER_NOT_FOUND';
+    _rightClick(targetTile);
+
+    let menu;
+    try { menu = await _waitFor(ZoomSelectors.CONTEXT_MENU, 2500); } catch (_) { return 'CONTEXT_MENU_NOT_FOUND'; }
+
+    let muteItem = _findMenuItem(menu, ZoomSelectors.MUTE_OPTION_TEXT);
+    if (!muteItem) muteItem = _findMenuItem(menu, "Mute Audio"); // fallback
+    if (!muteItem) { document.body.click(); return 'MUTE_OPTION_NOT_FOUND'; }
+    muteItem.click();
+    return 'MUTED';
+  } catch (err) {
+    console.error('[Nebulosa:ZoomAdapter] muteParticipant error:', err);
+    return 'ERROR';
+  }
+}
+
 async function admitParticipant(name) {
   try {
     const panel = _queryFirst(ZoomSelectors.WAITING_ROOM_PANEL);
@@ -163,6 +214,6 @@ function getDiagnosticsSnapshot() {
   return ZoomEvents.getDiagnosticsSnapshot();
 }
 
-const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, getDiagnosticsSnapshot };
+const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, removeParticipant, muteParticipant, admitParticipant, getDiagnosticsSnapshot };
 if (typeof module !== 'undefined' && module.exports) module.exports = ZoomAdapter;
 else if (typeof window !== 'undefined') window.ZoomAdapter = ZoomAdapter;

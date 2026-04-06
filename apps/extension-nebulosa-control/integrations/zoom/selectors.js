@@ -67,6 +67,8 @@ const ZoomSelectors = {
   PIN_OPTION_TEXT: 'Pin',
   MULTIPIN_OPTION_TEXT: 'Multi-pin',
   UNPIN_OPTION_TEXT: 'Unpin',
+  REMOVE_OPTION_TEXT: 'Remove',
+  MUTE_OPTION_TEXT: 'Mute',
 
   CHAT_PANEL: ['#chat-panel', '[aria-label*="Chat"]', '[class*="chat-container"]'],
   CHAT_MESSAGE: ['[class*="chat-message__text"]', '[class*="chat-item"]'],

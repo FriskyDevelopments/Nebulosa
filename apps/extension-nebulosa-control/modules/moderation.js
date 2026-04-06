@@ -24,8 +24,13 @@
 
 const bus =
   typeof require !== 'undefined'
-    ? require('../../../packages/event-bus')
+    ? require('../../packages/event-bus')
     : window.NebulosaBus;
+
+const ZoomAdapter =
+  typeof require !== 'undefined'
+    ? require('../integrations/zoom/adapter')
+    : window.ZoomAdapter;
 
 const DEBUG =
   typeof window !== 'undefined' && window.__NEBULOSA_DEBUG === true;
@@ -81,7 +86,7 @@ function _subscribe() {
   _unsubs.push(bus.on('chat_message', _onChatMessage));
 }
 
-function _onChatMessage({ sender, text }) {
+async function _onChatMessage({ sender, text }) {
   if (!_blockedKeywords.length) return;
   const lowerText = (text || '').toLowerCase();
   const matched = _blockedKeywords.find((kw) => lowerText.includes(kw));
@@ -90,10 +95,9 @@ function _onChatMessage({ sender, text }) {
   dbg('moderation triggered — sender:', sender, 'keyword:', matched);
   bus.emit('moderation_triggered', { sender, text, keyword: matched });
 
-  // TODO: Implement DOM action to mute or remove the participant.
-  //       This requires locating the participant in the panel, opening
-  //       their options menu, and clicking "Remove" or "Mute".
-  //       Not yet validated in extension mode.
+  // Remove the participant via DOM interaction
+  const result = await ZoomAdapter.removeParticipant(sender);
+  dbg('removeParticipant result:', result);
 }
 
 // CommonJS + browser-global dual export
