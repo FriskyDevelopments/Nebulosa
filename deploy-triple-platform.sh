@@ -5,8 +5,8 @@ echo "========================================"
 echo ""
 
 # Platform tokens
-export RAILWAY_TOKEN="f116a0ab-8170-432d-a69a-f94f23d4a726"
-export VERCEL_TOKEN="nIQ94iBPU8jZBmvlMqg4xmz8"
+export RAILWAY_TOKEN="${RAILWAY_TOKEN:-<YOUR_RAILWAY_TOKEN>}"
+export VERCEL_TOKEN="${VERCEL_TOKEN:-<YOUR_VERCEL_TOKEN>}"
 
 echo "💰 COST BREAKDOWN:"
 echo "🚂 Railway: $5/month (production bot)"

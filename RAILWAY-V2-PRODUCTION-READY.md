@@ -247,7 +247,7 @@ Your Telegram bot will provide **enterprise-grade** Zoom meeting management:
 ---
 
 *Railway V2 Enhanced Deployment*  
-*Token: f116a0ab-8170-432d-a69a-f94f23d4a726*  
+*Token: <YOUR_RAILWAY_TOKEN>*
 *Status: 🟢 PRODUCTION READY*  
 *Multi-Region: us-west2*  
 *Always-On: Enabled*

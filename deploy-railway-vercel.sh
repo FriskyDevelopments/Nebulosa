@@ -56,13 +56,6 @@ else
         railway logs --follow
     fi
 fi
-    echo "✅ Railway deployment successful!"
-    RAILWAY_URL=$(railway domain 2>/dev/null || echo "nebulosa-production.railway.app")
-    echo "🌐 Railway URL: https://$RAILWAY_URL"
-else
-    echo "❌ Railway deployment failed"
-    echo "Check logs with: railway logs"
-fi
 
 echo ""
 
