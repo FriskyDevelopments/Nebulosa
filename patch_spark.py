@@ -1,17 +1,25 @@
 import re
 
+
+def insert_after_import_block(content, imports_to_add):
+    import_block_match = re.match(r'((?:import\b[\s\S]*?;\s*\n)+)', content)
+    if import_block_match:
+        insert_pos = import_block_match.end(1)
+        return content[:insert_pos] + imports_to_add + content[insert_pos:]
+    return imports_to_add + content
+
+
 with open('client/src/pages/spark.tsx', 'r') as f:
     content = f.read()
+
+imports_to_add = 'import { CardSkeleton } from "@/components/ui/skeleton";\nimport { Feedback } from "@/components/ui/feedback";\n'
 
 # Add imports
 import_insert_pos = content.find('import { usePortal } from "@/context/PortalContext";')
 if import_insert_pos != -1:
-    content = content[:import_insert_pos] + 'import { CardSkeleton } from "@/components/ui/skeleton";\nimport { Feedback } from "@/components/ui/feedback";\n' + content[import_insert_pos:]
+    content = content[:import_insert_pos] + imports_to_add + content[import_insert_pos:]
 else:
-    # Find last import
-    last_import_pos = content.rfind('import ')
-    end_of_last_import = content.find('\n', last_import_pos) + 1
-    content = content[:end_of_last_import] + 'import { CardSkeleton } from "@/components/ui/skeleton";\nimport { Feedback } from "@/components/ui/feedback";\n' + content[end_of_last_import:]
+    content = insert_after_import_block(content, imports_to_add)
 
 
 # Replace Loading State
