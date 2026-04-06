@@ -34,6 +34,9 @@ const bot = new TelegramBot(BOT_TOKEN, {
 
 console.log('✅ Bot initialized with modern polling configuration');
 
+// Zoom tokens storage (userId -> {accessToken, refreshToken, expiresAt})
+const userZoomTokens = new Map();
+
 // Express app for health checks
 const app = express();
 const securityHeaders = require('./security-headers');
@@ -118,9 +121,68 @@ app.get('/auth/zoom/callback', (req, res) => {
         </html>
     `);
 
-    // TODO: Store the authorization code and exchange for access token
-    // For now, just log it for testing
-    console.log('🔑 Authorization code received for state:', state);
+    // Exchange authorization code for access token
+    const exchangeToken = async () => {
+        try {
+            const clientId = process.env.ZOOM_CLIENT_ID || 'vGVyI0IRv6si45iKO_qIw';
+            const clientSecret = process.env.ZOOM_CLIENT_SECRET;
+            const redirectUri = process.env.ZOOM_REDIRECT_URI || 'https://nebulosa-production.railway.app/auth/zoom/callback';
+
+            if (!clientSecret) {
+                console.error('❌ ZOOM_CLIENT_SECRET not found in environment variables');
+                return;
+            }
+
+            console.log('🔄 Exchanging code for access token...');
+
+            const params = new URLSearchParams();
+            params.append('grant_type', 'authorization_code');
+            params.append('code', code);
+            params.append('redirect_uri', redirectUri);
+
+            const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+            const response = await axios.post('https://zoom.us/oauth/token', params, {
+                headers: {
+                    'Authorization': `Basic ${authHeader}`,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+
+            const { access_token, refresh_token, expires_in } = response.data;
+            const userId = state.split('_')[1];
+
+            // Store the tokens
+            userZoomTokens.set(userId, {
+                accessToken: access_token,
+                refreshToken: refresh_token,
+                expiresAt: Date.now() + (expires_in * 1000)
+            });
+
+            console.log(`✅ Token exchange successful for user: ${userId}`);
+
+            // Notify user in Telegram (Bilingual)
+            await bot.sendMessage(userId, `
+✅ **¡Conexión con Zoom Exitosa! / Zoom Connection Successful!**
+
+ES: Tu cuenta ha sido vinculada correctamente. Ahora puedes usar:
+• \`/create_meeting\` - Crear reuniones reales
+• \`/list_meetings\` - Ver tus reuniones
+• \`/profile\` - Ver tu perfil de Zoom
+
+EN: Your account has been successfully linked. You can now use:
+• \`/create_meeting\` - Create real meetings
+• \`/list_meetings\` - View your meetings
+• \`/profile\` - View your Zoom profile
+            `, { parse_mode: 'Markdown' });
+
+        } catch (err) {
+            console.error('❌ Token exchange failed:', err.response?.data || err.message);
+        }
+    };
+
+    // Execute exchange (non-blocking)
+    exchangeToken();
 });
 
 // Start Express server
