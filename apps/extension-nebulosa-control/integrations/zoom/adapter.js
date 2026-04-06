@@ -124,6 +124,91 @@ async function admitParticipant(name) {
 }
 
 
+async function removeParticipant(name) {
+  try {
+    const panel = _queryFirst(ZoomSelectors.WAITING_ROOM_PANEL) || _queryFirst(ZoomSelectors.PARTICIPANTS_PANEL);
+    if (!panel) return 'PANEL_NOT_FOUND';
+
+    const rows = _queryAll(ZoomSelectors.PARTICIPANT_ROW, panel);
+    let targetRow = null;
+    for (const row of rows) {
+      const nameEl = _queryFirst(ZoomSelectors.PARTICIPANT_ROW_NAME, row);
+      const rowName = nameEl ? nameEl.textContent.trim() : row.textContent.trim();
+      if (rowName.toLowerCase().includes(name.toLowerCase())) { targetRow = row; break; }
+    }
+
+    if (!targetRow) return 'USER_NOT_FOUND';
+
+    const moreBtn = _queryFirst(ZoomSelectors.PARTICIPANT_MORE_BTN, targetRow);
+    if (moreBtn) {
+      moreBtn.click();
+    } else {
+      _rightClick(targetRow);
+    }
+
+    let menu;
+    try { menu = await _waitFor(ZoomSelectors.CONTEXT_MENU, 2500); } catch (_) { return 'CONTEXT_MENU_NOT_FOUND'; }
+
+    const removeItem = _findMenuItem(menu, ZoomSelectors.REMOVE_OPTION_TEXT);
+    if (!removeItem) { document.body.click(); return 'REMOVE_OPTION_NOT_FOUND'; }
+    removeItem.click();
+
+    setTimeout(() => {
+      const dialogs = _queryAll(['[role="dialog"]']);
+      for (const dialog of dialogs) {
+        const btns = _queryAll(['button'], dialog);
+        for (const btn of btns) {
+          if ((btn.textContent || '').toLowerCase().trim() === 'remove') btn.click();
+        }
+      }
+    }, 500);
+
+    return 'REMOVED';
+  } catch (err) {
+    console.error('[Nebulosa:ZoomAdapter] removeParticipant error:', err);
+    return 'ERROR';
+  }
+}
+
+async function muteParticipant(name) {
+  try {
+    const panel = _queryFirst(ZoomSelectors.WAITING_ROOM_PANEL) || _queryFirst(ZoomSelectors.PARTICIPANTS_PANEL);
+    if (!panel) return 'PANEL_NOT_FOUND';
+
+    const rows = _queryAll(ZoomSelectors.PARTICIPANT_ROW, panel);
+    let targetRow = null;
+    for (const row of rows) {
+      const nameEl = _queryFirst(ZoomSelectors.PARTICIPANT_ROW_NAME, row);
+      const rowName = nameEl ? nameEl.textContent.trim() : row.textContent.trim();
+      if (rowName.toLowerCase().includes(name.toLowerCase())) { targetRow = row; break; }
+    }
+
+    if (!targetRow) return 'USER_NOT_FOUND';
+
+    const muteBtn = _queryFirst(ZoomSelectors.MUTE_BTN, targetRow);
+    if (muteBtn) {
+      muteBtn.click();
+      return 'MUTED';
+    }
+
+    const moreBtn = _queryFirst(ZoomSelectors.PARTICIPANT_MORE_BTN, targetRow);
+    if (moreBtn) {
+      moreBtn.click();
+    } else {
+      _rightClick(targetRow);
+    }
+
+    let menu;
+    try { menu = await _waitFor(ZoomSelectors.CONTEXT_MENU, 2500); } catch (_) { return 'CONTEXT_MENU_NOT_FOUND'; }
+
+    const muteItem = _findMenuItem(menu, ZoomSelectors.MUTE_OPTION_TEXT);
+    if (!muteItem) { document.body.click(); return 'MUTE_OPTION_NOT_FOUND'; }
+    muteItem.click();
+
+    return 'MUTED';
+  } catch (err) {
+    console.error('[Nebulosa:ZoomAdapter] muteParticipant error:', err);
+    return 'ERROR';
 async function admitAll() {
   try {
     const btn = _queryFirst(ZoomSelectors.WAITING_ROOM_ADMIT_ALL_BTN);
@@ -177,6 +262,6 @@ function getDiagnosticsSnapshot() {
   return ZoomEvents.getDiagnosticsSnapshot();
 }
 
-const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, admitAll, getDiagnosticsSnapshot };
+const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, removeParticipant, muteParticipant, admitAll, getDiagnosticsSnapshot };
 if (typeof module !== 'undefined' && module.exports) module.exports = ZoomAdapter;
 else if (typeof window !== 'undefined') window.ZoomAdapter = ZoomAdapter;

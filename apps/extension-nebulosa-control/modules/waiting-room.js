@@ -15,7 +15,7 @@
  *  - Notification to host when someone enters the waiting room
  */
 
-/* global window */
+/* global window, document, MutationObserver */
 
 const bus =
   typeof require !== 'undefined'
@@ -27,6 +27,11 @@ const ZoomAdapter =
     ? require('../../../integrations/zoom/adapter')
     : window.ZoomAdapter;
 
+const ZoomSelectors =
+  typeof require !== 'undefined'
+    ? require('../../../integrations/zoom/selectors')
+    : window.ZoomSelectors;
+
 const DEBUG =
   typeof window !== 'undefined' && window.__NEBULOSA_DEBUG === true;
 
@@ -34,9 +39,18 @@ function dbg(...args) {
   if (DEBUG) console.log('[Nebulosa:WaitingRoom]', ...args); // eslint-disable-line no-console
 }
 
+function _queryFirst(selectors, root = document) {
+  if (!selectors) return null;
+  const list = Array.isArray(selectors) ? selectors : [selectors];
+  for (const selector of list) {
+    const found = root.querySelector(selector);
+    if (found) return found;
+  }
+  return null;
+}
+
 let _enabled = false;
 const _unsubs = [];
-
 function enable() {
   if (_enabled) return;
   _enabled = true;
@@ -44,15 +58,13 @@ function enable() {
     bus.on('waiting_room_joined', _onWaitingRoomJoined),
     bus.on('waiting_room_left', _onWaitingRoomLeft)
   );
-  dbg('enabled');
-}
+  dbg('enabled');}
 
 function disable() {
   if (!_enabled) return;
   _enabled = false;
   _unsubs.forEach((unsub) => unsub());
-  _unsubs.length = 0;
-  dbg('disabled');
+  _unsubs.length = 0;  dbg('disabled');
 }
 
 function isEnabled() {
@@ -81,8 +93,7 @@ async function admit(name) {
 
 /**
  * Admit all participants currently in the waiting room.
- * @returns {Promise<void>}
- */
+ * @returns {Promise<void>} */
 async function admitAll() {
   dbg('admitAll');
   return ZoomAdapter.admitAll();

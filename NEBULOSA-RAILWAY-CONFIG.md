@@ -2,7 +2,7 @@
 
 ## 🔐 Railway Token Configuration
 
-**Project Token**: `f116a0ab-8170-432d-a69a-f94f23d4a726`
+**Project Token**: `<YOUR_RAILWAY_TOKEN>`
 
 ---
 
@@ -19,7 +19,7 @@
 npm install -g @railway/cli
 
 # Login with your token
-railway login --token f116a0ab-8170-432d-a69a-f94f23d4a726
+railway login --token <YOUR_RAILWAY_TOKEN>
 
 # Deploy
 railway up
@@ -131,7 +131,7 @@ Nebulosa-1/
 1. **Token Authentication Failed**
    ```bash
    railway logout
-   railway login --token f116a0ab-8170-432d-a69a-f94f23d4a726
+   railway login --token <YOUR_RAILWAY_TOKEN>
    ```
 
 2. **Deployment Failed**
@@ -163,6 +163,6 @@ railway status --json
 ## 🚀 Ready to Deploy!
 
 Your Nebulosa bot is configured and ready for Railway deployment with token:
-**`f116a0ab-8170-432d-a69a-f94f23d4a726`**
+**`<YOUR_RAILWAY_TOKEN>`**
 
 Run: `./deploy-nebulosa-railway.sh` to deploy automatically! 🎯

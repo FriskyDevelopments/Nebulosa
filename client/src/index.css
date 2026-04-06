@@ -90,3 +90,41 @@
     @apply bg-yellow-500;
   }
 }
+
+
+@keyframes xiPulseActive {
+  0%,
+  100% {
+    opacity: 0.88;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.045);
+  }
+}
+
+@keyframes xiPulseSignal {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+
+@layer utilities {
+  .xi-pulse-active {
+    animation: xiPulseActive 1.8s ease-in-out infinite;
+  }
+
+  .xi-pulse-signal {
+    animation: xiPulseSignal 1.2s ease-in-out infinite;
+  }
+}
