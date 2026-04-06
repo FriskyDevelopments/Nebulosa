@@ -4,9 +4,16 @@ echo "🎯 TRIPLE-PLATFORM ULTRA-CHEAP DEPLOYMENT"
 echo "========================================"
 echo ""
 
-# Platform tokens
-export RAILWAY_TOKEN="f116a0ab-8170-432d-a69a-f94f23d4a726"
-export VERCEL_TOKEN="nIQ94iBPU8jZBmvlMqg4xmz8"
+# Check platform tokens
+if [ -z "$RAILWAY_TOKEN" ]; then
+    echo "❌ Error: RAILWAY_TOKEN environment variable is not set."
+    exit 1
+fi
+
+if [ -z "$VERCEL_TOKEN" ]; then
+    echo "❌ Error: VERCEL_TOKEN environment variable is not set."
+    exit 1
+fi
 
 echo "💰 COST BREAKDOWN:"
 echo "🚂 Railway: $5/month (production bot)"
