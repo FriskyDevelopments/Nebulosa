@@ -2,20 +2,10 @@
 require_once __DIR__ . '/oauth/zoomOAuth.php';
 require_once __DIR__ . '/oauth/telegramNotifier.php';
 
-// === ZOOM APP CREDENTIALS (from Nebulosa Zoom OAuth App) ===
-<<<<<<< HEAD
-<<<<<<< HEAD
-$client_id = 'Ws4TzKUQQ4u64Zd52XqZ3A';
-$client_secret = 'eJSxTUMYTif59Xz8cUyRKRbbI7TSyD5Q';
-=======
-$client_id = 'K3t8Sd3rSZOSKfkyMftDXg';
-$client_secret = 'Gb9JmLsI1brv4bPdAPB9CSknQV4GiFB';
->>>>>>> origin/main
-=======
-$client_id = 'K3t8Sd3rSZOSKfkyMftDXg';
-$client_secret = 'Gb9JmLsI1brv4bPdAPB9CSknQV4GiFB';
->>>>>>> origin/main
-$redirect_uri = 'https://pupfrisky.com/zoom-callback.php';
+// === ZOOM APP CREDENTIALS (from environment variables) ===
+$client_id = getenv('ZOOM_CLIENT_ID');
+$client_secret = getenv('ZOOM_CLIENT_SECRET');
+$redirect_uri = getenv('ZOOM_REDIRECT_URI') ?: 'https://pupfrisky.com/zoom-callback.php';
 
 // === GET CODE FROM ZOOM ===
 $code = $_GET['code'] ?? null;
@@ -44,4 +34,3 @@ notifyTelegram("🔐 Zoom OAuth authorized: `$email`");
 header("Location: /oauth-success.html");
 exit;
 ?>
-
