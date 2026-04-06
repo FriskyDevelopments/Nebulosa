@@ -22,8 +22,14 @@ The STIX MΛGIC system is composed of several moving parts that communicate seam
 - **Role:** Serves as the central API gateway. It handles Telegram webhooks/polling, serves the REST API for the React frontend, processes OAuth callbacks (Zoom, Telegram), and connects to the database.
 - **Integration:** The server coordinates between the frontend UI and the Telegram bot. For instance, when the Web UI triggers a Zoom command or a Telegram OAuth login, this backend processes the secure tokens and updates the user's database record.
 
-### D. The Zoom Integration (The Extension)
-- **Role:** Enables real-time management of Zoom meetings (e.g., auto-pinning users, monitoring cameras) directly linked to Nebulosa commands.
+### D. The Chrome Extension (Zoom Integration)
+- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.
+- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.
+- **Features:** Auto-pinning users, monitoring cameras, and reading chat.
+- **What it is:** A Manifest V3 Chrome Extension located in `apps/extension-nebulosa-control/`.
+- **Role:** Enables real-time management of Zoom meetings directly linked to Nebulosa commands by injecting scripts into the Zoom web client.
+- **Features:** Auto-pinning users, monitoring cameras, and reading chat.
+
 
 ---
 
