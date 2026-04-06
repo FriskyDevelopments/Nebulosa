@@ -41,7 +41,7 @@ Your Zoom Telegram Bot is **100% configured** for Railway deployment!
 **For Advanced Users**
 
 **Login Required**:
-- **Token**: `f116a0ab-8170-432d-a69a-f94f23d4a726`
+- **Token**: `<YOUR_RAILWAY_TOKEN>`
 - **Pairing Code**: `teal-thorough-mindfulness`
 - **Login URL**: https://railway.com/cli-login?d=d29yZENvZGU9dGVhbC10aG9yb3VnaC1taW5kZnVsbmVzcyZob3N0bmFtZT1mcmlza3ktZ2hvc3Q=
 
