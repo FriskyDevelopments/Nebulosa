@@ -287,36 +287,36 @@ const cssStyles = `
 </style>
 `;
 
-async function generatePDF() {
-    try {
-        console.log('🚀 Starting PDF generation for Zoom submission package...');
 
-        // Read the main submission document
-        const submissionPath = path.join(__dirname, 'ZOOM-FINAL-SUBMISSION-PACKAGE.md');
-        if (!fs.existsSync(submissionPath)) {
-            console.error('❌ ZOOM-FINAL-SUBMISSION-PACKAGE.md not found!');
-            process.exit(1);
-        }
+function getHtmlContent(submissionPath) {
+    if (!fs.existsSync(submissionPath)) {
+        console.error('❌ ZOOM-FINAL-SUBMISSION-PACKAGE.md not found!');
+        process.exit(1);
+    }
 
-        const markdownContent = fs.readFileSync(submissionPath, 'utf-8');
-        console.log('📄 Loaded submission package content');
+    const markdownContent = fs.readFileSync(submissionPath, 'utf-8');
+    console.log('📄 Loaded submission package content');
 
-        // Convert markdown to HTML
-        let htmlContent = md.render(markdownContent);
+    // Convert markdown to HTML
+    let htmlContent = md.render(markdownContent);
 
-        // Post-process HTML for better PDF formatting
-        htmlContent = htmlContent
-            // Replace checkmarks with styled versions
-            .replace(/✅/g, '<span class="checkbox">✅</span>')
-            // Add page breaks before major sections
-            .replace(/<h2>/g, '<div class="page-break"></div><h2>')
-            // Style status indicators
-            .replace(/PASSED/g, '<span class="status-badge status-success">PASSED</span>')
-            .replace(/ENTERPRISE-GRADE/g, '<span class="status-badge status-success">ENTERPRISE-GRADE</span>')
-            .replace(/ZERO ISSUES/g, '<span class="status-badge status-success">ZERO ISSUES</span>');
+    // Post-process HTML for better PDF formatting
+    htmlContent = htmlContent
+        // Replace checkmarks with styled versions
+        .replace(/✅/g, '<span class="checkbox">✅</span>')
+        // Add page breaks before major sections
+        .replace(/<h2>/g, '<div class="page-break"></div><h2>')
+        // Style status indicators
+        .replace(/PASSED/g, '<span class="status-badge status-success">PASSED</span>')
+        .replace(/ENTERPRISE-GRADE/g, '<span class="status-badge status-success">ENTERPRISE-GRADE</span>')
+        .replace(/ZERO ISSUES/g, '<span class="status-badge status-success">ZERO ISSUES</span>');
 
-        // Create the complete HTML document
-        const fullHtml = `
+    return htmlContent;
+}
+
+
+function createFullHtml(htmlContent) {
+    return `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -350,28 +350,49 @@ async function generatePDF() {
             </div>
         </body>
         </html>
-        `;
+    `;
+}
+
+
+async function createPdf(fullHtml, pdfPath, options) {
+    const browser = await puppeteer.launch({
+        headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
+
+    await page.pdf({
+        path: pdfPath,
+        printBackground: true,
+        ...options
+    });
+
+    await browser.close();
+
+    console.log(`📄 File saved as: ${pdfPath}`);
+    console.log(`📊 File size: ${(fs.statSync(pdfPath).size / 1024 / 1024).toFixed(2)} MB`);
+}
+
+async function generatePDF() {
+    try {
+        console.log('🚀 Starting PDF generation for Zoom submission package...');
+
+        // Read the main submission document
+        const submissionPath = path.join(__dirname, 'ZOOM-FINAL-SUBMISSION-PACKAGE.md');
+
+        const htmlContent = getHtmlContent(submissionPath);
+        const fullHtml = createFullHtml(htmlContent);
 
         console.log('🎨 HTML content prepared with professional styling');
 
         // Launch Puppeteer and generate PDF
         console.log('🤖 Launching browser for PDF generation...');
-        const browser = await puppeteer.launch({
-            headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-
-        const page = await browser.newPage();
-
-        // Set content and wait for fonts to load
-        await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
-
-        // Generate PDF with professional settings
         const pdfPath = path.join(__dirname, 'ZOOM-BETA-PUBLISHER-SUBMISSION.pdf');
-        await page.pdf({
-            path: pdfPath,
+
+        await createPdf(fullHtml, pdfPath, {
             format: 'A4',
-            printBackground: true,
             margin: {
                 top: '20mm',
                 right: '15mm',
@@ -391,27 +412,14 @@ async function generatePDF() {
             `
         });
 
-        await browser.close();
-
         console.log('✅ PDF generated successfully!');
-        console.log(`📄 File saved as: ${pdfPath}`);
-        console.log(`📊 File size: ${(fs.statSync(pdfPath).size / 1024 / 1024).toFixed(2)} MB`);
 
         // Also generate a compact version
         console.log('📋 Generating compact version...');
-        const browser2 = await puppeteer.launch({
-            headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-
-        const page2 = await browser2.newPage();
-        await page2.setContent(fullHtml, { waitUntil: 'networkidle0' });
-
         const compactPdfPath = path.join(__dirname, 'ZOOM-SUBMISSION-COMPACT.pdf');
-        await page2.pdf({
-            path: compactPdfPath,
+
+        await createPdf(fullHtml, compactPdfPath, {
             format: 'A4',
-            printBackground: true,
             margin: {
                 top: '15mm',
                 right: '10mm',
@@ -421,11 +429,7 @@ async function generatePDF() {
             scale: 0.8 // Slightly smaller for more content per page
         });
 
-        await browser2.close();
-
         console.log('✅ Compact PDF generated successfully!');
-        console.log(`📄 Compact file saved as: ${compactPdfPath}`);
-        console.log(`📊 Compact file size: ${(fs.statSync(compactPdfPath).size / 1024 / 1024).toFixed(2)} MB`);
 
         // Generate summary
         console.log('\n🎉 PDF GENERATION COMPLETE!');
@@ -449,6 +453,7 @@ async function generatePDF() {
         return { success: false, error: error.message };
     }
 }
+
 
 // Run if called directly
 if (require.main === module) {
