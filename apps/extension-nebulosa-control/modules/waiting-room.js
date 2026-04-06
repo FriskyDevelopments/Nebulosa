@@ -19,12 +19,17 @@
  * See docs/tampermonkey-migration.md for full status.
  */
 
-/* global window */
+/* global window, document, MutationObserver */
 
 const ZoomAdapter =
   typeof require !== 'undefined'
     ? require('../../../integrations/zoom/adapter')
     : window.ZoomAdapter;
+
+const ZoomSelectors =
+  typeof require !== 'undefined'
+    ? require('../../../integrations/zoom/selectors')
+    : window.ZoomSelectors;
 
 const DEBUG =
   typeof window !== 'undefined' && window.__NEBULOSA_DEBUG === true;
@@ -33,18 +38,44 @@ function dbg(...args) {
   if (DEBUG) console.log('[Nebulosa:WaitingRoom]', ...args); // eslint-disable-line no-console
 }
 
+function _queryFirst(selectors, root = document) {
+  if (!selectors) return null;
+  const list = Array.isArray(selectors) ? selectors : [selectors];
+  for (const selector of list) {
+    const found = root.querySelector(selector);
+    if (found) return found;
+  }
+  return null;
+}
+
 let _enabled = false;
+let _observer = null;
 
 function enable() {
   if (_enabled) return;
   _enabled = true;
-  dbg('enabled (scaffold)');
-  // TODO: subscribe to waiting-room DOM mutation events
+  dbg('enabled');
+
+  if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
+    _observer = new MutationObserver(() => {
+      const panel = _queryFirst(ZoomSelectors.WAITING_ROOM_PANEL);
+      if (panel) {
+        // Just acknowledging presence. Logic to parse participants can be added here.
+      }
+    });
+    _observer.observe(document.body, { childList: true, subtree: true });
+  }
 }
 
 function disable() {
   if (!_enabled) return;
   _enabled = false;
+
+  if (_observer) {
+    _observer.disconnect();
+    _observer = null;
+  }
+
   dbg('disabled');
 }
 
