@@ -22,6 +22,7 @@ export type BaseEventPayload = {
   timestamp?: string; // Automatically added by the adapter
   path?: string;
   userAgent?: string;
+  category?: EventCategory;
 };
 
 // Landing Engagement

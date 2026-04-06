@@ -34,7 +34,12 @@ class AnalyticsTracker {
    * @param traits Non-PII user traits
    */
   public identify(userId: string, traits?: Record<string, any>) {
-    this.adapter.identify(userId, traits);
+    // Fire and forget, matching the defensive pattern in track()
+    Promise.resolve(this.adapter.identify(userId, traits)).catch((err) => {
+      if (import.meta.env.DEV || (typeof window !== 'undefined' && window.__NEBULOSA_DEBUG)) {
+        console.error(`[Analytics] Failed to identify user: ${userId}`, err);
+      }
+    });
   }
 
   /**

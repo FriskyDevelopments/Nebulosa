@@ -41,8 +41,6 @@ export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
         event: eventName,
         properties: {
           ...payload,
-          timestamp: new Date().toISOString(),
-          path: window.location.pathname,
         }
       };
 
@@ -60,10 +58,23 @@ export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
     }
   }
 
-  identify(userId: string, traits?: Record<string, any>): void {
-    // Implement if user identity tracking is needed by the backend
-    if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
-      console.log(`[Analytics - Server] Identity not yet implemented for server adapter: ${userId}`);
+  async identify(userId: string, traits?: Record<string, any>): Promise<void> {
+    try {
+      const payload = {
+        userId,
+        traits: traits || {},
+      };
+
+      await apiRequest('POST', '/api/analytics/identify', payload);
+
+      if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
+        console.log(`[Analytics - Server] Identified User: ${userId}`, traits);
+      }
+    } catch (err) {
+      if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
+        console.error(`[Analytics - Server] Failed to identify user: ${userId}`, err);
+      }
+      throw err;
     }
   }
 }

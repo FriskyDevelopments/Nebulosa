@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
 
 import { analytics } from "@/lib/analytics";
@@ -89,6 +89,16 @@ export default function SparkPage() {
 
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+  const searchDebounceTimeout = useRef<number | null>(null);
+
+  // Cleanup debounce timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchDebounceTimeout.current) {
+        clearTimeout(searchDebounceTimeout.current);
+      }
+    };
+  }, []);
 
   const { data: packs = [], isLoading, isError, refetch } = useQuery<EmojiPack[]>({
     queryKey: ["/api/emoji/packs"],
@@ -156,10 +166,19 @@ export default function SparkPage() {
               placeholder="Search projects…"
               value={search}
               onChange={(e) => {
-                setSearch(e.target.value);
-                // Debounce in a real app, but for now just send on typing if length > 3
-                if (e.target.value.length > 2) {
-                  analytics.track('feature_interaction', { featureName: 'project_search', interactionData: { term: e.target.value } });
+                const query = e.target.value;
+                setSearch(query);
+
+                // Clear existing timeout
+                if (searchDebounceTimeout.current) {
+                  clearTimeout(searchDebounceTimeout.current);
+                }
+
+                // Only track meaningful queries after debounce delay
+                if (query.length > 2) {
+                  searchDebounceTimeout.current = window.setTimeout(() => {
+                    analytics.track('feature_interaction', { featureName: 'project_search', interactionData: { term: query } });
+                  }, 300);
                 }
               }}
             />
@@ -249,8 +268,15 @@ function ProjectCard({ pack }: { pack: EmojiPack }) {
   const visibilityIcon = VISIBILITY_ICONS[pack.visibility];
   const categoryColor = CATEGORY_COLORS[pack.category] ?? "bg-gray-50 text-gray-700 border-gray-200";
 
+  const handleViewProject = useCallback(() => {
+    analytics.track('feature_interaction', {
+      featureName: 'view_project',
+      interactionData: { projectId: pack.id, projectSlug: pack.slug }
+    });
+  }, [pack.id, pack.slug]);
+
   return (
-    <Card className="hover:shadow-md transition-shadow flex flex-col cursor-pointer" onClick={() => analytics.track('feature_interaction', { featureName: 'view_project', interactionData: { projectId: pack.id, projectSlug: pack.slug } })}>
+    <Card className="hover:shadow-md transition-shadow flex flex-col cursor-pointer" onClick={handleViewProject}>
       {pack.coverImageUrl ? (
         <div className="h-32 w-full overflow-hidden rounded-t-lg bg-muted">
           <img
