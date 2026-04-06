@@ -9,7 +9,8 @@
     "deploy": "railway up",
     "client:dev": "vite",
     "client:build": "vite build",
-    "client:preview": "vite preview"
+    "client:preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "keywords": ["telegram", "bot", "sticker", "stixmagic"],
   "author": "PupFr",
