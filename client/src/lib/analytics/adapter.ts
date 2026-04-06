@@ -15,28 +15,31 @@ export interface AnalyticsAdapter {
  */
 export class ConsoleAnalyticsAdapter implements AnalyticsAdapter {
   track<K extends EventName>(eventName: K, payload: EventMap[K]): void {
-    if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
+    if (import.meta.env.DEV || (typeof window !== 'undefined' && (window as any).__NEBULOSA_DEBUG === true)) {
       console.log(`[Analytics] Tracked Event: ${eventName}`, payload);
     }
   }
 
   identify(userId: string, traits?: Record<string, any>): void {
-    if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
+    if (import.meta.env.DEV || (typeof window !== 'undefined' && (window as any).__NEBULOSA_DEBUG === true)) {
       console.log(`[Analytics] Identified User: ${userId}`, traits);
     }
   }
 }
 
 /**
- * Server API Adapter wrapping the `POST /analytics/events` backend endpoint.
- * Note: Assumes `POST /api/v1/analytics/events` or similar if we use Nebulosa v1 APIs,
- * but based on existing codebase we've seen `/analytics/events` as a possible path.
- * We'll use a generic API call.
+ * Server API Adapter. Only used when VITE_ANALYTICS_ENDPOINT is explicitly configured.
+ * Posts events to the configured endpoint.
  */
 export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
+  private readonly endpoint: string;
+
+  constructor(endpoint: string) {
+    this.endpoint = endpoint;
+  }
+
   async track<K extends EventName>(eventName: K, payload: EventMap[K]): Promise<void> {
     try {
-      // Avoid sending sensitive payload data, ensure it's privacy safe
       const safePayload = {
         event: eventName,
         properties: {
@@ -46,29 +49,31 @@ export class ServerApiAnalyticsAdapter implements AnalyticsAdapter {
         }
       };
 
-      // Call the existing analytics endpoint if it exists
-      // We wrap it in a try-catch so it won't block the UI if the endpoint fails
-      await apiRequest('POST', '/api/analytics/events', safePayload);
+      await apiRequest('POST', this.endpoint, safePayload);
 
-      if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
+      if (import.meta.env.DEV || (typeof window !== 'undefined' && (window as any).__NEBULOSA_DEBUG === true)) {
         console.log(`[Analytics - Server] Tracked Event: ${eventName}`, safePayload);
       }
     } catch (err) {
-      if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
+      if (import.meta.env.DEV || (typeof window !== 'undefined' && (window as any).__NEBULOSA_DEBUG === true)) {
         console.error(`[Analytics - Server] Failed to track event: ${eventName}`, err);
       }
     }
   }
 
   identify(userId: string, traits?: Record<string, any>): void {
-    // Implement if user identity tracking is needed by the backend
-    if (import.meta.env.DEV || window.__NEBULOSA_DEBUG) {
+    if (import.meta.env.DEV || (typeof window !== 'undefined' && (window as any).__NEBULOSA_DEBUG === true)) {
       console.log(`[Analytics - Server] Identity not yet implemented for server adapter: ${userId}`);
     }
   }
 }
 
-// Select adapter based on environment or feature flag
-export const defaultAdapter = import.meta.env.PROD
-  ? new ServerApiAnalyticsAdapter() // Use server adapter in prod (fallback safe due to try/catch)
-  : new ConsoleAnalyticsAdapter();  // Use console adapter in dev
+/**
+ * Select adapter based on explicit configuration.
+ * Defaults to ConsoleAnalyticsAdapter unless VITE_ANALYTICS_ENDPOINT is set,
+ * which prevents 404 errors when no backend analytics route exists.
+ */
+const analyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT as string | undefined;
+export const defaultAdapter: AnalyticsAdapter = analyticsEndpoint
+  ? new ServerApiAnalyticsAdapter(analyticsEndpoint)
+  : new ConsoleAnalyticsAdapter();
