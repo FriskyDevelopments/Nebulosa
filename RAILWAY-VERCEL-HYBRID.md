@@ -2,8 +2,8 @@
 
 ## 🔗 **MULTI-PLATFORM STRATEGY**
 
-**Railway Token**: `f116a0ab-8170-432d-a69a-f94f23d4a726`  
-**Vercel Token**: `nIQ94iBPU8jZBmvlMqg4xmz8`
+**Railway Token**: `<YOUR_RAILWAY_TOKEN>`
+**Vercel Token**: `<YOUR_VERCEL_TOKEN>`
 
 ---
 
@@ -67,7 +67,7 @@ npm install -g vercel
 
 # Login with token
 vercel login
-# Use token: nIQ94iBPU8jZBmvlMqg4xmz8
+# Use token: <YOUR_VERCEL_TOKEN>
 
 # Deploy to Vercel
 vercel --prod
@@ -126,7 +126,7 @@ git push origin main
 
 # Deploy to Vercel  
 echo "▲ Deploying to Vercel..."
-vercel --prod --token nIQ94iBPU8jZBmvlMqg4xmz8
+vercel --prod --token <YOUR_VERCEL_TOKEN>
 
 echo "✅ Hybrid deployment complete!"
 echo "🚂 Railway: https://nebulosa-production.railway.app"
@@ -251,7 +251,7 @@ git push origin main
 git push origin main
 
 # Vercel (Preview + API)
-vercel --prod --token nIQ94iBPU8jZBmvlMqg4xmz8
+vercel --prod --token <YOUR_VERCEL_TOKEN>
 ```
 
 **Your bot will run on both platforms with automatic failover and preview deployments!** 🎉

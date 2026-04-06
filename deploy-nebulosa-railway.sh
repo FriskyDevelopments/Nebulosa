@@ -2,9 +2,6 @@
 
 echo "🚂 NEBULOSA RAILWAY DEPLOYMENT"
 echo "=============================="
-
-echo ""
-
 # Check if RAILWAY_TOKEN is set
 if [ -z "$RAILWAY_TOKEN" ]; then
     echo "❌ Error: RAILWAY_TOKEN environment variable is not set."

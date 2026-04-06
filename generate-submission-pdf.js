@@ -287,91 +287,104 @@ const cssStyles = `
 </style>
 `;
 
+
+function getSubmissionHtml(submissionPath) {
+    if (!fs.existsSync(submissionPath)) {
+        throw new Error('ZOOM-FINAL-SUBMISSION-PACKAGE.md not found!');
+    }
+
+    const markdownContent = fs.readFileSync(submissionPath, 'utf-8');
+    console.log('📄 Loaded submission package content');
+
+    // Convert markdown to HTML
+    let htmlContent = md.render(markdownContent);
+
+    // Post-process HTML for better PDF formatting
+    htmlContent = htmlContent
+        // Replace checkmarks with styled versions
+        .replace(/✅/g, '<span class="checkbox">✅</span>')
+        // Add page breaks before major sections
+        .replace(/<h2>/g, '<div class="page-break"></div><h2>')
+        // Style status indicators
+        .replace(/PASSED/g, '<span class="status-badge status-success">PASSED</span>')
+        .replace(/ENTERPRISE-GRADE/g, '<span class="status-badge status-success">ENTERPRISE-GRADE</span>')
+        .replace(/ZERO ISSUES/g, '<span class="status-badge status-success">ZERO ISSUES</span>');
+
+    // Create the complete HTML document
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Zoom Beta Publisher URL - NEBULOSA BOT Submission Package</title>
+        ${cssStyles}
+    </head>
+    <body>
+        <div class="container">
+            <div class="header-section">
+                <h1>🚀 ZOOM BETA PUBLISHER URL</h1>
+                <h2 style="color: white; border: none; margin: 0;">NEBULOSA BOT Submission Package</h2>
+                <p><strong>Developer:</strong> PupFr</p>
+                <p><strong>Submission Date:</strong> ${new Date().toLocaleDateString()}</p>
+                <div style="margin-top: 20px;">
+                    <span class="security-badge">🛡️ ENTERPRISE SECURITY</span>
+                    <span class="security-badge">✅ SONARQUBE PASSED</span>
+                    <span class="security-badge">🏆 A-GRADE RATING</span>
+                </div>
+            </div>
+
+            ${htmlContent}
+
+            <div class="footer">
+                <p><strong>Document Generated:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Repository:</strong> https://github.com/PupFr/Nebulosa</p>
+                <p><strong>SonarQube Project:</strong> PupFr_Nebulosa</p>
+                <p><em>This document represents enterprise-grade security compliance for Zoom Beta Publisher URL approval.</em></p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+}
+
+async function renderPdf(html, outputPath, options = {}) {
+    const browser = await puppeteer.launch({
+        headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    try {
+        const page = await browser.newPage();
+        await page.setContent(html, { waitUntil: 'networkidle0' });
+
+        const defaultOptions = {
+            path: outputPath,
+            format: 'A4',
+            printBackground: true,
+        };
+
+        await page.pdf({ ...defaultOptions, ...options });
+
+        console.log(`✅ PDF generated successfully!`);
+        console.log(`📄 File saved as: ${outputPath}`);
+        console.log(`📊 File size: ${(fs.statSync(outputPath).size / 1024 / 1024).toFixed(2)} MB`);
+    } finally {
+        await browser.close();
+    }
+}
 async function generatePDF() {
     try {
         console.log('🚀 Starting PDF generation for Zoom submission package...');
 
-        // Read the main submission document
         const submissionPath = path.join(__dirname, 'ZOOM-FINAL-SUBMISSION-PACKAGE.md');
-        if (!fs.existsSync(submissionPath)) {
-            console.error('❌ ZOOM-FINAL-SUBMISSION-PACKAGE.md not found!');
-            process.exit(1);
-        }
-
-        const markdownContent = fs.readFileSync(submissionPath, 'utf-8');
-        console.log('📄 Loaded submission package content');
-
-        // Convert markdown to HTML
-        let htmlContent = md.render(markdownContent);
-
-        // Post-process HTML for better PDF formatting
-        htmlContent = htmlContent
-            // Replace checkmarks with styled versions
-            .replace(/✅/g, '<span class="checkbox">✅</span>')
-            // Add page breaks before major sections
-            .replace(/<h2>/g, '<div class="page-break"></div><h2>')
-            // Style status indicators
-            .replace(/PASSED/g, '<span class="status-badge status-success">PASSED</span>')
-            .replace(/ENTERPRISE-GRADE/g, '<span class="status-badge status-success">ENTERPRISE-GRADE</span>')
-            .replace(/ZERO ISSUES/g, '<span class="status-badge status-success">ZERO ISSUES</span>');
-
-        // Create the complete HTML document
-        const fullHtml = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Zoom Beta Publisher URL - NEBULOSA BOT Submission Package</title>
-            ${cssStyles}
-        </head>
-        <body>
-            <div class="container">
-                <div class="header-section">
-                    <h1>🚀 ZOOM BETA PUBLISHER URL</h1>
-                    <h2 style="color: white; border: none; margin: 0;">NEBULOSA BOT Submission Package</h2>
-                    <p><strong>Developer:</strong> PupFr</p>
-                    <p><strong>Submission Date:</strong> ${new Date().toLocaleDateString()}</p>
-                    <div style="margin-top: 20px;">
-                        <span class="security-badge">🛡️ ENTERPRISE SECURITY</span>
-                        <span class="security-badge">✅ SONARQUBE PASSED</span>
-                        <span class="security-badge">🏆 A-GRADE RATING</span>
-                    </div>
-                </div>
-                
-                ${htmlContent}
-                
-                <div class="footer">
-                    <p><strong>Document Generated:</strong> ${new Date().toLocaleString()}</p>
-                    <p><strong>Repository:</strong> https://github.com/PupFr/Nebulosa</p>
-                    <p><strong>SonarQube Project:</strong> PupFr_Nebulosa</p>
-                    <p><em>This document represents enterprise-grade security compliance for Zoom Beta Publisher URL approval.</em></p>
-                </div>
-            </div>
-        </body>
-        </html>
-        `;
+        const fullHtml = getSubmissionHtml(submissionPath);
 
         console.log('🎨 HTML content prepared with professional styling');
 
-        // Launch Puppeteer and generate PDF
-        console.log('🤖 Launching browser for PDF generation...');
-        const browser = await puppeteer.launch({
-            headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-
-        const page = await browser.newPage();
-
-        // Set content and wait for fonts to load
-        await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
-
         // Generate PDF with professional settings
         const pdfPath = path.join(__dirname, 'ZOOM-BETA-PUBLISHER-SUBMISSION.pdf');
-        await page.pdf({
-            path: pdfPath,
-            format: 'A4',
-            printBackground: true,
+        await renderPdf(fullHtml, pdfPath, {
             margin: {
                 top: '20mm',
                 right: '15mm',
@@ -391,27 +404,10 @@ async function generatePDF() {
             `
         });
 
-        await browser.close();
-
-        console.log('✅ PDF generated successfully!');
-        console.log(`📄 File saved as: ${pdfPath}`);
-        console.log(`📊 File size: ${(fs.statSync(pdfPath).size / 1024 / 1024).toFixed(2)} MB`);
-
         // Also generate a compact version
         console.log('📋 Generating compact version...');
-        const browser2 = await puppeteer.launch({
-            headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-
-        const page2 = await browser2.newPage();
-        await page2.setContent(fullHtml, { waitUntil: 'networkidle0' });
-
         const compactPdfPath = path.join(__dirname, 'ZOOM-SUBMISSION-COMPACT.pdf');
-        await page2.pdf({
-            path: compactPdfPath,
-            format: 'A4',
-            printBackground: true,
+        await renderPdf(fullHtml, compactPdfPath, {
             margin: {
                 top: '15mm',
                 right: '10mm',
@@ -420,12 +416,6 @@ async function generatePDF() {
             },
             scale: 0.8 // Slightly smaller for more content per page
         });
-
-        await browser2.close();
-
-        console.log('✅ Compact PDF generated successfully!');
-        console.log(`📄 Compact file saved as: ${compactPdfPath}`);
-        console.log(`📊 Compact file size: ${(fs.statSync(compactPdfPath).size / 1024 / 1024).toFixed(2)} MB`);
 
         // Generate summary
         console.log('\n🎉 PDF GENERATION COMPLETE!');

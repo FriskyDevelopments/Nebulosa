@@ -22,8 +22,8 @@ Combining the best of both platforms:
 
 ## 🔐 **AUTHENTICATION TOKENS**
 
-- **Railway Token**: `f116a0ab-8170-432d-a69a-f94f23d4a726`
-- **Vercel Token**: `nIQ94iBPU8jZBmvlMqg4xmz8`
+- **Railway Token**: `<YOUR_RAILWAY_TOKEN>`
+- **Vercel Token**: `<YOUR_VERCEL_TOKEN>`
 
 ---
 
@@ -44,7 +44,7 @@ Combining the best of both platforms:
 2. **Authenticate**:
    ```bash
    # Vercel
-   vercel login --token nIQ94iBPU8jZBmvlMqg4xmz8
+   vercel login --token <YOUR_VERCEL_TOKEN>
    
    # Railway (needs browser)
    railway login --browserless
@@ -285,6 +285,6 @@ Your hybrid setup provides:
 ---
 
 *Hybrid Deployment Configuration*  
-*Railway Token: f116a0ab-8170-432d-a69a-f94f23d4a726*  
-*Vercel Token: nIQ94iBPU8jZBmvlMqg4xmz8*  
+*Railway Token: <YOUR_RAILWAY_TOKEN>*
+*Vercel Token: <YOUR_VERCEL_TOKEN>*
 *Best of Both Worlds! 🚂⚡*

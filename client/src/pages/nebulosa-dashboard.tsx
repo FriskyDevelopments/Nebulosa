@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { apiRequest } from "@/lib/queryClient";
+import { Xi } from "@/components/Xi";
 
 type SessionSummary = {
   environment: "dev" | "staging" | "prod";
@@ -89,13 +90,19 @@ export default function NebulosaDashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-4">
-        <header className="flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold">Nebulosa Control Center</h1>
-          {sessionQuery.data && (
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              {sessionQuery.data.environment !== "prod" ? `${sessionQuery.data.environment} environment` : "production"}
-            </span>
-          )}
+        <header className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Xi state="active" variant="rounded" size={30} />
+            <h1 className="text-2xl md:text-3xl font-bold">Nebulosa Control Center</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <Xi state="signal" variant="sharp" size={24} className="hidden sm:inline-flex" />
+            {sessionQuery.data && (
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                {sessionQuery.data.environment !== "prod" ? `${sessionQuery.data.environment} environment` : "production"}
+              </span>
+            )}
+          </div>
         </header>
 
         {unauthorized && (

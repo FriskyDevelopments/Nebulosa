@@ -3,7 +3,11 @@
 echo "🚂 NEBULOSA RAILWAY DEPLOYMENT"
 echo "=============================="
 echo "Project: Nebulosa Telegram Bot"
-
+# Check if RAILWAY_TOKEN is set
+if [ -z "$RAILWAY_TOKEN" ]; then
+    echo "❌ Error: RAILWAY_TOKEN environment variable is not set."
+    exit 1
+fi
 echo ""
 
 # Ensure we have package.json ready
@@ -32,7 +36,11 @@ if [ $? -eq 0 ]; then
     echo "👤 User: $(railway whoami)"
 else
     echo "❌ Railway authentication failed"
-    echo "Please check your token"
+# Check if RAILWAY_TOKEN is set
+if [ -z "$RAILWAY_TOKEN" ]; then
+    echo "❌ Error: RAILWAY_TOKEN environment variable is not set."
+    exit 1
+fi
     exit 1
 fi
 
