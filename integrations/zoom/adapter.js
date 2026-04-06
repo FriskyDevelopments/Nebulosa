@@ -233,6 +233,27 @@ async function admitParticipant(name) {
   }
 }
 
+
+/**
+ * Admit all participants from the waiting room.
+ * @returns {Promise<boolean>}
+ */
+async function admitAll() {
+  try {
+    const admitAllBtn = document.querySelector(ZoomSelectors.WAITING_ROOM_ADMIT_ALL_BTN);
+    if (admitAllBtn) {
+      admitAllBtn.click();
+      dbg('admitAll: clicked admit all button');
+      return true;
+    }
+    dbg('admitAll: admit all button not found');
+    return false;
+  } catch (err) {
+    console.error('[Nebulosa:ZoomAdapter] admitAll error:', err); // eslint-disable-line no-console
+    return false;
+  }
+}
+
 // ── Wire up ZoomEvents → EventBus ───────────────────────────────────────────
 
 /**
@@ -282,7 +303,7 @@ function destroy() {
 }
 
 // CommonJS + browser-global dual export
-const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant };
+const ZoomAdapter = { init, destroy, pinParticipant, unpinParticipant, admitParticipant, admitAll };
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ZoomAdapter;
