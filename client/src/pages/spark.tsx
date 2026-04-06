@@ -79,7 +79,15 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 const ALL_CATEGORIES = ["all", "basic", "reactions", "magic", "symbols", "premium", "experimental"];
 
-// ─── Component ────────────────────────────────────────────────────────────────
+/**
+ * Renders the Spark projects page with search and category filters and a grid of emoji packs.
+ *
+ * Fetches emoji packs from the API and displays one of four UI states: loading skeletons, an error
+ * feedback with retry, an empty feedback (with contextual description and optional "New project"
+ * action), or a results view showing matched packs and a count line.
+ *
+ * @returns A React element containing the Spark page UI.
+ */
 
 export default function SparkPage() {
   const [search, setSearch] = useState("");
