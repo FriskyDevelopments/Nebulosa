@@ -68,7 +68,7 @@ export default function NebulosaDashboard() {
 
   const loginMutation = useMutation({
     mutationFn: () => {
-      analytics.track('action_submit', { actionName: 'operator_login_attempt', context: { username } });
+      analytics.track('action_submit', { actionName: 'operator_login_attempt' });
       return apiRequest("POST", "/api/v1/auth/login", { username, password });
     },
     onSuccess: () => {
