@@ -23,10 +23,8 @@ class AnalyticsTracker {
       timestamp: payload.timestamp || new Date().toISOString(),
     };
 
-    // Fire and forget, but swallow sync and async adapter failures consistently
-    void Promise.resolve()
-      .then(() => this.adapter.track(eventName, enrichedPayload))
-      .catch(() => {});
+    // Fire and forget
+    this.adapter.track(eventName, enrichedPayload);
   }
 
   /**
