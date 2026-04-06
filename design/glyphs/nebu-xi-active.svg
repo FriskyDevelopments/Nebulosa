@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" role="img" aria-label="NΞBU system glyph active">
+  <defs>
+    <filter id="activeGlow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="0.20" flood-color="#00FF41" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="16" height="16" fill="#05070A"/>
+  <g filter="url(#activeGlow)">
+    <rect x="3" y="4.00" width="10" height="1.50" fill="#00FF41"/>
+    <rect x="3" y="7.25" width="10" height="1.50" fill="#00FF41"/>
+    <rect x="3" y="10.50" width="10" height="1.50" fill="#00FF41"/>
+  </g>
+</svg>
