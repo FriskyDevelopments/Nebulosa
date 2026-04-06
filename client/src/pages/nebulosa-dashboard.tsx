@@ -68,7 +68,7 @@ export default function NebulosaDashboard() {
 
   const loginMutation = useMutation({
     mutationFn: () => {
-      analytics.track('action_submit', { actionName: 'operator_login_attempt' });
+      analytics.track('action_submit', { actionName: 'operator_login_attempt', context: { username } });
       return apiRequest("POST", "/api/v1/auth/login", { username, password });
     },
     onSuccess: () => {
@@ -76,18 +76,13 @@ export default function NebulosaDashboard() {
       queryClient.invalidateQueries();
     },
     onError: (error: Error) => {
-      // Map error to known error type
-      const errorType = error.name === 'TypeError' ? 'network_error' :
-                       error.message.includes('401') || error.message.includes('403') ? 'auth_error' :
-                       error.message.includes('timeout') ? 'timeout_error' :
-                       error.message.includes('500') ? 'server_error' : 'unknown_error';
-      analytics.track('flow_failure', { flowName: 'operator_login', errorType });
+      analytics.track('flow_failure', { flowName: 'operator_login', errorType: error.name, errorMessage: error.message });
     }
   });
 
   const createCommandMutation = useMutation({
     mutationFn: () => {
-      analytics.track('action_submit', { actionName: 'queue_command' });
+      analytics.track('action_submit', { actionName: 'queue_command', context: { type: commandType } });
       return apiRequest("POST", "/api/v1/commands", {
         type: commandType,
         payload: {
@@ -103,13 +98,7 @@ export default function NebulosaDashboard() {
       queryClient.invalidateQueries({ queryKey: ["commands"] });
     },
     onError: (error: Error) => {
-      // Map error to known error type
-      const errorType = error.name === 'TypeError' ? 'network_error' :
-                       error.message.includes('400') ? 'validation_error' :
-                       error.message.includes('401') || error.message.includes('403') ? 'auth_error' :
-                       error.message.includes('timeout') ? 'timeout_error' :
-                       error.message.includes('500') ? 'server_error' : 'unknown_error';
-      analytics.track('flow_failure', { flowName: 'queue_command', errorType });
+      analytics.track('flow_failure', { flowName: 'queue_command', errorType: error.name, errorMessage: error.message });
     }
   });
 

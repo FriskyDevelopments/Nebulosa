@@ -23,12 +23,8 @@ class AnalyticsTracker {
       timestamp: payload.timestamp || new Date().toISOString(),
     };
 
-    // Fire and forget - wrap in Promise to prevent synchronous throws from bubbling up
-    Promise.resolve().then(() => this.adapter.track(eventName, enrichedPayload)).catch((err) => {
-      if (import.meta.env.DEV || (typeof window !== 'undefined' && window.__NEBULOSA_DEBUG)) {
-        console.error(`[Analytics] Failed to track event: ${eventName}`, err);
-      }
-    });
+    // Fire and forget
+    this.adapter.track(eventName, enrichedPayload);
   }
 
   /**
@@ -38,12 +34,7 @@ class AnalyticsTracker {
    * @param traits Non-PII user traits
    */
   public identify(userId: string, traits?: Record<string, any>) {
-    // Fire and forget, matching the defensive pattern in track()
-    Promise.resolve(this.adapter.identify(userId, traits)).catch((err) => {
-      if (import.meta.env.DEV || (typeof window !== 'undefined' && window.__NEBULOSA_DEBUG)) {
-        console.error(`[Analytics] Failed to identify user: ${userId}`, err);
-      }
-    });
+    this.adapter.identify(userId, traits);
   }
 
   /**

@@ -22,30 +22,6 @@ export type BaseEventPayload = {
   timestamp?: string; // Automatically added by the adapter
   path?: string;
   userAgent?: string;
-  category?: EventCategory;
-};
-
-/**
- * Safe metadata type that restricts values to prevent arbitrary PII.
- * Only allows specific vetted keys with constrained value types.
- */
-export type SafeMetadata = {
-  // Project-related safe identifiers
-  projectId?: number;
-  projectSlug?: string;
-
-  // Search and filter parameters
-  term?: string; // Search terms (should be sanitized by caller)
-  category?: string;
-
-  // UI interaction context
-  source?: string; // e.g., 'header', 'empty_state', 'sidebar'
-  action?: string;
-
-  // Numeric metrics only
-  count?: number;
-  index?: number;
-  duration?: number;
 };
 
 // Landing Engagement
@@ -63,7 +39,7 @@ export type FlowStartPayload = BaseEventPayload & {
 // Action Submits
 export type ActionSubmitPayload = BaseEventPayload & {
   actionName: 'spark_navigation_click' | 'operator_login_attempt' | 'queue_command';
-  context?: SafeMetadata;
+  context?: Record<string, string | number | boolean>;
 };
 
 // Completions
@@ -73,26 +49,16 @@ export type CompletionPayload = BaseEventPayload & {
 };
 
 // Failures/Retries
-// Constrain error types to known categories to prevent logging arbitrary error messages with PII
-export type KnownErrorType =
-  | 'network_error'
-  | 'validation_error'
-  | 'auth_error'
-  | 'timeout_error'
-  | 'server_error'
-  | 'unknown_error';
-
 export type FailurePayload = BaseEventPayload & {
   flowName: 'operator_login' | 'queue_command';
-  errorType: KnownErrorType;
-  // Remove errorMessage field to prevent arbitrary PII logging
-  // If error details are needed, use errorType categorization instead
+  errorType: string;
+  errorMessage?: string;
 };
 
 // Feature Interactions
 export type FeatureInteractionPayload = BaseEventPayload & {
   featureName: 'project_search' | 'category_filter' | 'view_project';
-  interactionData?: SafeMetadata;
+  interactionData?: Record<string, string | number | boolean>;
 };
 
 // Event Map binding event names to their payloads
