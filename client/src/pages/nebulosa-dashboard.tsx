@@ -68,7 +68,7 @@ export default function NebulosaDashboard() {
 
   const loginMutation = useMutation({
     mutationFn: () => {
-      analytics.track('action_submit', { actionName: 'operator_login_attempt', context: { username } });
+      analytics.track('action_submit', { actionName: 'operator_login_attempt', context: { hasUsername: !!username } });
       return apiRequest("POST", "/api/v1/auth/login", { username, password });
     },
     onSuccess: () => {
@@ -76,7 +76,7 @@ export default function NebulosaDashboard() {
       queryClient.invalidateQueries();
     },
     onError: (error: Error) => {
-      analytics.track('flow_failure', { flowName: 'operator_login', errorType: error.name, errorMessage: error.message });
+      analytics.track('flow_failure', { flowName: 'operator_login', errorType: error.name });
     }
   });
 
@@ -98,7 +98,7 @@ export default function NebulosaDashboard() {
       queryClient.invalidateQueries({ queryKey: ["commands"] });
     },
     onError: (error: Error) => {
-      analytics.track('flow_failure', { flowName: 'queue_command', errorType: error.name, errorMessage: error.message });
+      analytics.track('flow_failure', { flowName: 'queue_command', errorType: error.name });
     }
   });
 
