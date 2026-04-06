@@ -1,10 +1,20 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
-import { Xi } from "@/components/Xi";
+import { parseNebuCommand } from "@/core/commands/parser";
+import { expressReaction, transformToStix } from "@/core/system/pipeline";
+import { zoomCaptureToIntake, zoomCommandToApiPayload, zoomEventToIntake } from "@/platforms/zoom/adapter";
+import { toTelegramMessage } from "@/platforms/telegram/adapter";
+import { toDiscordMessage } from "@/platforms/discord/adapter";
+import { NebuShell } from "@/ui/nebu/NebuShell";
+import { CommandBar } from "@/ui/nebu/CommandBar";
+import { SessionGrid } from "@/ui/nebu/SessionGrid";
+import { NodeGraph } from "@/ui/nebu/NodeGraph";
+import { ReactionPanel } from "@/ui/stix/ReactionPanel";
+import { XiGlyph } from "@/ui/stix/XiGlyph";
 
 type SessionSummary = {
   environment: "dev" | "staging" | "prod";
@@ -20,25 +30,25 @@ type Command = {
   status: string;
   requestedBy: string;
   createdAt: string;
-  expiresAt: string;
 };
 
-type Alert = { id: string; severity: string; message: string; createdAt: string };
+type Alert = { id: string; severity: string; message: string };
 
-const COMMAND_TYPES = [
-  "session.mute_participant",
-  "session.remove_participant",
-  "session.pin_participant",
-  "session.send_warning",
-];
+type FlowState = "base" | "active" | "signal";
 
 export default function NebulosaDashboard() {
   const queryClient = useQueryClient();
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("ChangeMe_Admin123!");
-  const [sessionId, setSessionId] = useState("session-main");
-  const [participantId, setParticipantId] = useState("participant-42");
-  const [commandType, setCommandType] = useState(COMMAND_TYPES[0]);
+  const [sessionId] = useState("session-main");
+  const [commandInput, setCommandInput] = useState("/zoom admit all");
+  const [flowState, setFlowState] = useState<{ intake: FlowState; transform: FlowState; express: FlowState }>({
+    intake: "base",
+    transform: "base",
+    express: "base",
+  });
+  const [reactionLog, setReactionLog] = useState<Array<ReturnType<typeof transformToStix>>>([]);
+  const [expressLog, setExpressLog] = useState<string[]>([]);
 
   const sessionQuery = useQuery<SessionSummary>({
     queryKey: ["session-summary"],
@@ -67,139 +77,148 @@ export default function NebulosaDashboard() {
   });
 
   const createCommandMutation = useMutation({
-    mutationFn: () =>
-      apiRequest("POST", "/api/v1/commands", {
-        type: commandType,
-        payload: {
-          sessionId,
-          participantId,
-          reason: "Operator requested action",
-        },
-        ttlSeconds: 180,
-      }),
+    mutationFn: (body: unknown) => apiRequest("POST", "/api/v1/commands", body),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["commands"] }),
   });
 
-  const orderedCommands = useMemo(
+  const handleParsedCommand = async (rawCommand: string) => {
+    const parsed = parseNebuCommand(rawCommand, sessionId);
+    if (!parsed) {
+      setExpressLog((prev) => ["Unsupported command. Use /zoom admit all | /zoom mute all | /zoom lock room | /capture moment", ...prev].slice(0, 6));
+      return;
+    }
+
+    setFlowState({ intake: "active", transform: "base", express: "base" });
+    const intake = parsed.canonicalType === "capture.moment" ? zoomCaptureToIntake(sessionId) : zoomEventToIntake(sessionId, parsed.raw);
+
+    setFlowState({ intake: "signal", transform: "active", express: "base" });
+    const reaction = transformToStix(intake);
+    setReactionLog((prev) => [reaction, ...prev].slice(0, 20));
+
+    setFlowState({ intake: "signal", transform: "signal", express: "active" });
+    const packet = expressReaction(reaction);
+    const telegram = toTelegramMessage(packet);
+    const discord = toDiscordMessage(packet);
+    setExpressLog((prev) => [`${telegram}`, `${discord}`, ...prev].slice(0, 8));
+
+    await createCommandMutation.mutateAsync(zoomCommandToApiPayload(parsed));
+    setFlowState({ intake: "signal", transform: "signal", express: "signal" });
+  };
+
+  const sortedCommands = useMemo(
     () => [...(commandsQuery.data ?? [])].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)),
     [commandsQuery.data],
   );
 
-  const unauthorized = sessionQuery.isError;
+  if (sessionQuery.isError) {
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <Card className="max-w-md mx-auto mt-16">
+          <CardHeader>
+            <CardTitle>Operator Login</CardTitle>
+            <CardDescription>Nebu command grid requires operator authentication.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="username" />
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="password" />
+            <Button onClick={() => loginMutation.mutate()} disabled={loginMutation.isPending}>
+              {loginMutation.isPending ? "Signing in…" : "Sign in"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-4">
-        <header className="flex items-center justify-between gap-4">
+    <div className="min-h-screen bg-background text-foreground p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4">
+        <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Xi state="active" variant="rounded" size={30} />
-            <h1 className="text-2xl md:text-3xl font-bold">Nebulosa Control Center</h1>
+            <XiGlyph state="active" label="nebu" size={28} />
+            <h1 className="text-2xl font-bold">Nebu Host Control · Command-First</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <Xi state="signal" variant="sharp" size={24} className="hidden sm:inline-flex" />
-            {sessionQuery.data && (
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">
-                {sessionQuery.data.environment !== "prod" ? `${sessionQuery.data.environment} environment` : "production"}
-              </span>
-            )}
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">
+            {sessionQuery.data?.environment ?? "-"} · {sessionQuery.data?.operator.username ?? "guest"}
           </div>
         </header>
 
-        {unauthorized && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Operator Login</CardTitle>
-              <CardDescription>Authenticate to issue commands and view audit feeds.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="username" />
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="password" />
-              <Button onClick={() => loginMutation.mutate()} disabled={loginMutation.isPending}>
-                {loginMutation.isPending ? "Signing in..." : "Sign in"}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {sessionQuery.data && (
-          <>
-            <div className="grid md:grid-cols-4 gap-3">
-              <MetricCard label="Role" value={sessionQuery.data.operator.role} />
-              <MetricCard label="Executors" value={String(sessionQuery.data.activeExecutors)} />
-              <MetricCard label="Pending Commands" value={String(sessionQuery.data.pendingCommands)} />
-              <MetricCard label="Open Alerts" value={String(sessionQuery.data.alerts)} />
-            </div>
-
+        <NebuShell
+          left={
             <Card>
               <CardHeader>
-                <CardTitle>Dispatch Command</CardTitle>
-                <CardDescription>Server validates command type and payload before enqueueing.</CardDescription>
+                <CardTitle>Input Layer</CardTitle>
+                <CardDescription>Commands are primary. Buttons are fallback shortcuts.</CardDescription>
               </CardHeader>
-              <CardContent className="grid md:grid-cols-4 gap-3">
-                <select className="h-10 rounded-md border bg-background px-3" value={commandType} onChange={(e) => setCommandType(e.target.value)}>
-                  {COMMAND_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-                <Input value={sessionId} onChange={(e) => setSessionId(e.target.value)} placeholder="session id" />
-                <Input value={participantId} onChange={(e) => setParticipantId(e.target.value)} placeholder="participant id" />
-                <Button onClick={() => createCommandMutation.mutate()} disabled={createCommandMutation.isPending}>
-                  {createCommandMutation.isPending ? "Queueing..." : "Queue Command"}
-                </Button>
+              <CardContent className="space-y-4">
+                <CommandBar
+                  value={commandInput}
+                  onChange={setCommandInput}
+                  onSubmit={() => handleParsedCommand(commandInput)}
+                  onQuickCommand={(command) => {
+                    setCommandInput(command);
+                    void handleParsedCommand(command);
+                  }}
+                  isExecuting={createCommandMutation.isPending}
+                  helperText="Supported: /zoom admit all · /zoom mute all · /zoom lock room · /capture moment"
+                />
+                <div className="rounded-md border p-3">
+                  <div className="text-sm font-medium mb-2">Express Feed</div>
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    {expressLog.length === 0 ? <p>No outbound messages yet.</p> : expressLog.map((item, index) => <p key={`${item}-${index}`}>{item}</p>)}
+                  </div>
+                </div>
               </CardContent>
             </Card>
-
-            <div className="grid lg:grid-cols-2 gap-4">
+          }
+          center={
+            <div className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Command Queue</CardTitle>
+                  <CardTitle>Host / Session Control</CardTitle>
+                  <CardDescription>Central system runtime with live Xi state transitions.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2 max-h-96 overflow-auto">
-                  {orderedCommands.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No commands yet.</p>
-                  ) : (
-                    orderedCommands.map((command) => (
-                      <div key={command.id} className="border rounded-md p-2 text-sm">
-                        <div className="font-medium">{command.type}</div>
-                        <div className="text-xs text-muted-foreground">{command.status} · {command.id.slice(0, 8)}</div>
-                      </div>
-                    ))
-                  )}
+                <CardContent className="space-y-4">
+                  <SessionGrid
+                    stats={{
+                      operatorRole: sessionQuery.data?.operator.role ?? "-",
+                      activeExecutors: sessionQuery.data?.activeExecutors ?? 0,
+                      pendingCommands: sessionQuery.data?.pendingCommands ?? 0,
+                      alerts: alertsQuery.data?.length ?? 0,
+                    }}
+                  />
+                  <NodeGraph intake={flowState.intake} transform={flowState.transform} express={flowState.express} />
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Alerts</CardTitle>
+                  <CardTitle>Queue + Alert Feedback</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 max-h-96 overflow-auto">
-                  {(alertsQuery.data ?? []).length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No active alerts.</p>
-                  ) : (
-                    (alertsQuery.data ?? []).map((alert) => (
-                      <div key={alert.id} className="border rounded-md p-2 text-sm">
+                <CardContent className="grid md:grid-cols-2 gap-3">
+                  <div className="space-y-2 max-h-72 overflow-auto">
+                    {sortedCommands.slice(0, 12).map((command) => (
+                      <div key={command.id} className="rounded-md border p-2 text-sm">
+                        <div className="font-medium">{command.type}</div>
+                        <div className="text-xs text-muted-foreground">{command.status}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-2 max-h-72 overflow-auto">
+                    {(alertsQuery.data ?? []).map((alert) => (
+                      <div key={alert.id} className="rounded-md border p-2 text-sm">
                         <div className="font-medium">{alert.severity.toUpperCase()}</div>
                         <div className="text-xs text-muted-foreground">{alert.message}</div>
                       </div>
-                    ))
-                  )}
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             </div>
-          </>
-        )}
+          }
+          right={<ReactionPanel reactions={reactionLog} />}
+        />
       </div>
     </div>
-  );
-}
-
-function MetricCard({ label, value }: { label: string; value: string }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-xl">{value}</CardTitle>
-      </CardHeader>
-    </Card>
   );
 }

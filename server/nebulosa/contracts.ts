@@ -19,6 +19,10 @@ export const commandTypeSchema = z.enum([
   "session.remove_participant",
   "session.pin_participant",
   "session.send_warning",
+  "session.admit_all",
+  "session.mute_all",
+  "session.lock_room",
+  "capture.moment",
 ]);
 export type CommandType = z.infer<typeof commandTypeSchema>;
 

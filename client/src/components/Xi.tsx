@@ -1,6 +1,6 @@
 import { type CSSProperties } from "react";
 
-type XiState = "idle" | "active" | "signal";
+type XiState = "base" | "active" | "signal";
 type XiVariant = "rounded" | "sharp";
 
 type XiProps = {
@@ -11,7 +11,7 @@ type XiProps = {
 };
 
 const STROKE_BY_STATE: Record<XiState, CSSProperties> = {
-  idle: {
+  base: {
     color: "hsl(var(--foreground))",
     opacity: 0.88,
   },
@@ -25,9 +25,9 @@ const STROKE_BY_STATE: Record<XiState, CSSProperties> = {
   },
 };
 
-export function Xi({ state = "idle", variant = "rounded", size = 28, className }: XiProps) {
+export function Xi({ state = "base", variant = "rounded", size = 28, className }: XiProps) {
   const lineCap = variant === "rounded" ? "round" : "square";
-  const pulseClass = state === "idle" ? "" : state === "active" ? "xi-pulse-active" : "xi-pulse-signal";
+  const pulseClass = state === "base" ? "" : state === "active" ? "xi-pulse-active" : "xi-pulse-signal";
 
   return (
     <span
