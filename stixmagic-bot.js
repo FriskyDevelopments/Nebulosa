@@ -19,6 +19,18 @@ if (!BOT_TOKEN) {
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const WEBHOOK_URL = process.env.WEBHOOK_URL; // optional; use polling if absent
 
+if (WEBHOOK_URL) {
+    try {
+        const parsedWebhookUrl = new URL(WEBHOOK_URL);
+        if (!['http:', 'https:'].includes(parsedWebhookUrl.protocol)) {
+            throw new Error('WEBHOOK_URL must start with http:// or https://');
+        }
+    } catch (error) {
+        console.error(`❌ Invalid WEBHOOK_URL: ${error.message}`);
+        process.exit(1);
+    }
+}
+
 // ------------------------------------------------------------------
 // Express health-check server
 // ------------------------------------------------------------------
@@ -57,8 +69,53 @@ startCleanupWorker();
 // ------------------------------------------------------------------
 // Start HTTP server
 // ------------------------------------------------------------------
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`🌟 Stix Magic server running on port ${PORT}`);
     console.log(`   Health: http://localhost:${PORT}/health`);
-    console.log(`   Domain: stixmagic.com`);
+    console.log('   Domain: set your production domain via WEBHOOK_URL');
+});
+
+async function shutdown(signal) {
+    console.log(`\n🛑 Received ${signal}. Shutting down gracefully...`);
+
+    try {
+        if (bot && typeof bot.stopPolling === 'function') {
+            await bot.stopPolling();
+            console.log('✅ Telegram polling stopped');
+        }
+
+        if (bot && WEBHOOK_URL && typeof bot.deleteWebHook === 'function') {
+            await bot.deleteWebHook();
+            console.log('✅ Telegram webhook removed');
+        }
+    } catch (error) {
+        console.error('❌ Error while stopping bot:', error.message);
+    }
+
+    server.close(() => {
+        console.log('✅ HTTP server closed');
+        process.exit(0);
+    });
+
+    setTimeout(() => {
+        console.error('❌ Forced shutdown after timeout');
+        process.exit(1);
+    }, 10_000).unref();
+}
+
+process.on('SIGINT', () => {
+    shutdown('SIGINT');
+});
+
+process.on('SIGTERM', () => {
+    shutdown('SIGTERM');
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('❌ Unhandled promise rejection:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught exception:', error);
+    process.exit(1);
 });
