@@ -9,8 +9,8 @@ const { errorHandler, notFound } = require('../api/middleware/error-handler');
 
 function makeRes() {
   const res = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
+  res.status = vi.fn().mockReturnValue(res);
+  res.json = vi.fn().mockReturnValue(res);
   return res;
 }
 
@@ -21,7 +21,7 @@ describe('errorHandler', () => {
     const req = { method: 'GET', url: '/test' };
     const res = makeRes();
 
-    errorHandler(err, req, res, jest.fn());
+    errorHandler(err, req, res, vi.fn());
 
     expect(res.status).toHaveBeenCalledWith(422);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Something went wrong' }));
@@ -32,7 +32,7 @@ describe('errorHandler', () => {
     const req = { method: 'POST', url: '/data' };
     const res = makeRes();
 
-    errorHandler(err, req, res, jest.fn());
+    errorHandler(err, req, res, vi.fn());
 
     expect(res.status).toHaveBeenCalledWith(500);
   });

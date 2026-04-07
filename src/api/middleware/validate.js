@@ -68,7 +68,7 @@ function validateParams(schema) {
  * @returns {Array<{ path: string, message: string }>}
  */
 function formatZodErrors(error) {
-  return error.errors.map((e) => ({
+  return error.issues.map((e) => ({
     path: e.path.join('.'),
     message: e.message,
   }));

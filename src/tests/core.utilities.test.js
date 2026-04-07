@@ -76,15 +76,15 @@ describe('asyncHandler', () => {
   it('calls next with error on rejection', async () => {
     const error = new Error('test error');
     const handler = asyncHandler(() => Promise.reject(error));
-    const next = jest.fn();
+    const next = vi.fn();
     await handler({}, {}, next);
     expect(next).toHaveBeenCalledWith(error);
   });
 
   it('does not call next on success', async () => {
-    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
     const handler = asyncHandler(async (req, r) => r.status(200).json({}));
-    const next = jest.fn();
+    const next = vi.fn();
     await handler({}, res, next);
     expect(next).not.toHaveBeenCalled();
   });

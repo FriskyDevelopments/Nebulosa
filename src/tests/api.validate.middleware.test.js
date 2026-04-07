@@ -8,8 +8,8 @@ const { validateBody, validateQuery, validateParams } = require('../api/middlewa
 
 function makeRes() {
   const res = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
+  res.status = vi.fn().mockReturnValue(res);
+  res.json = vi.fn().mockReturnValue(res);
   return res;
 }
 
@@ -19,7 +19,7 @@ describe('validateBody', () => {
   it('calls next for valid body', () => {
     const req = { body: { name: 'Alice', age: 30 } };
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     validateBody(schema)(req, res, next);
 
@@ -30,7 +30,7 @@ describe('validateBody', () => {
   it('returns 400 for invalid body', () => {
     const req = { body: { name: '', age: -1 } };
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     validateBody(schema)(req, res, next);
 
@@ -45,7 +45,7 @@ describe('validateBody', () => {
     const strictSchema = z.object({ name: z.string() }).strip();
     const req = { body: { name: 'Bob', extra: 'ignored' } };
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     validateBody(strictSchema)(req, res, next);
 
@@ -60,7 +60,7 @@ describe('validateQuery', () => {
   it('calls next for valid query', () => {
     const req = { query: { page: '2' } };
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     validateQuery(schema)(req, res, next);
 
@@ -74,7 +74,7 @@ describe('validateParams', () => {
   it('calls next for valid UUID param', () => {
     const req = { params: { id: '123e4567-e89b-12d3-a456-426614174000' } };
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     validateParams(schema)(req, res, next);
 
@@ -84,7 +84,7 @@ describe('validateParams', () => {
   it('returns 400 for non-UUID param', () => {
     const req = { params: { id: 'not-a-uuid' } };
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     validateParams(schema)(req, res, next);
 

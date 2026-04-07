@@ -19,32 +19,32 @@ var mockDb;
 // eslint-disable-next-line no-var
 var mockDependencies;
 
-jest.mock('../database/client', () => {
+vi.mock('../database/client', () => {
   mockDb = {
     user: {
-      findUnique: jest.fn().mockResolvedValue(null),
-      findMany: jest.fn().mockResolvedValue([]),
-      count: jest.fn().mockResolvedValue(0),
-      create: jest.fn(),
-      update: jest.fn(),
+      findUnique: vi.fn().mockResolvedValue(null),
+      findMany: vi.fn().mockResolvedValue([]),
+      count: vi.fn().mockResolvedValue(0),
+      create: vi.fn(),
+      update: vi.fn(),
     },
     apiKey: {
-      findMany: jest.fn().mockResolvedValue([]),
+      findMany: vi.fn().mockResolvedValue([]),
     },
     integrationToken: {
-      findMany: jest.fn().mockResolvedValue([]),
+      findMany: vi.fn().mockResolvedValue([]),
     },
-    $transaction: jest.fn().mockResolvedValue([[], 0]),
-    $on: jest.fn(),
+    $transaction: vi.fn().mockResolvedValue([[], 0]),
+    $on: vi.fn(),
   };
   return { getPrismaClient: () => mockDb };
 });
 
-jest.mock('../core/dependencies', () => {
+vi.mock('../core/dependencies', () => {
   mockDependencies = {
-    refreshDependencyState: jest.fn().mockResolvedValue(undefined),
-    getDependencyState: jest.fn().mockReturnValue({ db: { ready: true }, redis: { ready: true } }),
-    isReady: jest.fn().mockReturnValue(true),
+    refreshDependencyState: vi.fn().mockResolvedValue(undefined),
+    getDependencyState: vi.fn().mockReturnValue({ db: { ready: true }, redis: { ready: true } }),
+    isReady: vi.fn().mockReturnValue(true),
   };
   return mockDependencies;
 });

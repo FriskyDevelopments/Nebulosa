@@ -34,8 +34,8 @@ describe('hasRole', () => {
 describe('requireRole middleware', () => {
   function makeRes() {
     const res = {};
-    res.status = jest.fn().mockReturnValue(res);
-    res.json = jest.fn().mockReturnValue(res);
+    res.status = vi.fn().mockReturnValue(res);
+    res.json = vi.fn().mockReturnValue(res);
     return res;
   }
 
@@ -43,7 +43,7 @@ describe('requireRole middleware', () => {
     const middleware = requireRole(ROLES.USER);
     const req = { user: { role: ROLES.USER } };
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     middleware(req, res, next);
 
@@ -55,7 +55,7 @@ describe('requireRole middleware', () => {
     const middleware = requireRole(ROLES.USER);
     const req = {};
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     middleware(req, res, next);
 
@@ -67,7 +67,7 @@ describe('requireRole middleware', () => {
     const middleware = requireRole(ROLES.ADMIN);
     const req = { user: { role: ROLES.USER } };
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     middleware(req, res, next);
 
