@@ -6,6 +6,11 @@ import { emojiPacksFixture } from "./fixtures/emojiPacks";
 const SCENARIOS = ["happy", "empty", "error", "partial"] as const;
 export type MockScenario = (typeof SCENARIOS)[number];
 
+/**
+ * Determine the active mock scenario for generating responses.
+ *
+ * @returns The active `MockScenario` (`'happy' | 'empty' | 'error' | 'partial'`); defaults to `'happy'` when no scenario is configured or it cannot be read.
+ */
 function getScenario(): MockScenario {
   // Try to read from localStorage if available, otherwise default to "happy"
   try {
