@@ -8,7 +8,7 @@
 const fs = require('fs');
 const https = require('https');
 
-const SHORTIO_API_KEY = 'sk_9uHbW34AHTAbBUZl';
+const SHORTIO_API_KEY = process.env.SHORTIO_API_KEY;
 const DOMAIN = 'pupfrisky.com';
 
 console.log('🔑 Creating correct OAuth link...');
