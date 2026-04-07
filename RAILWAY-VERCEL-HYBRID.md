@@ -124,11 +124,16 @@ echo "🚀 Hybrid Deployment: Railway + Vercel"
 echo "🚂 Deploying to Railway..."
 git push origin main
 
-# Deploy to Vercel  
+# Deploy to Vercel
 echo "▲ Deploying to Vercel..."
-vercel --prod --token <YOUR_VERCEL_TOKEN>
+# Use environment variable instead of passing token on CLI
+export VERCEL_TOKEN=<YOUR_VERCEL_TOKEN>
+vercel --prod
 
 echo "✅ Hybrid deployment complete!"
+echo ""
+echo "⚠️ Security Note: Always use environment variables for tokens."
+echo "   Never pass secrets directly on the command line."
 echo "🚂 Railway: https://nebulosa-production.railway.app"
 echo "▲ Vercel: https://nebulosa.vercel.app"
 ```

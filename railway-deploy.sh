@@ -20,7 +20,9 @@ echo "🔧 Setting environment variables..."
 
 # Load from .env if exists
 if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
+    set -a
+    source .env
+    set +a
 fi
 
 # Function to prompt for a variable if it is not set
@@ -31,10 +33,10 @@ prompt_var() {
 
     if [ -z "$current_val" ]; then
         if [ "$is_secret" = "true" ]; then
-            read -s -p "Enter $var_name: " user_input
+            read -r -s -p "Enter $var_name: " user_input
             echo ""
         else
-            read -p "Enter $var_name: " user_input
+            read -r -p "Enter $var_name: " user_input
         fi
         export "$var_name"="$user_input"
     fi

@@ -11,7 +11,8 @@ Your Nebulosa bot now has the **perfect deployment strategy**:
 - **Cost**: $5-8/month
 - **Purpose**: Serve real users reliably
 
-### **⚡ Vercel - Preview Environment**  
+### **⚡ Vercel - Preview Environment**
+
 - **Token**: `<YOUR_VERCEL_TOKEN>`
 - **URL**: `https://nebulosa-telegram-bot.vercel.app`
 - **Features**: Serverless, branch previews, free tier

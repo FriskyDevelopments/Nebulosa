@@ -43,9 +43,10 @@ Combining the best of both platforms:
 
 2. **Authenticate**:
    ```bash
-   # Vercel
-   vercel login --token <YOUR_VERCEL_TOKEN>
-   
+   # Vercel - Use environment variable instead of exposing token in command
+   export VERCEL_TOKEN=<YOUR_VERCEL_TOKEN>
+   vercel login
+
    # Railway (needs browser)
    railway login --browserless
    # Use pairing code: teal-thorough-mindfulness

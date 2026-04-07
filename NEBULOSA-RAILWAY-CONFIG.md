@@ -18,8 +18,9 @@
 # Install Railway CLI
 npm install -g @railway/cli
 
-# Login with your token
-railway login --token <YOUR_RAILWAY_TOKEN>
+# Login with your token - Use environment variable to avoid exposing token
+export RAILWAY_TOKEN=<YOUR_RAILWAY_TOKEN>
+railway login
 
 # Deploy
 railway up

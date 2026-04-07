@@ -36,11 +36,6 @@ if [ $? -eq 0 ]; then
     echo "👤 User: $(railway whoami)"
 else
     echo "❌ Railway authentication failed"
-# Check if RAILWAY_TOKEN is set
-if [ -z "$RAILWAY_TOKEN" ]; then
-    echo "❌ Error: RAILWAY_TOKEN environment variable is not set."
-    exit 1
-fi
     exit 1
 fi
 

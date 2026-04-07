@@ -92,7 +92,7 @@
 }
 
 
-@keyframes xiPulseActive {
+@keyframes xi-pulse-active {
   0%,
   100% {
     opacity: 0.88;
@@ -105,7 +105,7 @@
   }
 }
 
-@keyframes xiPulseSignal {
+@keyframes xi-pulse-signal {
   0%,
   100% {
     opacity: 0.9;
@@ -121,10 +121,10 @@
 
 @layer utilities {
   .xi-pulse-active {
-    animation: xiPulseActive 1.8s ease-in-out infinite;
+    animation: xi-pulse-active 1.8s ease-in-out infinite;
   }
 
   .xi-pulse-signal {
-    animation: xiPulseSignal 1.2s ease-in-out infinite;
+    animation: xi-pulse-signal 1.2s ease-in-out infinite;
   }
 }
