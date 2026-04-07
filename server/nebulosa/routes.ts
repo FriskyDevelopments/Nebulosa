@@ -12,6 +12,8 @@ import {
   updateCommandExecution,
 } from "./service";
 import { nebulosaState } from "./state";
+import { isTelegramActive } from "./telegram";
+
 
 const requestCounts = new Map<string, { count: number; resetAt: number }>();
 
@@ -35,6 +37,10 @@ function rateLimit(maxPerMinute: number) {
 }
 
 export function registerNebulosaRoutes(app: Express) {
+  app.get("/api/v1/telegram/status", (_req, res) => {
+    res.json({ active: isTelegramActive() });
+  });
+
   app.get("/api/v1/health", (_req, res) => {
     res.json(healthSnapshot());
   });

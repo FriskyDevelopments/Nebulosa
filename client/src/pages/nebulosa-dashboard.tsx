@@ -57,6 +57,13 @@ export default function NebulosaDashboard() {
     refetchInterval: 10_000,
   });
 
+
+  const telegramStatusQuery = useQuery<{ active: boolean }>({
+    queryKey: ["telegram-status"],
+    queryFn: async () => (await apiRequest("GET", "/api/v1/telegram/status")).json(),
+    refetchInterval: 30_000,
+  });
+
   const commandsQuery = useQuery<Command[]>({
     queryKey: ["commands"],
     queryFn: async () => (await apiRequest("GET", "/api/v1/commands")).json(),
@@ -139,7 +146,7 @@ export default function NebulosaDashboard() {
             <h1 className="text-2xl font-bold">Nebu Host Control · Command-First</h1>
           </div>
           <div className="text-xs uppercase tracking-wider text-muted-foreground">
-            {sessionQuery.data?.environment ?? "-"} · {sessionQuery.data?.operator.username ?? "guest"}
+            {sessionQuery.data?.environment ?? "-"} · {sessionQuery.data?.operator.username ?? "guest"} · Telegram: {telegramStatusQuery.data?.active ? "Connected" : "Offline"}
           </div>
         </header>
 
