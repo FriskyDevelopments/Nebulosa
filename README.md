@@ -55,6 +55,8 @@ docs/
 | [docs/multipin-automation.md](docs/multipin-automation.md) | Multipin automation deep-dive |
 | [docs/github-oauth-setup.md](docs/github-oauth-setup.md) | GitHub Pages OAuth callback setup |
 | [docs/shortio-setup.md](docs/shortio-setup.md) | Short.io domain redirect setup |
+| [docs/run-guide-fun.md](docs/run-guide-fun.md) | Fun visual local run + troubleshooting guide |
+| [docs/production-readiness-audit.md](docs/production-readiness-audit.md) | Latest production readiness audit and fixes |
 
 ---
 

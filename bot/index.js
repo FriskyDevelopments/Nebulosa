@@ -9,6 +9,26 @@ const { handleCatalogCommand, handleMyStickerCommand } = require('./handlers/cat
 const { sendAnimationStudio, handleAnimationCallback } = require('./handlers/animationHandler');
 const { usageSummary } = require('../services/usageService');
 
+function withHandlerErrorBoundary(bot, handlerName, handler) {
+    return async (...args) => {
+        try {
+            await handler(...args);
+        } catch (error) {
+            console.error(`❌ Bot handler failed (${handlerName}):`, error);
+
+            const maybeMsg = args[0];
+            const maybeChatId = maybeMsg && maybeMsg.chat && maybeMsg.chat.id;
+
+            if (maybeChatId) {
+                await bot.sendMessage(
+                    maybeChatId,
+                    '⚠️ Something went wrong while processing your request. Please try again.'
+                );
+            }
+        }
+    };
+}
+
 /**
  * Create and configure the Stix Magic Telegram bot.
  *
@@ -19,59 +39,67 @@ const { usageSummary } = require('../services/usageService');
 function createBot(token, options = {}) {
     const bot = new TelegramBot(token, options);
 
+    bot.on('polling_error', (error) => {
+        console.error('❌ Telegram polling error:', error.message);
+    });
+
+    bot.on('webhook_error', (error) => {
+        console.error('❌ Telegram webhook error:', error.message);
+    });
+
     // ------------------------------------------------------------------
     // /start  →  Magic Center
     // ------------------------------------------------------------------
-    bot.onText(/^\/start/, async (msg) => {
+    bot.onText(/^\/start/, withHandlerErrorBoundary(bot, '/start', async (msg) => {
         await sendMagicCenter(bot, msg.chat.id);
-    });
+    }));
 
     // ------------------------------------------------------------------
     // /menu   →  Magic Center (alias)
     // ------------------------------------------------------------------
-    bot.onText(/^\/menu/, async (msg) => {
+    bot.onText(/^\/menu/, withHandlerErrorBoundary(bot, '/menu', async (msg) => {
         await sendMagicCenter(bot, msg.chat.id);
-    });
+    }));
 
     // ------------------------------------------------------------------
     // /animate  →  Animation Studio
     // ------------------------------------------------------------------
-    bot.onText(/^\/animate/, async (msg) => {
+    bot.onText(/^\/animate/, withHandlerErrorBoundary(bot, '/animate', async (msg) => {
         await sendAnimationStudio(bot, msg.chat.id);
-    });
+    }));
 
     // ------------------------------------------------------------------
     // /drafts →  Draft Vault
     // ------------------------------------------------------------------
-    bot.onText(/^\/drafts/, async (msg) => {
+    bot.onText(/^\/drafts/, withHandlerErrorBoundary(bot, '/drafts', async (msg) => {
         await handleDraftsCommand(bot, msg);
-    });
+    }));
 
     // ------------------------------------------------------------------
     // /trash  →  Trash bin
     // ------------------------------------------------------------------
-    bot.onText(/^\/trash/, async (msg) => {
+    bot.onText(/^\/trash/, withHandlerErrorBoundary(bot, '/trash', async (msg) => {
         await handleTrashCommand(bot, msg);
-    });
+    }));
 
     // ------------------------------------------------------------------
     // /catalog
     // ------------------------------------------------------------------
-    bot.onText(/^\/catalog/, async (msg) => {
+    bot.onText(/^\/catalog/, withHandlerErrorBoundary(bot, '/catalog', async (msg) => {
         await handleCatalogCommand(bot, msg);
-    });
+    }));
 
     // ------------------------------------------------------------------
     // /mystickers
     // ------------------------------------------------------------------
-    bot.onText(/^\/mystickers/, async (msg) => {
+    bot.onText(/^\/mystickers/, withHandlerErrorBoundary(bot, '/mystickers', async (msg) => {
         await handleMyStickerCommand(bot, msg);
-    });
+    }));
 
     // ------------------------------------------------------------------
     // /plans  →  Usage summary
     // ------------------------------------------------------------------
-    bot.onText(/^\/plans/, async (msg) => {
+    bot.onText(/^\/plans/, withHandlerErrorBoundary(bot, '/plans', async (msg) => {
         const userId = String(msg.from.id);
         const summary = usageSummary(userId);
         await bot.sendMessage(
@@ -79,12 +107,12 @@ function createBot(token, options = {}) {
             `${summary}\n\n🔗 Upgrade at stixmagic.com/plans`,
             { parse_mode: 'Markdown' }
         );
-    });
+    }));
 
     // ------------------------------------------------------------------
     // /help
     // ------------------------------------------------------------------
-    bot.onText(/^\/help/, async (msg) => {
+    bot.onText(/^\/help/, withHandlerErrorBoundary(bot, '/help', async (msg) => {
         await bot.sendMessage(
             msg.chat.id,
             `✨ *Stix Magic Help*\n\n` +
@@ -104,26 +132,26 @@ function createBot(token, options = {}) {
             `and select an export format (Telegram, WebM, GIF, or WebP).`,
             { parse_mode: 'Markdown' }
         );
-    });
+    }));
 
     // ------------------------------------------------------------------
     // Incoming photos & documents → Magic Cut flow
     // ------------------------------------------------------------------
-    bot.on('photo', async (msg) => {
+    bot.on('photo', withHandlerErrorBoundary(bot, 'photo', async (msg) => {
         await handleImageMessage(bot, msg);
-    });
+    }));
 
-    bot.on('document', async (msg) => {
+    bot.on('document', withHandlerErrorBoundary(bot, 'document', async (msg) => {
         // Only process image documents
         if (msg.document && msg.document.mime_type && msg.document.mime_type.startsWith('image/')) {
             await handleImageMessage(bot, msg);
         }
-    });
+    }));
 
     // ------------------------------------------------------------------
     // Callback queries (inline button presses)
     // ------------------------------------------------------------------
-    bot.on('callback_query', async (query) => {
+    bot.on('callback_query', withHandlerErrorBoundary(bot, 'callback_query', async (query) => {
         const data = query.data || '';
 
         if (data.startsWith('mc:')) {
@@ -135,7 +163,7 @@ function createBot(token, options = {}) {
         } else {
             await bot.answerCallbackQuery(query.id);
         }
-    });
+    }));
 
     return bot;
 }
