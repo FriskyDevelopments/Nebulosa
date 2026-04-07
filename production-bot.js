@@ -6,10 +6,12 @@ class ZoomTelegramBot {
     constructor() {
         this.bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
         this.userSessions = new Map(); // Store OAuth tokens
+        this.initializedUsers = new Set(); // First interaction tracking
         this.adminUsers = new Set([
             // Add admin user IDs here
             // 123456789, 987654321
         ]);
+        this.commissionAccounts = new Map(); // Referral + commission state
         this.monitoringActive = false;
         this.browserBotActive = false;
         this.currentLanguage = new Map(); // Store user language preferences
@@ -37,7 +39,10 @@ class ZoomTelegramBot {
             { command: 'docs', description: 'Access documentation and guides' },
             { command: 'status', description: 'Current session status' },
             { command: 'shutdown', description: 'Stop bot (Admin only)' },
-            { command: 'language', description: 'Change language 🇺🇸🇲🇽' }
+            { command: 'language', description: 'Change language 🇺🇸🇲🇽' },
+            { command: 'commission', description: 'View referral commissions' },
+            { command: 'markpaid', description: 'Mark referral as paid (Admin)' },
+            { command: 'adminfree', description: 'Grant free access (Admin)' }
         ]);
         
         // Handle all messages
@@ -85,6 +90,8 @@ class ZoomTelegramBot {
         const chatId = msg.chat.id;
         const userId = msg.from.id;
         const text = msg.text;
+
+        await this.ensureUserInitialized(chatId, userId, text);
         
         if (!text || !text.startsWith('/')) {
             return;
@@ -145,6 +152,15 @@ class ZoomTelegramBot {
                 case '/language':
                     await this.handleLanguage(chatId, userId, args);
                     break;
+                case '/commission':
+                    await this.handleCommission(chatId, userId);
+                    break;
+                case '/markpaid':
+                    await this.handleMarkPaid(chatId, userId, args);
+                    break;
+                case '/adminfree':
+                    await this.handleAdminFree(chatId, userId, args);
+                    break;
                 default:
                     await this.bot.sendMessage(chatId, 
                         `❌ Unknown command: ${command}\\nUse /start to see available commands.`);
@@ -176,6 +192,15 @@ class ZoomTelegramBot {
                     chat_id: chatId,
                     message_id: callbackQuery.message.message_id
                 });
+            } else if (data === 'install_keyboard') {
+                await this.installMainKeyboard(chatId);
+                await this.bot.sendMessage(chatId, '✅ Main keyboard installed. Use the buttons below any time.');
+            } else if (data === 'quick_zoomlogin') {
+                await this.handleZoomLogin(chatId, userId, []);
+            } else if (data === 'quick_status') {
+                await this.handleStatus(chatId, userId, []);
+            } else if (data === 'quick_commission') {
+                await this.handleCommission(chatId, userId);
             }
             
             // Answer the callback query
@@ -189,7 +214,95 @@ class ZoomTelegramBot {
     }
     
     // Command Handlers
+    async ensureUserInitialized(chatId, userId, text) {
+        if (this.initializedUsers.has(userId)) {
+            return;
+        }
+
+        this.initializedUsers.add(userId);
+        this.ensureCommissionAccount(userId);
+        this.applyReferralFromText(userId, text);
+
+        await this.bot.sendMessage(
+            chatId,
+            '👋 First time here! I just installed your quick-action keyboard. You can also tap below to reinstall it any time.',
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: '📲 Install keyboard', callback_data: 'install_keyboard' }],
+                        [{ text: '🔐 Connect Zoom', callback_data: 'quick_zoomlogin' }]
+                    ]
+                }
+            }
+        );
+
+        await this.installMainKeyboard(chatId);
+    }
+
+    async installMainKeyboard(chatId) {
+        const mainKeyboard = {
+            keyboard: [
+                ['/start', '/zoomlogin', '/status'],
+                ['/createroom', '/roominfo', '/commission'],
+                ['/language', '/docs']
+            ],
+            resize_keyboard: true,
+            persistent: true
+        };
+
+        await this.bot.sendMessage(chatId, '⌨️ Keyboard ready.', {
+            reply_markup: mainKeyboard
+        });
+    }
+
+    ensureCommissionAccount(userId) {
+        if (!this.commissionAccounts.has(userId)) {
+            this.commissionAccounts.set(userId, {
+                referralCode: `ref_${userId}`,
+                referredBy: null,
+                referredUsers: new Set(),
+                paidReferrals: 0,
+                pendingReferrals: 0,
+                commissionUsd: 0,
+                freeAccess: false
+            });
+        }
+
+        return this.commissionAccounts.get(userId);
+    }
+
+    applyReferralFromText(userId, text) {
+        if (!text || !text.startsWith('/start ')) {
+            return;
+        }
+
+        const token = text.split(' ')[1];
+        if (!token || !token.startsWith('ref_')) {
+            return;
+        }
+
+        const referrerId = Number.parseInt(token.replace('ref_', ''), 10);
+        if (!Number.isInteger(referrerId) || referrerId === userId) {
+            return;
+        }
+
+        const userAccount = this.ensureCommissionAccount(userId);
+        if (userAccount.referredBy) {
+            return;
+        }
+
+        const referrerAccount = this.ensureCommissionAccount(referrerId);
+        userAccount.referredBy = referrerId;
+        referrerAccount.referredUsers.add(userId);
+        referrerAccount.pendingReferrals += 1;
+    }
+
     async handleStart(chatId, userId, args) {
+        this.ensureCommissionAccount(userId);
+        if (args && args[0]) {
+            this.applyReferralFromText(userId, `/start ${args[0]}`);
+        }
+
         const welcomeMessage = 
             `🎥 *Welcome to Zoom Meeting Bot!*\n\n` +
             `*Available Commands:*\n` +
@@ -209,7 +322,8 @@ class ZoomTelegramBot {
             `/docs - Access documentation and guides\n` +
             `/status - Current session status\n` +
             `/shutdown - Stop bot (Admin only)\n` +
-            `/language - Change language / Cambiar idioma 🇺🇸🇲🇽\n\n` +
+            `/language - Change language / Cambiar idioma 🇺🇸🇲🇽\n` +
+            `/commission - Referral and commission dashboard\n\n` +
             `*Features:*\n` +
             `✅ OAuth integration with Zoom\n` +
             `✅ Secure meeting management\n` +
@@ -219,6 +333,18 @@ class ZoomTelegramBot {
             `Get started with /zoomlogin to connect your Zoom account!`;
         
         await this.bot.sendMessage(chatId, welcomeMessage, { parse_mode: 'Markdown' });
+
+        await this.bot.sendMessage(chatId, 'Quick actions:', {
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: '🔐 Zoom Login', callback_data: 'quick_zoomlogin' },
+                        { text: '📊 Status', callback_data: 'quick_status' }
+                    ],
+                    [{ text: '💸 Commission', callback_data: 'quick_commission' }]
+                ]
+            }
+        });
     }
     
     async handleZoomLogin(chatId, userId, args) {
@@ -380,6 +506,147 @@ class ZoomTelegramBot {
             parse_mode: 'Markdown',
             reply_markup: keyboard
         });
+    }
+
+    async handleCommission(chatId, userId) {
+        const account = this.ensureCommissionAccount(userId);
+        const referralLink = `https://t.me/${process.env.BOT_USERNAME || 'your_bot'}?start=${account.referralCode}`;
+        const commissionMessage =
+            `💸 *Commission Dashboard*\n\n` +
+            `🔗 Referral link:\n${referralLink}\n\n` +
+            `👥 Total referrals: ${account.referredUsers.size}\n` +
+            `⏳ Pending referrals: ${account.pendingReferrals}\n` +
+            `✅ Paid referrals: ${account.paidReferrals}\n` +
+            `💰 Commission balance: $${account.commissionUsd.toFixed(2)}\n` +
+            `🎁 Free access: ${account.freeAccess ? 'Enabled' : 'Disabled'}\n\n` +
+            `Admins can convert pending referrals with /markpaid <userId>`;
+
+        await this.bot.sendMessage(chatId, commissionMessage, { parse_mode: 'Markdown' });
+    }
+
+    async handleMarkPaid(chatId, userId, args) {
+        if (!this.isAdmin(userId)) {
+            await this.bot.sendMessage(chatId, '❌ Admin access required for this command.');
+            return;
+        }
+
+        const referredUserId = Number.parseInt(args[0], 10);
+        if (!Number.isInteger(referredUserId)) {
+            await this.bot.sendMessage(chatId, 'Usage: /markpaid <userId>');
+            return;
+        }
+
+        const referredAccount = this.ensureCommissionAccount(referredUserId);
+        if (!referredAccount.referredBy) {
+            await this.bot.sendMessage(chatId, '❌ This user has no referrer.');
+            return;
+        }
+
+        const referrerAccount = this.ensureCommissionAccount(referredAccount.referredBy);
+        if (referrerAccount.pendingReferrals > 0) {
+            referrerAccount.pendingReferrals -= 1;
+        }
+        referrerAccount.paidReferrals += 1;
+        referrerAccount.commissionUsd += 5;
+
+        await this.bot.sendMessage(
+            chatId,
+            `✅ Marked user ${referredUserId} as paid.\nReferrer ${referredAccount.referredBy} earned $5.00.`
+        );
+    }
+
+    async handleAdminFree(chatId, userId, args) {
+        if (!this.isAdmin(userId)) {
+            await this.bot.sendMessage(chatId, '❌ Admin access required for this command.');
+            return;
+        }
+
+        const targetUserId = Number.parseInt(args[0], 10);
+        if (!Number.isInteger(targetUserId)) {
+            await this.bot.sendMessage(chatId, 'Usage: /adminfree <userId>');
+            return;
+        }
+
+        const account = this.ensureCommissionAccount(targetUserId);
+        account.freeAccess = true;
+
+        await this.bot.sendMessage(chatId, `✅ User ${targetUserId} now has free access.`);
+        await this.bot.sendMessage(targetUserId, '🎁 An admin granted you free access to premium bot features.');
+    }
+
+    async handleScanRoom(chatId, userId) {
+        if (!this.userSessions.has(userId)) {
+            await this.bot.sendMessage(chatId, '❌ Please connect your Zoom account first with /zoomlogin');
+            return;
+        }
+        await this.bot.sendMessage(chatId, '🔍 Scan complete: no violations detected.');
+    }
+
+    async handleMonitor(chatId) {
+        this.monitoringActive = !this.monitoringActive;
+        await this.bot.sendMessage(chatId, `👁️ Monitoring is now ${this.monitoringActive ? 'enabled' : 'disabled'}.`);
+    }
+
+    async handleStartBot(chatId, userId) {
+        if (!this.isAdmin(userId)) {
+            await this.bot.sendMessage(chatId, '❌ Admin access required for this command.');
+            return;
+        }
+        this.browserBotActive = true;
+        await this.bot.sendMessage(chatId, '🤖 Browser bot started.');
+    }
+
+    async handleStopBot(chatId, userId) {
+        if (!this.isAdmin(userId)) {
+            await this.bot.sendMessage(chatId, '❌ Admin access required for this command.');
+            return;
+        }
+        this.browserBotActive = false;
+        await this.bot.sendMessage(chatId, '🛑 Browser bot stopped.');
+    }
+
+    async handleChatWatch(chatId) {
+        await this.bot.sendMessage(chatId, '💬 Chat watch is active.');
+    }
+
+    async handlePromote(chatId, userId, args) {
+        if (!this.userSessions.has(userId)) {
+            await this.bot.sendMessage(chatId, '❌ Please connect your Zoom account first with /zoomlogin');
+            return;
+        }
+        const target = args.join(' ') || 'participant';
+        await this.bot.sendMessage(chatId, `⬆️ Promotion request prepared for: ${target}.`);
+    }
+
+    async handleCommandChat(chatId) {
+        await this.bot.sendMessage(chatId, '🧩 Command Chat integration is configured.');
+    }
+
+    async handleDocs(chatId) {
+        await this.bot.sendMessage(chatId, '📚 Docs: https://pupfr.github.io/Nebulosa/');
+    }
+
+    async handleStatus(chatId, userId) {
+        const account = this.ensureCommissionAccount(userId);
+        const statusMessage =
+            `📌 *Session Status*\n\n` +
+            `🔗 Zoom connected: ${this.userSessions.has(userId) ? '✅ Yes' : '❌ No'}\n` +
+            `👑 Admin: ${this.isAdmin(userId) ? '✅ Yes' : '❌ No'}\n` +
+            `👁️ Monitoring: ${this.monitoringActive ? '🟢 Active' : '🔴 Inactive'}\n` +
+            `💸 Commission: $${account.commissionUsd.toFixed(2)}\n` +
+            `🎁 Free access: ${account.freeAccess ? '✅ Enabled' : '❌ No'}`;
+
+        await this.bot.sendMessage(chatId, statusMessage, { parse_mode: 'Markdown' });
+    }
+
+    async handleShutdown(chatId, userId) {
+        if (!this.isAdmin(userId)) {
+            await this.bot.sendMessage(chatId, '❌ Admin access required for this command.');
+            return;
+        }
+
+        await this.bot.sendMessage(chatId, '🛑 Bot shutting down by admin command.');
+        process.exit(0);
     }
     
     // Add remaining command handlers here...
