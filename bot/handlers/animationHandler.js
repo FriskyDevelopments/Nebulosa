@@ -226,6 +226,128 @@ async function sendAnimationStudio(bot, chatId, messageId) {
 /**
  * Handle all Animation Studio callback queries (anim:*).
  */
+
+async function _handlePresetSelection(bot, chatId, msgId, session, action) {
+    const presetKey = action.split(':')[2];
+    if (!PRESETS[presetKey]) {
+        await bot.sendMessage(chatId, `⚠️ Unknown motion preset.`);
+        return;
+    }
+    session.preset = presetKey;
+    const p = PRESETS[presetKey];
+    await bot.editMessageText(
+        `${p.emoji} *${p.label} selected* — ${p.tagline}\n\n` +
+        `Your motion style is locked in. Use *Preview Loop* to see it in action, ` +
+        `or *Export Pack* to generate your assets.`,
+        {
+            chat_id: chatId,
+            message_id: msgId,
+            parse_mode: 'Markdown',
+            reply_markup: animationStudioEntryKeyboard(),
+        }
+    );
+}
+
+async function _handleExportSelection(bot, chatId, msgId, session, action) {
+    const format = action.split(':')[2];
+    const fmt = EXPORT_FORMATS[format];
+    if (!fmt) {
+        await bot.sendMessage(chatId, `⚠️ Unknown export format.`);
+        return;
+    }
+    const preset = session.preset;
+    if (!preset || !PRESETS[preset]) {
+        await bot.editMessageText(
+            `🎨 Please choose a motion style *before* exporting.\n\n` +
+            `Tap *Choose Motion* to pick an effect, then come back here to export your animation pack.`,
+            {
+                chat_id: chatId,
+                message_id: msgId,
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: '🎨 Choose Motion first', callback_data: 'anim:choose_motion' }],
+                        [{ text: '« Back to Studio',       callback_data: 'anim:back_to_studio' }],
+                    ],
+                },
+            }
+        );
+        return;
+    }
+    const presetLabel = PRESETS[preset].label;
+    await bot.editMessageText(
+        `📦 *Export Pack confirmed* — ${fmt.emoji} ${fmt.label}\n\n` +
+        `Motion style: *${presetLabel}*\n\n` +
+        `Your animation will be exported as *${fmt.label}* with the *${presetLabel}* ` +
+        `effect once you send an image through the studio flow.`,
+        {
+            chat_id: chatId,
+            message_id: msgId,
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: '« Back to Studio', callback_data: 'anim:back_to_studio' }],
+                ],
+            },
+        }
+    );
+}
+
+async function _handleChooseMotion(bot, chatId, msgId) {
+    await bot.editMessageText(chooseMotionText(), {
+        chat_id: chatId,
+        message_id: msgId,
+        parse_mode: 'Markdown',
+        reply_markup: presetSelectionKeyboard(),
+    });
+}
+
+async function _handlePreviewLoop(bot, chatId, msgId, session) {
+    await bot.editMessageText(previewLoopText(session.preset), {
+        chat_id: chatId,
+        message_id: msgId,
+        parse_mode: 'Markdown',
+        reply_markup: session.preset
+            ? {
+                inline_keyboard: [
+                    [{ text: '📦 Export Pack',    callback_data: 'anim:export_pack' }],
+                    [{ text: '« Change Motion',   callback_data: 'anim:choose_motion' }],
+                ],
+            }
+            : {
+                inline_keyboard: [
+                    [{ text: '🎨 Choose Motion first', callback_data: 'anim:choose_motion' }],
+                    [{ text: '« Back to Studio',       callback_data: 'anim:back_to_studio' }],
+                ],
+            },
+    });
+}
+
+async function _handleExportPack(bot, chatId, msgId, session) {
+    await bot.editMessageText(exportPackText(session.preset), {
+        chat_id: chatId,
+        message_id: msgId,
+        parse_mode: 'Markdown',
+        reply_markup: session.preset
+            ? exportKeyboard(session.preset)
+            : {
+                inline_keyboard: [
+                    [{ text: '🎨 Choose Motion first', callback_data: 'anim:choose_motion' }],
+                    [{ text: '« Back to Studio',       callback_data: 'anim:back_to_studio' }],
+                ],
+            },
+    });
+}
+
+async function _handleBackToStudio(bot, chatId, msgId) {
+    await bot.editMessageText(studioIntroText(), {
+        chat_id: chatId,
+        message_id: msgId,
+        parse_mode: 'Markdown',
+        reply_markup: animationStudioEntryKeyboard(),
+    });
+}
+
 async function handleAnimationCallback(bot, query) {
     const chatId  = query.message.chat.id;
     const msgId   = query.message.message_id;
@@ -237,129 +359,26 @@ async function handleAnimationCallback(bot, query) {
 
     // anim:preset:<key>
     if (action.startsWith('anim:preset:')) {
-        const presetKey = action.split(':')[2];
-        if (!PRESETS[presetKey]) {
-            await bot.sendMessage(chatId, `⚠️ Unknown motion preset.`);
-            return;
-        }
-        session.preset = presetKey;
-        const p = PRESETS[presetKey];
-        await bot.editMessageText(
-            `${p.emoji} *${p.label} selected* — ${p.tagline}\n\n` +
-            `Your motion style is locked in. Use *Preview Loop* to see it in action, ` +
-            `or *Export Pack* to generate your assets.`,
-            {
-                chat_id: chatId,
-                message_id: msgId,
-                parse_mode: 'Markdown',
-                reply_markup: animationStudioEntryKeyboard(),
-            }
-        );
-        return;
+        return _handlePresetSelection(bot, chatId, msgId, session, action);
     }
 
     // anim:export:<format>
     if (action.startsWith('anim:export:')) {
-        const format = action.split(':')[2];
-        const fmt = EXPORT_FORMATS[format];
-        if (!fmt) {
-            await bot.sendMessage(chatId, `⚠️ Unknown export format.`);
-            return;
-        }
-        const preset = session.preset;
-        if (!preset || !PRESETS[preset]) {
-            await bot.editMessageText(
-                `🎨 Please choose a motion style *before* exporting.\n\n` +
-                `Tap *Choose Motion* to pick an effect, then come back here to export your animation pack.`,
-                {
-                    chat_id: chatId,
-                    message_id: msgId,
-                    parse_mode: 'Markdown',
-                    reply_markup: {
-                        inline_keyboard: [
-                            [{ text: '🎨 Choose Motion first', callback_data: 'anim:choose_motion' }],
-                            [{ text: '« Back to Studio',       callback_data: 'anim:back_to_studio' }],
-                        ],
-                    },
-                }
-            );
-            return;
-        }
-        const presetLabel = PRESETS[preset].label;
-        await bot.editMessageText(
-            `📦 *Export Pack confirmed* — ${fmt.emoji} ${fmt.label}\n\n` +
-            `Motion style: *${presetLabel}*\n\n` +
-            `Your animation will be exported as *${fmt.label}* with the *${presetLabel}* ` +
-            `effect once you send an image through the studio flow.`,
-            {
-                chat_id: chatId,
-                message_id: msgId,
-                parse_mode: 'Markdown',
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: '« Back to Studio', callback_data: 'anim:back_to_studio' }],
-                    ],
-                },
-            }
-        );
-        return;
+        return _handleExportSelection(bot, chatId, msgId, session, action);
     }
 
     switch (action) {
         case 'anim:choose_motion':
-            await bot.editMessageText(chooseMotionText(), {
-                chat_id: chatId,
-                message_id: msgId,
-                parse_mode: 'Markdown',
-                reply_markup: presetSelectionKeyboard(),
-            });
-            break;
+            return _handleChooseMotion(bot, chatId, msgId);
 
         case 'anim:preview_loop':
-            await bot.editMessageText(previewLoopText(session.preset), {
-                chat_id: chatId,
-                message_id: msgId,
-                parse_mode: 'Markdown',
-                reply_markup: session.preset
-                    ? {
-                        inline_keyboard: [
-                            [{ text: '📦 Export Pack',    callback_data: 'anim:export_pack' }],
-                            [{ text: '« Change Motion',   callback_data: 'anim:choose_motion' }],
-                        ],
-                    }
-                    : {
-                        inline_keyboard: [
-                            [{ text: '🎨 Choose Motion first', callback_data: 'anim:choose_motion' }],
-                            [{ text: '« Back to Studio',       callback_data: 'anim:back_to_studio' }],
-                        ],
-                    },
-            });
-            break;
+            return _handlePreviewLoop(bot, chatId, msgId, session);
 
         case 'anim:export_pack':
-            await bot.editMessageText(exportPackText(session.preset), {
-                chat_id: chatId,
-                message_id: msgId,
-                parse_mode: 'Markdown',
-                reply_markup: session.preset
-                    ? exportKeyboard(session.preset)
-                    : {
-                        inline_keyboard: [
-                            [{ text: '🎨 Choose Motion first', callback_data: 'anim:choose_motion' }],
-                            [{ text: '« Back to Studio',       callback_data: 'anim:back_to_studio' }],
-                        ],
-                    },
-            });
-            break;
+            return _handleExportPack(bot, chatId, msgId, session);
 
         case 'anim:back_to_studio':
-            await bot.editMessageText(studioIntroText(), {
-                chat_id: chatId,
-                message_id: msgId,
-                parse_mode: 'Markdown',
-                reply_markup: animationStudioEntryKeyboard(),
-            });
-            break;
+            return _handleBackToStudio(bot, chatId, msgId);
 
         default:
             break;
