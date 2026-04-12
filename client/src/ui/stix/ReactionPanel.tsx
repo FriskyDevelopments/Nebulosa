@@ -3,13 +3,15 @@ import type { StixReaction } from "@/core/system/pipeline";
 
 export function ReactionPanel({ reactions }: { reactions: StixReaction[] }) {
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle>STIX Reaction Engine</CardTitle>
+        <CardTitle>STIX reaction stream</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 max-h-[30rem] overflow-auto">
         {reactions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No reactions yet. Run /capture moment to start the stream.</p>
+          <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
+            No reactions yet. Run <span className="font-mono">/capture moment</span> to start the stream.
+          </p>
         ) : (
           reactions.map((reaction) => (
             <div key={reaction.id} className="rounded-md border p-2 text-sm">
