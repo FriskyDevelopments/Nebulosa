@@ -91,7 +91,7 @@ export default function NebulosaDashboard() {
   const handleParsedCommand = async (rawCommand: string) => {
     const parsed = parseNebuCommand(rawCommand, sessionId);
     if (!parsed) {
-      setExpressLog((prev) => ["Unsupported command. Use /zoom admit all | /zoom mute all | /zoom lock room | /capture moment", ...prev].slice(0, 6));
+      setExpressLog((prev) => ["Command not recognized. Available: /zoom admit all · /zoom mute all · /zoom lock room · /capture moment", ...prev].slice(0, 6));
       return;
     }
 
@@ -120,10 +120,10 @@ export default function NebulosaDashboard() {
   if (sessionQuery.isError) {
     return (
       <div className="min-h-screen bg-background p-6">
-        <Card className="max-w-md mx-auto mt-16">
+        <Card className="mx-auto mt-16 max-w-md">
           <CardHeader>
             <CardTitle>Operator Login</CardTitle>
-            <CardDescription>Nebu command grid requires operator authentication.</CardDescription>
+            <CardDescription>Authenticate to restore command routing and session visibility.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="username" />
@@ -138,12 +138,12 @@ export default function NebulosaDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 md:p-6">
-      <div className="max-w-7xl mx-auto space-y-4">
+    <div className="min-h-screen bg-background p-4 text-foreground md:p-6">
+      <div className="mx-auto max-w-7xl space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <XiGlyph state="active" label="nebu" size={28} />
-            <h1 className="text-2xl font-bold">Nebu Host Control · Command-First</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">NEBU Host Control</h1>
           </div>
           <div className="text-xs uppercase tracking-wider text-muted-foreground">
             {sessionQuery.data?.environment ?? "-"} · {sessionQuery.data?.operator.username ?? "guest"} · Telegram: {telegramStatusQuery.data?.active ? "Connected" : "Offline"}
@@ -167,12 +167,12 @@ export default function NebulosaDashboard() {
                     void handleParsedCommand(command);
                   }}
                   isExecuting={createCommandMutation.isPending}
-                  helperText="Supported: /zoom admit all · /zoom mute all · /zoom lock room · /capture moment"
+                  helperText="Available commands: /zoom admit all · /zoom mute all · /zoom lock room · /capture moment"
                 />
                 <div className="rounded-md border p-3">
                   <div className="text-sm font-medium mb-2">Express Feed</div>
                   <div className="space-y-1 text-xs text-muted-foreground">
-                    {expressLog.length === 0 ? <p>No outbound messages yet.</p> : expressLog.map((item, index) => <p key={`${item}-${index}`}>{item}</p>)}
+                    {expressLog.length === 0 ? <p>No outbound traffic yet. Execute a command to start the feed.</p> : expressLog.map((item, index) => <p key={`${item}-${index}`}>{item}</p>)}
                   </div>
                 </div>
               </CardContent>
@@ -204,6 +204,7 @@ export default function NebulosaDashboard() {
                 </CardHeader>
                 <CardContent className="grid md:grid-cols-2 gap-3">
                   <div className="space-y-2 max-h-72 overflow-auto">
+                    {sortedCommands.length === 0 && <p className="rounded-md border border-dashed border-white/15 p-3 text-xs text-muted-foreground">Queue is clear. New commands will appear here in real time.</p>}
                     {sortedCommands.slice(0, 12).map((command) => (
                       <div key={command.id} className="rounded-md border p-2 text-sm">
                         <div className="font-medium">{command.type}</div>
@@ -212,6 +213,7 @@ export default function NebulosaDashboard() {
                     ))}
                   </div>
                   <div className="space-y-2 max-h-72 overflow-auto">
+                    {(alertsQuery.data ?? []).length === 0 && <p className="rounded-md border border-dashed border-white/15 p-3 text-xs text-muted-foreground">No active alerts. The system is operating within expected thresholds.</p>}
                     {(alertsQuery.data ?? []).map((alert) => (
                       <div key={alert.id} className="rounded-md border p-2 text-sm">
                         <div className="font-medium">{alert.severity.toUpperCase()}</div>

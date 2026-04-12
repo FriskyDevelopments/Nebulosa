@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
-import { AlertCircle, CheckCircle2, Sparkles, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertCircle, CheckCircle2, Sparkles } from "lucide-react";
 
 interface FeedbackProps {
   type: "success" | "error" | "empty";
@@ -10,39 +9,26 @@ interface FeedbackProps {
 }
 
 export function Feedback({ type, title, description, action }: FeedbackProps) {
-  if (type === "error") {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-        <AlertCircle className="w-12 h-12 text-destructive mb-2" />
-        <h3 className="text-xl font-medium">{title}</h3>
-        {description && <p className="text-muted-foreground max-w-md">{description}</p>}
-        {action && <div className="mt-4">{action}</div>}
-      </div>
-    );
-  }
+  const iconMap = {
+    error: <AlertCircle className="h-8 w-8 text-destructive" />,
+    empty: <Sparkles className="h-8 w-8 text-primary" />,
+    success: <CheckCircle2 className="h-8 w-8 text-emerald-400" />,
+  };
 
-  if (type === "empty") {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-          <Sparkles className="w-8 h-8 text-primary" />
-        </div>
-        <h3 className="text-xl font-medium">{title}</h3>
-        {description && <p className="text-muted-foreground max-w-md mx-auto">{description}</p>}
-        {action && <div className="mt-4">{action}</div>}
-      </div>
-    );
-  }
+  const surfaceTone = {
+    error: "border-red-500/20 bg-red-500/10",
+    empty: "border-primary/20 bg-primary/10",
+    success: "border-emerald-500/20 bg-emerald-500/10",
+  };
 
-  // success
   return (
-    <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-      <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-2">
-        <CheckCircle2 className="w-8 h-8 text-green-500" />
+    <div className="mx-auto flex w-full max-w-xl flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 bg-card/70 px-6 py-14 text-center">
+      <div className={`flex h-14 w-14 items-center justify-center rounded-full border ${surfaceTone[type]}`}>
+        {iconMap[type]}
       </div>
-      <h3 className="text-xl font-medium">{title}</h3>
-      {description && <p className="text-muted-foreground max-w-md mx-auto">{description}</p>}
-      {action && <div className="mt-4">{action}</div>}
+      <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
+      {description && <p className="max-w-md text-sm text-muted-foreground">{description}</p>}
+      {action && <div className="mt-2">{action}</div>}
     </div>
   );
 }
