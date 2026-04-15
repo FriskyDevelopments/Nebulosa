@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertCircle, CheckCircle2, Sparkles, LayoutGrid } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle2, LayoutGrid } from "lucide-react";
 import { Skeleton, CardSkeleton } from "@/components/ui/skeleton";
 import { Feedback } from "@/components/ui/feedback";
 
@@ -11,70 +11,51 @@ export default function Playground() {
   const [demoState, setDemoState] = useState<"idle" | "loading" | "success" | "error" | "empty">("idle");
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 md:p-8 space-y-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <header className="flex justify-between items-end border-b pb-4">
+    <div className="min-h-screen bg-background p-4 text-foreground md:p-8">
+      <div className="mx-auto max-w-6xl space-y-8">
+        <header className="flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-4">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <LayoutGrid className="w-8 h-8 text-primary" />
-              UI Playground
+            <p className="nebu-kicker">NEBU Visual Lab</p>
+            <h1 className="mt-1 flex items-center gap-2 text-3xl font-semibold tracking-tight">
+              <LayoutGrid className="h-8 w-8 text-primary" />
+              State Consistency Review
             </h1>
-            <p className="text-muted-foreground mt-2">A preview of visual system states used across the product.</p>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Every major state used in the product, validated against a single visual and tonal system.</p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant={globalLoading ? "destructive" : "outline"}
-              onClick={() => setGlobalLoading(!globalLoading)}
-            >
-              {globalLoading ? "Stop Global Loading" : "Simulate Global Loading"}
-            </Button>
-          </div>
+          <Button variant={globalLoading ? "destructive" : "outline"} onClick={() => setGlobalLoading(!globalLoading)}>
+            {globalLoading ? "Stop simulation" : "Simulate full-screen load"}
+          </Button>
         </header>
 
         {globalLoading ? (
-          <div className="py-20 flex flex-col items-center justify-center gap-4">
-            <Loader2 className="w-12 h-12 text-primary animate-spin" />
-            <p className="text-muted-foreground">Simulating full page load...</p>
+          <div className="nebu-panel flex flex-col items-center justify-center gap-4 py-20">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Preparing control surfaces…</p>
           </div>
         ) : (
           <>
             <section className="space-y-4">
-              <div className="flex justify-between items-center border-b pb-2">
-                <h2 className="text-xl font-semibold">Interactive States Demo</h2>
-                <div className="flex gap-2 text-sm">
-                  <Badge
-                    variant={demoState === "idle" ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setDemoState("idle")}
-                  >Idle</Badge>
-                  <Badge
-                    variant={demoState === "loading" ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setDemoState("loading")}
-                  >Loading</Badge>
-                  <Badge
-                    variant={demoState === "success" ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setDemoState("success")}
-                  >Success</Badge>
-                  <Badge
-                    variant={demoState === "error" ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setDemoState("error")}
-                  >Error</Badge>
-                  <Badge
-                    variant={demoState === "empty" ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setDemoState("empty")}
-                  >Empty</Badge>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-2">
+                <h2 className="text-lg font-semibold">Interactive state module</h2>
+                <div className="flex flex-wrap gap-2 text-sm">
+                  {(["idle", "loading", "success", "error", "empty"] as const).map((state) => (
+                    <Badge
+                      key={state}
+                      variant={demoState === state ? "default" : "outline"}
+                      className="cursor-pointer capitalize"
+                      onClick={() => setDemoState(state)}
+                    >
+                      {state}
+                    </Badge>
+                  ))}
                 </div>
               </div>
 
-              <Card className="min-h-[300px] flex items-center justify-center border-dashed">
+              <Card className="min-h-[300px] border-dashed border-white/20 flex items-center justify-center">
                 {demoState === "idle" && (
-                  <div className="text-center space-y-4">
-                    <p className="text-muted-foreground">Select a state above to preview.</p>
-                    <Button onClick={() => setDemoState("loading")}>Start Action</Button>
+                  <div className="space-y-4 text-center">
+                    <p className="text-sm text-muted-foreground">Select a state to validate copy, spacing, and feedback rhythm.</p>
+                    <Button onClick={() => setDemoState("loading")}>Run demo flow</Button>
                   </div>
                 )}
 
@@ -91,45 +72,45 @@ export default function Playground() {
                 {demoState === "success" && (
                   <Feedback
                     type="success"
-                    title="Action Completed"
-                    description="The item was successfully processed and saved."
-                    action={<Button variant="outline" onClick={() => setDemoState("idle")}>Reset</Button>}
+                    title="Execution complete"
+                    description="The command package was processed and synced to active channels."
+                    action={<Button variant="outline" onClick={() => setDemoState("idle")}>Reset preview</Button>}
                   />
                 )}
 
                 {demoState === "error" && (
                   <Feedback
                     type="error"
-                    title="Failed to process"
-                    description="There was a problem connecting to the server. Please try again."
-                    action={<Button onClick={() => setDemoState("loading")}>Retry Action</Button>}
+                    title="Command path interrupted"
+                    description="Connection to the runtime API was lost. Retry when the channel stabilizes."
+                    action={<Button onClick={() => setDemoState("loading")}>Retry sequence</Button>}
                   />
                 )}
 
                 {demoState === "empty" && (
                   <Feedback
                     type="empty"
-                    title="No items found"
-                    description="There are currently no items matching your criteria. Try adjusting your filters or create a new one."
-                    action={<Button>Create New Item</Button>}
+                    title="No active records"
+                    description="There is no data in this view yet. Start by creating your first command run."
+                    action={<Button>Create command</Button>}
                   />
                 )}
               </Card>
             </section>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid gap-8 md:grid-cols-2">
               <section className="space-y-4">
-                <h2 className="text-xl font-semibold border-b pb-2">Loading Components</h2>
+                <h2 className="border-b border-white/10 pb-2 text-lg font-semibold">Loading surfaces</h2>
                 <div className="space-y-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Spinners</CardTitle>
+                      <CardTitle>Spinner behavior</CardTitle>
                     </CardHeader>
                     <CardContent className="flex items-center gap-6">
-                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                       <Button disabled>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Processing
                       </Button>
                     </CardContent>
@@ -137,7 +118,7 @@ export default function Playground() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>Skeletons</CardTitle>
+                      <CardTitle>Skeleton rhythm</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
@@ -157,64 +138,31 @@ export default function Playground() {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-xl font-semibold border-b pb-2">Feedback UI</h2>
+                <h2 className="border-b border-white/10 pb-2 text-lg font-semibold">Inline feedback</h2>
                 <div className="space-y-4">
-                  <div className="p-4 border rounded-lg bg-green-500/10 border-green-500/20 flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
+                  <div className="flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-300" />
                     <div>
-                      <h3 className="font-medium text-green-700 dark:text-green-400">Success Alert</h3>
-                      <p className="text-sm text-green-600/80 dark:text-green-400/80">Inline success message styling.</p>
+                      <h3 className="font-medium text-emerald-200">Sync confirmed</h3>
+                      <p className="text-sm text-emerald-200/80">All active channels received the latest payload.</p>
                     </div>
                   </div>
 
-                  <div className="p-4 border rounded-lg bg-red-500/10 border-red-500/20 flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
+                  <div className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
+                    <AlertCircle className="mt-0.5 h-5 w-5 text-red-300" />
                     <div>
-                      <h3 className="font-medium text-red-700 dark:text-red-400">Error Alert</h3>
-                      <p className="text-sm text-red-600/80 dark:text-red-400/80">Inline error message styling.</p>
+                      <h3 className="font-medium text-red-200">Action blocked</h3>
+                      <p className="text-sm text-red-200/80">The request was rejected by policy constraints.</p>
                     </div>
                   </div>
 
-                  <div className="p-4 border rounded-lg bg-yellow-500/10 border-yellow-500/20 flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-500 mt-0.5" />
+                  <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+                    <AlertCircle className="mt-0.5 h-5 w-5 text-amber-300" />
                     <div>
-                      <h3 className="font-medium text-yellow-800 dark:text-yellow-400">Warning Alert</h3>
-                      <p className="text-sm text-yellow-700/80 dark:text-yellow-400/80">Inline warning message styling.</p>
+                      <h3 className="font-medium text-amber-200">Operator check required</h3>
+                      <p className="text-sm text-amber-200/80">Review the queue before sending the next command wave.</p>
                     </div>
                   </div>
-                </div>
-              </section>
-
-              <section className="space-y-4">
-                <h2 className="text-xl font-semibold border-b pb-2">Status Badges</h2>
-                <div className="flex flex-wrap gap-4">
-                  <div className="space-y-2 text-center">
-                    <Badge variant="default">Default</Badge>
-                    <p className="text-xs text-muted-foreground">Primary Status</p>
-                  </div>
-                  <div className="space-y-2 text-center">
-                    <Badge variant="secondary">Secondary</Badge>
-                    <p className="text-xs text-muted-foreground">Neutral Status</p>
-                  </div>
-                  <div className="space-y-2 text-center">
-                    <Badge variant="outline">Outline</Badge>
-                    <p className="text-xs text-muted-foreground">Ghost Status</p>
-                  </div>
-                  <div className="space-y-2 text-center">
-                    <Badge variant="destructive">Destructive</Badge>
-                    <p className="text-xs text-muted-foreground">Error/Danger</p>
-                  </div>
-                </div>
-              </section>
-
-              <section className="space-y-4">
-                <h2 className="text-xl font-semibold border-b pb-2">Action Elements</h2>
-                <div className="flex flex-wrap gap-4 items-center">
-                  <Button variant="default">Primary Action</Button>
-                  <Button variant="secondary">Secondary Action</Button>
-                  <Button variant="outline">Outline Action</Button>
-                  <Button variant="ghost">Ghost Action</Button>
-                  <Button variant="destructive">Destructive</Button>
                 </div>
               </section>
             </div>

@@ -15,7 +15,6 @@ export function OnboardingModal() {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    // Show setup wizard if it hasn't been completed yet
     const hasSeen = localStorage.getItem("stixmagic_setup_complete");
     if (!hasSeen) {
       setOpen(true);
@@ -29,43 +28,41 @@ export function OnboardingModal() {
 
   const steps = [
     {
-      title: "Welcome to STIX MΛGIC ✨",
-      description: "Let's get your unified platform set up.",
-      icon: <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />,
+      title: "Welcome to NEBU Control",
+      description: "A short setup pass to bring your command stack online.",
+      icon: <Sparkles className="mx-auto mb-4 h-12 w-12 text-primary" />,
       content: (
-        <div className="space-y-4">
-          <p className="text-muted-foreground">
-            This quick wizard will help you configure your Telegram and Zoom integrations so you can start creating magic right away.
+        <div className="space-y-4 text-left">
+          <p className="text-sm text-muted-foreground">
+            You are two steps away from a live control loop. Connect your channels now so command routing and telemetry stay synchronized.
           </p>
         </div>
       )
     },
     {
-      title: "Connect Telegram 🤖",
-      description: "Link your BotFather token to enable Telegram features.",
-      icon: <Bot className="h-12 w-12 text-secondary mx-auto mb-4" />,
+      title: "Link Telegram",
+      description: "Attach your bot token for outbound command updates.",
+      icon: <Bot className="mx-auto mb-4 h-12 w-12 text-secondary" />,
       content: (
         <div className="space-y-4 text-left">
           <p className="text-sm text-muted-foreground">
-            1. Open @BotFather on Telegram and create a new bot.<br/>
-            2. Copy the HTTP API token.<br/>
-            3. Paste it below to link your bot securely.
+            Create a bot in @BotFather, copy the API token, then paste it below. We use this channel for alerts and command confirmations.
           </p>
           <div className="space-y-2">
-            <Input type="password" placeholder="e.g., 1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ" />
-            <p className="text-xs text-muted-foreground">This is saved securely to your environment.</p>
+            <Input type="password" placeholder="Telegram bot token" />
+            <p className="text-xs text-muted-foreground">Stored securely in your runtime environment.</p>
           </div>
         </div>
       )
     },
     {
-      title: "Zoom Integration 🎥",
-      description: "Optional: Enable live meeting controls.",
-      icon: <Settings className="h-12 w-12 text-accent mx-auto mb-4" />,
+      title: "Add Zoom access (optional)",
+      description: "Enable real-time room controls from this console.",
+      icon: <Settings className="mx-auto mb-4 h-12 w-12 text-accent" />,
       content: (
         <div className="space-y-4 text-left">
           <p className="text-sm text-muted-foreground">
-            Connect your Zoom OAuth App to enable automatic pinning, muting, and operator controls from the Nebulosa dashboard.
+            Connect your Zoom OAuth credentials to unlock admit, mute, lock, and capture workflows directly from NEBU.
           </p>
           <div className="space-y-2">
             <Input placeholder="Zoom Client ID" />
@@ -75,13 +72,13 @@ export function OnboardingModal() {
       )
     },
     {
-      title: "You're All Set! 🎉",
-      description: "STIX MΛGIC is ready to use.",
-      icon: <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />,
+      title: "Console ready",
+      description: "Your core channels are configured.",
+      icon: <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" />,
       content: (
-        <div className="space-y-4">
-          <p className="text-muted-foreground">
-            Your platform is configured. You can now use the Telegram bot or the Magic Studio to generate sticker packs.
+        <div className="space-y-4 text-left">
+          <p className="text-sm text-muted-foreground">
+            Setup is complete. You can now run command flows, monitor alerts, and control active sessions from one interface.
           </p>
         </div>
       )
@@ -90,9 +87,10 @@ export function OnboardingModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md text-center p-6 border-primary/20 shadow-lg">
+      <DialogContent className="sm:max-w-md border-white/15 bg-[#161925]/95 p-6 text-center shadow-2xl backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl mb-2">{steps[step].title}</DialogTitle>
+          <p className="nebu-kicker">Onboarding</p>
+          <DialogTitle className="mb-2 text-2xl">{steps[step].title}</DialogTitle>
           <DialogDescription className="text-base">
             {steps[step].description}
           </DialogDescription>
@@ -103,20 +101,19 @@ export function OnboardingModal() {
           {steps[step].content}
         </div>
 
-        <div className="flex justify-between items-center w-full mt-4">
+        <div className="mt-4 flex w-full items-center justify-between">
           <div className="flex gap-2">
             {steps.map((_, i) => (
               <div
                 key={i}
-                className={`h-2 w-2 rounded-full transition-colors ${i === step ? 'bg-primary' : 'bg-muted'}`}
+                className={`h-2 w-6 rounded-full transition-colors ${i === step ? "bg-primary" : "bg-white/10"}`}
               />
             ))}
           </div>
           <Button
-            className="font-bold tracking-wide"
-            onClick={() => step < steps.length - 1 ? setStep(s => s + 1) : handleComplete()}
+            onClick={() => step < steps.length - 1 ? setStep((s) => s + 1) : handleComplete()}
           >
-            {step < steps.length - 1 ? "Next Step" : "Finish Setup"}
+            {step < steps.length - 1 ? "Continue" : "Enter Console"}
             {step < steps.length - 1 && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>
         </div>
