@@ -8,7 +8,7 @@
 const https = require('https');
 
 // Configuración de Short.io API
-const SHORTIO_API_KEY = 'sk_9uHbW34AHTAbBUZl';
+const SHORTIO_API_KEY = process.env.SHORTIO_API_KEY;
 const DOMAIN_ID = '1412901';
 
 console.log('🔍 DIAGNÓSTICO DE REDIRECTS - LA NUBE BOT');
